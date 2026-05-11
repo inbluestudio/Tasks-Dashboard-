@@ -60,7 +60,7 @@
     .nav-item:hover { background: rgba(59, 164, 254, 0.08); color: var(--light-blue); }
     .nav-item.active { background: var(--accent); color: var(--ink-black); font-weight: 600; box-shadow: 0 4px 15px rgba(59, 164, 254, 0.2); }
 
-    /* المنطقة الرئيسية (أصبحت تغطي مساحة أكبر) */
+    /* المنطقة الرئيسية */
     .main-content { flex: 1; padding: 25px 30px; overflow-y: auto; background-image: radial-gradient(circle at 0% 0%, #0A1628 0%, #020610 100%); display: flex; flex-direction: column; }
     .section { display: none; flex: 1; }
     .section.active { display: flex; flex-direction: column; animation: contentFade 0.4s ease-out; }
@@ -75,10 +75,9 @@
     .btn-clear { background: var(--soft-line); color: var(--tech-white); border: none; padding: 12px 20px; border-radius: var(--radius); cursor: pointer; transition: 0.2s; }
     .btn-clear:hover { background: var(--muted-blue); }
 
-    /* تخطيط الكانبان الجديد مع قائمة المشاريع */
+    /* تخطيط الكانبان مع قائمة المشاريع */
     .kanban-layout { display: flex; gap: 25px; flex: 1; overflow: hidden; }
     
-    /* قائمة المشاريع الجانبية */
     .projects-sidebar { width: 220px; background: rgba(15, 34, 54, 0.3); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
     .projects-sidebar h3 { font-size: 0.9rem; color: var(--blue-grey); margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
     .project-filter-item { padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--tech-white); transition: 0.2s; display: flex; justify-content: space-between; align-items: center; border: 1px solid transparent; }
@@ -92,7 +91,7 @@
     .column { background: rgba(15, 34, 54, 0.4); border-radius: var(--radius); padding: 15px; display: flex; flex-direction: column; border: 1px solid var(--border); }
     .column.drag-over { border-color: var(--accent); background: rgba(59, 164, 254, 0.05); }
     .column h3 { font-size: 0.85rem; margin-bottom: 20px; color: var(--muted-blue); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    .list { flex: 1; overflow-y: auto; padding-right: 5px; } /* لإتاحة السكرول للمهام */
+    .list { flex: 1; overflow-y: auto; padding-right: 5px; }
 
     /* بطاقة المهمة */
     .card { background: var(--card-bg); border: 1px solid var(--border); padding: 18px; border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; position: relative; }
@@ -121,29 +120,46 @@
     .modal.active { display: flex; }
     
     /* نافذة تفاصيل المهمة (Trello Style) */
-    .trello-modal { background: var(--card-bg); width: 850px; max-width: 95vw; height: 85vh; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+    .trello-modal { background: var(--card-bg); width: 900px; max-width: 95vw; height: 85vh; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
     .trello-header { padding: 25px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; background: var(--deep-navy); }
     .trello-header h2 { font-size: 1.4rem; color: var(--tech-white); margin-bottom: 5px; }
     .trello-body { display: flex; flex: 1; overflow: hidden; }
     
-    /* الجزء الأيمن (التفاصيل والتعليقات) */
-    .trello-main { flex: 1; padding: 30px; overflow-y: auto; border-left: 1px solid var(--border); }
-    .trello-section-title { font-size: 1rem; color: var(--muted-blue); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-    .trello-desc-box { width: 100%; background: var(--ink-black); border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: var(--tech-white); min-height: 120px; resize: vertical; margin-bottom: 30px; font-family: inherit; line-height: 1.6; }
+    /* الجزء الأيمن (التفاصيل والتعليقات والـ Checklist) */
+    .trello-main { flex: 1; padding: 30px; overflow-y: auto; border-left: 1px solid var(--border); display: flex; flex-direction: column; gap: 30px; }
+    .trello-section-title { font-size: 1rem; color: var(--muted-blue); display: flex; align-items: center; gap: 8px; margin-bottom: 15px; }
+    .trello-desc-box { width: 100%; background: var(--ink-black); border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: var(--tech-white); min-height: 100px; resize: vertical; font-family: inherit; line-height: 1.6; }
     
+    /* الـ Checklist */
+    .progress-bar-container { width: 100%; background: rgba(0,0,0,0.3); border-radius: 10px; height: 10px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border); }
+    .progress-bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease; }
+    .checklist-item { display: flex; align-items: center; justify-content: space-between; background: var(--ink-black); padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border); transition: 0.2s; }
+    .checklist-item:hover { border-color: var(--muted-blue); }
+    .checklist-item label { display: flex; align-items: center; gap: 10px; cursor: pointer; margin:0; flex: 1; font-size: 0.9rem; }
+    .checklist-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; margin: 0; }
+    .checklist-input-wrap { display: flex; gap: 10px; }
+    .checklist-input-wrap input { flex: 1; background: var(--ink-black); border: 1px solid var(--border); padding: 12px; border-radius: 8px; color: white; outline: none; }
+    .checklist-input-wrap input:focus { border-color: var(--accent); }
+
     /* التعليقات */
     .comments-area { background: rgba(15, 34, 54, 0.3); border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
     .comment-list { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
     .comment-item { background: var(--ink-black); padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
     .comment-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--blue-grey); margin-bottom: 8px; border-bottom: 1px solid var(--soft-line); padding-bottom: 5px;}
-    .comment-input-wrap { display: flex; gap: 10px; margin-top: 15px; }
-    .comment-input-wrap input { flex: 1; margin: 0; background: var(--ink-black); border: 1px solid var(--border); padding: 12px; border-radius: 8px; color: white; }
+    .comment-input-wrap { display: flex; gap: 10px; }
+    .comment-input-wrap input { flex: 1; margin: 0; background: var(--ink-black); border: 1px solid var(--border); padding: 12px; border-radius: 8px; color: white; outline: none;}
     
     /* الجزء الأيسر (الإعدادات الجانبية) */
     .trello-sidebar { width: 280px; padding: 30px; background: rgba(10, 22, 40, 0.4); overflow-y: auto; }
     .trello-sidebar label { font-size: 0.8rem; color: var(--blue-grey); margin-bottom: 8px; display: block; }
     .trello-sidebar select, .trello-sidebar input[type="date"], .trello-sidebar input[type="number"] { width: 100%; padding: 12px; margin-bottom: 20px; background: var(--ink-black); border: 1px solid var(--border); border-radius: 8px; color: white; font-family: inherit; }
     .trello-sidebar select:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    /* Checkbox Group للمسؤولين المتعددين */
+    .checkbox-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: var(--ink-black); padding: 12px; border-radius: 8px; border: 1px solid var(--border); max-height: 150px; overflow-y: auto; margin-bottom: 20px; }
+    .checkbox-group label { display: flex; align-items: center; gap: 8px; color: var(--tech-white); font-size: 0.85rem; cursor: pointer; margin: 0; }
+    .checkbox-group input[type="checkbox"] { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
+
     .action-btn-block { width: 100%; padding: 12px; background: var(--soft-line); border: 1px solid var(--border); color: var(--tech-white); border-radius: 8px; cursor: pointer; text-align: right; margin-bottom: 10px; transition: 0.2s; display: flex; justify-content: space-between;}
     .action-btn-block:hover { background: var(--muted-blue); }
 
@@ -160,7 +176,7 @@
 
     .admin-only { display: none; }
     .manager-lock { position: relative; }
-    .manager-lock::after { content: '🔒 مدير فقط'; position: absolute; left: 10px; top: 12px; font-size: 0.6rem; color: #f87171; opacity: 0.8; }
+    .manager-lock::after { content: '🔒 مدير فقط'; position: absolute; left: 10px; top: -5px; font-size: 0.6rem; color: #f87171; opacity: 0.8; }
   </style>
 </head>
 
@@ -301,10 +317,17 @@
       <h2 style="margin-bottom: 25px; color: var(--tech-white);">إضافة مهمة سريعة</h2>
       <input type="text" id="pNameNew" placeholder="اسم المشروع (مثال: فيلا عمان)">
       <input type="text" id="tTitleNew" placeholder="عنوان المهمة (مثال: ريندر خارجي)">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-        <select id="tTypeNew" onchange="updateStaffListNew()"><option value="">-- القسم --</option><option value="3D">3D</option><option value="unreal engine">Unreal Engine</option><option value="Code">Code</option></select>
-        <select id="sNameNew"><option value="">-- المسؤول --</option></select>
+      
+      <select id="tTypeNew" onchange="updateStaffListNew()"><option value="">-- القسم --</option><option value="3D">3D</option><option value="unreal engine">Unreal Engine</option><option value="Code">Code</option></select>
+      
+      <div style="margin-bottom: 15px;">
+        <label style="font-size: 0.8rem; color: var(--blue-grey); margin-bottom: 8px; display: block;">اختيار المسؤولين (يمكن تحديد أكثر من شخص)</label>
+        <div id="sNameNewContainer" class="checkbox-group">
+            <!-- سيتم توليد الـ Checkboxes هنا -->
+            <div style="color: var(--muted-blue); font-size: 0.8rem; padding: 5px;">يرجى اختيار القسم أولاً...</div>
+        </div>
       </div>
+
       <input type="number" id="eHoursNew" placeholder="ساعات العمل المتوقعة" min="1">
       <button class="btn-main" onclick="saveNewTask()">إنشاء المهمة</button>
       <button onclick="document.getElementById('addTaskModal').classList.remove('active')" style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:10px; cursor:pointer;">إلغاء</button>
@@ -325,20 +348,41 @@
         </div>
 
         <div class="trello-body">
-            <!-- التفاصيل والتعليقات -->
+            <!-- التفاصيل والتعليقات والـ Checklist -->
             <div class="trello-main">
-                <div class="trello-section-title">📝 وصف المهمة</div>
-                <textarea id="dt-desc" class="trello-desc-box" placeholder="أضف تفاصيل أو ملاحظات للمهمة هنا..."></textarea>
-                <button class="btn-outline" onclick="saveTaskDetails()" style="padding: 8px 15px; font-size: 0.8rem; margin-bottom: 30px;">حفظ الوصف</button>
+                <!-- قسم الوصف -->
+                <div>
+                    <div class="trello-section-title">📝 الوصف الأساسي للمهمة</div>
+                    <textarea id="dt-desc" class="trello-desc-box" placeholder="أضف تفاصيل عامة للمهمة هنا..."></textarea>
+                    <button class="btn-outline" onclick="saveTaskDetails()" style="padding: 8px 15px; font-size: 0.8rem;">حفظ الوصف</button>
+                </div>
 
-                <div class="trello-section-title">💬 النشاطات والتعليقات</div>
-                <div class="comments-area">
-                    <div class="comment-input-wrap">
-                        <input type="text" id="dt-new-comment" placeholder="اكتب تعليقاً أو تحديثاً...">
-                        <button class="btn-main" style="padding: 10px; width: auto;" onclick="addComment()">إرسال</button>
+                <!-- قسم الـ Checklist الجديد -->
+                <div>
+                    <div class="trello-section-title">☑️ قائمة المهام الفرعية (Checklist)</div>
+                    <div class="progress-bar-container"><div class="progress-bar" id="dt-checklist-progress"></div></div>
+                    
+                    <div id="dt-checklist-items" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+                        <!-- العناصر تظهر هنا -->
                     </div>
-                    <div class="comment-list" id="dt-comments-list">
-                        <!-- التعليقات تظهر هنا -->
+
+                    <div class="checklist-input-wrap">
+                        <input type="text" id="dt-new-checklist-item" placeholder="إضافة خطوة فرعية أو تحديث (اضغط إرسال)...">
+                        <button class="btn-main" style="padding: 10px; width: auto;" onclick="addChecklistItem()">إضافة</button>
+                    </div>
+                </div>
+
+                <!-- قسم التعليقات -->
+                <div>
+                    <div class="trello-section-title">💬 النشاطات والتعليقات</div>
+                    <div class="comments-area">
+                        <div class="comment-input-wrap">
+                            <input type="text" id="dt-new-comment" placeholder="اكتب تعليقاً لزملائك أو للمدير...">
+                            <button class="btn-main" style="padding: 10px; width: auto;" onclick="addComment()">إرسال</button>
+                        </div>
+                        <div class="comment-list" id="dt-comments-list">
+                            <!-- التعليقات تظهر هنا -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -350,10 +394,13 @@
                 <h4 style="color: var(--tech-white); margin-bottom: 15px; font-size: 0.9rem;">إعدادات المهمة</h4>
 
                 <div class="manager-lock" id="dt-assign-container">
-                    <label>تغيير المسؤول (Team)</label>
+                    <label style="margin-top: 15px;">الفريق (Team)</label>
                     <select id="dt-team" onchange="updateStaffListDetails()"><option value="3D">3D</option><option value="unreal engine">Unreal Engine</option><option value="Code">Code</option></select>
-                    <label>تعيين إلى (Assignee)</label>
-                    <select id="dt-assignee"></select>
+                    
+                    <label>المسؤولون (Assignees)</label>
+                    <div id="dt-assignee-container" class="checkbox-group">
+                        <!-- Checkboxes هنا -->
+                    </div>
                 </div>
 
                 <label>تاريخ التسليم (Due Date)</label>
@@ -363,7 +410,7 @@
                 <input type="number" id="dt-hours">
 
                 <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
-                    <h4 style="color: var(--tech-white); margin-bottom: 15px; font-size: 0.9rem;">إجراءات</h4>
+                    <h4 style="color: var(--tech-white); margin-bottom: 15px; font-size: 0.9rem;">إجراءات سريعة</h4>
                     <button class="action-btn-block" onclick="moveTaskStatus('pending')"><span>نقل للانتظار</span> <span>⏳</span></button>
                     <button class="action-btn-block" onclick="moveTaskStatus('inprogress')"><span>قيد التنفيذ</span> <span>🔄</span></button>
                     <button class="action-btn-block" onclick="moveTaskStatus('completed')"><span>تم الإنجاز</span> <span>✅</span></button>
@@ -387,7 +434,7 @@
     let activeProjectFilter = null;
     let searchTerm = "";
 
-    // القائمة البيضاء (حسب طلبك)
+    // القائمة البيضاء
     const whitelist = {
       "safwan.krasneh@bluedesignstudio.com": { name: "صفوان القراسنة", role: "manager" },
       "hussam.banat@bluedesignstudio.com": { name: "حسام بنات", role: "manager" },
@@ -410,14 +457,11 @@
     setTimeout(() => {
         const { auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onValue, ref, db, update, push, remove, sendPasswordResetEmail } = window.firebaseTools;
 
-        // التحقق من الدخول
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const userData = whitelist[user.email];
-                if (!userData) {
-                    signOut(auth);
-                    showError("عذراً، هذا البريد غير مصرح له."); return;
-                }
+                if (!userData) { signOut(auth); showError("عذراً، هذا البريد غير مصرح له."); return; }
+                
                 isManager = userData.role === "manager";
                 currentUserName = userData.name;
                 
@@ -428,15 +472,23 @@
                 
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = isManager ? 'flex' : 'none');
                 
-                // التحكم في حظر تغيير المسؤول في المودال للموظفين
+                // حظر تغيير المسؤول لغير المدير
                 document.getElementById('dt-team').disabled = !isManager;
-                document.getElementById('dt-assignee').disabled = !isManager;
 
                 onValue(ref(db, 'tasks'), (snap) => {
                     allTasks = snap.val() || {};
-                    renderProjectsSidebar(); // تحديث القائمة الجانبية
-                    renderBoard(); // تحديث اللوحة
+                    renderProjectsSidebar();
+                    renderBoard();
                     if(isManager) updateAdminStats();
+                    
+                    // التزامن الحي داخل المودال إذا كان مفتوحاً
+                    if(document.getElementById('taskDetailsModal').classList.contains('active')) {
+                        const activeId = document.getElementById('dt-id').value;
+                        if(activeId && allTasks[activeId]) {
+                            renderComments(allTasks[activeId].comments);
+                            renderChecklist(allTasks[activeId].checklist);
+                        }
+                    }
                 });
             } else {
                 document.getElementById('login-page').style.display = 'flex';
@@ -444,7 +496,7 @@
             }
         });
 
-        // دوال تسجيل الدخول (نفس السابقة)
+        // دوال المصادقة (نفس السابقة)
         window.toggleAuthMode = () => { isLoginMode = !isLoginMode; document.getElementById('auth-title').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب"; document.getElementById('reset-form-container').style.display = 'none'; document.getElementById('auth-form-container').style.display = 'block'; };
         window.toggleResetView = (show) => { document.getElementById('auth-form-container').style.display = show ? 'none' : 'block'; document.getElementById('reset-form-container').style.display = show ? 'block' : 'none'; document.getElementById('auth-title').innerText = show ? "استعادة كلمة المرور" : "تسجيل الدخول"; };
         window.handleAuth = () => { const e = document.getElementById('login-email').value.trim(); const p = document.getElementById('login-pass').value; if(!e || !p) return showError("أدخل البيانات"); if (!whitelist[e]) return showError("بريد غير معتمد"); if(isLoginMode) signInWithEmailAndPassword(auth, e, p).catch(err=>showError("خطأ بالبيانات")); else { if(p.length < 6) return showError("كلمة السر قصيرة"); createUserWithEmailAndPassword(auth, e, p).then(()=>alert("تم التفعيل")).catch(e=>showError("فشل التفعيل")); }};
@@ -453,72 +505,46 @@
         function showError(m) { const b = document.getElementById('login-error'); b.innerText = m; b.style.display = 'block'; document.getElementById('login-success').style.display = 'none';}
         function showSuccess(m) { const b = document.getElementById('login-success'); b.innerText = m; b.style.display = 'block'; document.getElementById('login-error').style.display = 'none';}
 
-        // --- نظام الفلاتر والبحث ---
-        window.handleSearch = () => {
-            searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            renderBoard();
-        };
+        // --- نظام الفلاتر ---
+        window.handleSearch = () => { searchTerm = document.getElementById('searchInput').value.toLowerCase(); renderBoard(); };
+        window.setProjectFilter = (projName) => { activeProjectFilter = projName === activeProjectFilter ? null : projName; renderProjectsSidebar(); renderBoard(); };
+        window.clearFilters = () => { activeProjectFilter = null; searchTerm = ""; document.getElementById('searchInput').value = ""; renderProjectsSidebar(); renderBoard(); };
 
-        window.setProjectFilter = (projName) => {
-            activeProjectFilter = projName === activeProjectFilter ? null : projName; // Toggle
-            renderProjectsSidebar();
-            renderBoard();
-        };
-
-        window.clearFilters = () => {
-            activeProjectFilter = null;
-            searchTerm = "";
-            document.getElementById('searchInput').value = "";
-            renderProjectsSidebar();
-            renderBoard();
-        };
-
-        // --- رسم قائمة المشاريع الجانبية ---
         function renderProjectsSidebar() {
             const container = document.getElementById('project-filters-list');
             if(!container) return;
-            
-            // حساب المهام لكل مشروع (حسب الصلاحيات)
             const projCounts = {};
             Object.values(allTasks).forEach(t => {
-                if(!isManager && t.assignedTo !== currentUserName) return;
+                let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
+                if(!isManager && !assignedToArray.includes(currentUserName)) return;
                 projCounts[t.projectName] = (projCounts[t.projectName] || 0) + 1;
             });
-
             container.innerHTML = '';
             Object.keys(projCounts).forEach(p => {
                 const isActive = p === activeProjectFilter ? 'active' : '';
-                container.innerHTML += `
-                    <div class="project-filter-item ${isActive}" onclick="setProjectFilter('${p}')">
-                        <span># ${p}</span>
-                        <span class="count">${projCounts[p]}</span>
-                    </div>
-                `;
+                container.innerHTML += `<div class="project-filter-item ${isActive}" onclick="setProjectFilter('${p}')"><span># ${p}</span><span class="count">${projCounts[p]}</span></div>`;
             });
         }
 
-        // --- رسم اللوحة (مع تطبيق الفلاتر) ---
+        // --- رسم اللوحة الأساسية ---
         function renderBoard() {
             ['pending', 'inprogress', 'completed'].forEach(s => {
                 document.getElementById(`list-${s}`).innerHTML = '';
                 document.getElementById(`count-${s}`).innerText = '0';
             });
-
             let counts = { pending: 0, inprogress: 0, completed: 0 };
 
             Object.keys(allTasks).forEach(id => {
                 const t = allTasks[id];
+                let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
                 
-                // 1. فلتر الصلاحية
-                if(!isManager && t.assignedTo !== currentUserName) return;
-                // 2. فلتر المشروع
+                // الفلاتر
+                if(!isManager && !assignedToArray.includes(currentUserName)) return;
                 if(activeProjectFilter && t.projectName !== activeProjectFilter) return;
-                // 3. فلتر البحث
                 if(searchTerm && !t.title.toLowerCase().includes(searchTerm) && !t.projectName.toLowerCase().includes(searchTerm)) return;
 
                 counts[t.status]++;
 
-                // تنسيق تاريخ التسليم
                 let dateHtml = '';
                 if(t.dueDate) {
                     const today = new Date().toISOString().split('T')[0];
@@ -526,19 +552,22 @@
                     dateHtml = `<div class="due-date-chip" style="${isOverdue ? 'background: rgba(248, 113, 113, 0.2); color: #f87171;' : 'background: rgba(136, 207, 253, 0.1); color: var(--light-blue);'}">📅 ${t.dueDate}</div>`;
                 }
 
+                // عرض أسماء المسؤولين المتعددين
+                const assignedToText = assignedToArray.join('، ');
+
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.draggable = true;
                 card.setAttribute('ondragstart', `dragStart(event, '${id}')`);
                 card.setAttribute('ondragend', `dragEnd(event)`);
-                card.onclick = () => openTaskDetailsModal(id); // الضغط يفتح المودال الجديد
+                card.onclick = () => openTaskDetailsModal(id);
                 
                 card.innerHTML = `
                     <div class="project-chip"># ${t.projectName}</div>
                     ${dateHtml}
                     <div class="card-title">${t.title}</div>
                     <div class="card-footer">
-                        <div class="user-info">👤 ${t.assignedTo}</div>
+                        <div class="user-info" style="font-weight: 600;">👥 ${assignedToText}</div>
                         <div class="hour-badge">${t.estHours} س</div>
                     </div>
                 `;
@@ -550,34 +579,40 @@
             document.getElementById('count-completed').innerText = counts.completed;
         }
 
-        // --- المودال البسيط (إضافة مهمة) ---
+        // --- إضافة مهمة جديدة مع تحديد عدة أشخاص ---
         window.openAddModal = () => { 
             document.getElementById('pNameNew').value = activeProjectFilter || "";
             document.getElementById('tTitleNew').value = "";
             document.getElementById('eHoursNew').value = "";
+            document.getElementById('sNameNewContainer').innerHTML = '<div style="color: var(--muted-blue); font-size: 0.8rem; padding: 5px;">يرجى اختيار القسم أولاً...</div>';
             document.getElementById('addTaskModal').classList.add('active'); 
         };
 
         window.updateStaffListNew = () => {
             const team = document.getElementById('tTypeNew').value;
-            const select = document.getElementById('sNameNew');
-            select.innerHTML = '<option value="">-- المسؤول --</option>';
-            if (staffByTeam[team]) staffByTeam[team].forEach(e => {
-                select.innerHTML += `<option value="${e}">${e}</option>`;
-            });
+            const container = document.getElementById('sNameNewContainer');
+            container.innerHTML = '';
+            if (staffByTeam[team]) {
+                staffByTeam[team].forEach(e => {
+                    container.innerHTML += `<label><input type="checkbox" value="${e}"> ${e}</label>`;
+                });
+            }
         };
 
         window.saveNewTask = () => {
+            const checkedBoxes = document.querySelectorAll('#sNameNewContainer input[type="checkbox"]:checked');
+            const assignees = Array.from(checkedBoxes).map(cb => cb.value);
+
             const data = {
                 projectName: document.getElementById('pNameNew').value.trim(),
                 title: document.getElementById('tTitleNew').value.trim(),
-                assignedTo: document.getElementById('sNameNew').value,
+                assignedTo: assignees,
                 team: document.getElementById('tTypeNew').value,
                 estHours: parseFloat(document.getElementById('eHoursNew').value) || 0,
                 status: 'pending', createdAt: Date.now(),
-                description: "", dueDate: "", comments: []
+                description: "", dueDate: "", comments: {}, checklist: {}
             };
-            if(!data.projectName || !data.title || !data.assignedTo) return alert("أكمل البيانات الأساسية");
+            if(!data.projectName || !data.title || assignees.length === 0) return alert("يرجى إكمال البيانات الأساسية واختيار مسؤول واحد على الأقل.");
             push(ref(db, 'tasks'), data);
             document.getElementById('addTaskModal').classList.remove('active');
         };
@@ -596,27 +631,31 @@
             document.getElementById('dt-duedate').value = t.dueDate || "";
             document.getElementById('dt-hours').value = t.estHours || 0;
             
-            // إعدادات الموظف
             document.getElementById('dt-team').value = t.team || "";
-            updateStaffListDetails();
-            document.getElementById('dt-assignee').value = t.assignedTo || "";
+            
+            let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
+            updateStaffListDetails(assignedToArray);
 
             renderComments(t.comments);
+            renderChecklist(t.checklist);
 
             document.getElementById('taskDetailsModal').classList.add('active');
         };
 
         window.closeDetailsModal = () => document.getElementById('taskDetailsModal').classList.remove('active');
 
-        window.updateStaffListDetails = () => {
+        // تحديث قائمة الموظفين كـ Checkboxes للمدير
+        window.updateStaffListDetails = (selectedAssignees = []) => {
             const team = document.getElementById('dt-team').value;
-            const select = document.getElementById('dt-assignee');
-            const currentVal = select.value;
-            select.innerHTML = '';
-            if (staffByTeam[team]) staffByTeam[team].forEach(e => {
-                select.innerHTML += `<option value="${e}">${e}</option>`;
-            });
-            if(currentVal) select.value = currentVal;
+            const container = document.getElementById('dt-assignee-container');
+            container.innerHTML = '';
+            if (staffByTeam[team]) {
+                staffByTeam[team].forEach(e => {
+                    const isChecked = selectedAssignees.includes(e) ? 'checked' : '';
+                    const disabled = !isManager ? 'disabled' : '';
+                    container.innerHTML += `<label><input type="checkbox" value="${e}" ${isChecked} ${disabled}> ${e}</label>`;
+                });
+            }
         };
 
         window.saveTaskDetails = () => {
@@ -627,14 +666,13 @@
                 estHours: parseFloat(document.getElementById('dt-hours').value) || 0
             };
             
-            // المدير فقط يمكنه تغيير المسؤول
             if(isManager) {
                 updates.team = document.getElementById('dt-team').value;
-                updates.assignedTo = document.getElementById('dt-assignee').value;
+                const checkedBoxes = document.querySelectorAll('#dt-assignee-container input[type="checkbox"]:checked');
+                updates.assignedTo = Array.from(checkedBoxes).map(cb => cb.value);
             }
 
             update(ref(db, `tasks/${id}`), updates).then(() => {
-                // إظهار تأثير بصري للحفظ
                 const btn = document.querySelector('button[onclick="saveTaskDetails()"]');
                 const oldText = btn.innerText;
                 btn.innerText = "تم الحفظ ✅";
@@ -642,15 +680,60 @@
             });
         };
 
-        window.moveTaskStatus = (newStatus) => {
-            const id = document.getElementById('dt-id').value;
-            update(ref(db, `tasks/${id}`), { status: newStatus }).then(() => closeDetailsModal());
+        // --- نظام הـ Checklist الجديد ---
+        window.renderChecklist = (checklistObj) => {
+            const list = document.getElementById('dt-checklist-items');
+            list.innerHTML = '';
+            
+            if(!checklistObj) {
+                document.getElementById('dt-checklist-progress').style.width = '0%';
+                return;
+            }
+            
+            let total = 0;
+            let doneCount = 0;
+            
+            Object.keys(checklistObj).forEach(k => {
+                total++;
+                const item = checklistObj[k];
+                if(item.done) doneCount++;
+                
+                list.innerHTML += `
+                    <div class="checklist-item" style="border-color: ${item.done ? 'var(--soft-line)' : 'var(--border)'}; opacity: ${item.done ? '0.6' : '1'};">
+                        <label style="text-decoration: ${item.done ? 'line-through' : 'none'}; color: ${item.done ? 'var(--blue-grey)' : 'var(--tech-white)'}">
+                            <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleChecklistItem('${k}', ${item.done})">
+                            ${item.text}
+                        </label>
+                        <div style="display:flex; align-items:center; gap: 15px;">
+                            <span style="font-size: 0.65rem; color: var(--blue-grey); background: var(--deep-navy); padding: 3px 8px; border-radius: 10px;">بواسطة: ${item.addedBy}</span>
+                            <button onclick="deleteChecklistItem('${k}')" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem;">✖</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            const progress = total === 0 ? 0 : (doneCount / total) * 100;
+            document.getElementById('dt-checklist-progress').style.width = `${progress}%`;
         };
 
-        window.deleteTaskFromDetails = () => {
-            if(!confirm("هل أنت متأكد من حذف هذه المهمة نهائياً؟")) return;
+        window.addChecklistItem = () => {
             const id = document.getElementById('dt-id').value;
-            remove(ref(db, `tasks/${id}`)).then(() => closeDetailsModal());
+            const input = document.getElementById('dt-new-checklist-item');
+            const text = input.value.trim();
+            if(!text) return;
+            
+            const newItem = { text: text, done: false, addedBy: currentUserName };
+            push(ref(db, `tasks/${id}/checklist`), newItem).then(() => input.value = '');
+        };
+
+        window.toggleChecklistItem = (itemId, currentStatus) => {
+            const taskId = document.getElementById('dt-id').value;
+            update(ref(db, `tasks/${taskId}/checklist/${itemId}`), { done: !currentStatus });
+        };
+
+        window.deleteChecklistItem = (itemId) => {
+            const taskId = document.getElementById('dt-id').value;
+            remove(ref(db, `tasks/${taskId}/checklist/${itemId}`));
         };
 
         // --- نظام التعليقات ---
@@ -658,18 +741,10 @@
             const list = document.getElementById('dt-comments-list');
             list.innerHTML = '';
             if(!commentsObj) return;
-            
-            // تحويل الأوبجكت إلى مصفوفة وترتيبها من الأحدث للأقدم
             const commentsArray = Object.keys(commentsObj).map(k => commentsObj[k]).sort((a,b) => b.time - a.time);
-            
             commentsArray.forEach(c => {
                 const date = new Date(c.time).toLocaleString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-                list.innerHTML += `
-                    <div class="comment-item">
-                        <div class="comment-meta"><b>${c.user}</b> <span>${date}</span></div>
-                        <div style="color:var(--tech-white); font-size: 0.9rem;">${c.text}</div>
-                    </div>
-                `;
+                list.innerHTML += `<div class="comment-item"><div class="comment-meta"><b>${c.user}</b> <span>${date}</span></div><div style="color:var(--tech-white); font-size: 0.9rem;">${c.text}</div></div>`;
             });
         }
 
@@ -678,41 +753,23 @@
             const input = document.getElementById('dt-new-comment');
             const text = input.value.trim();
             if(!text) return;
-
-            const newComment = {
-                user: currentUserName,
-                text: text,
-                time: Date.now()
-            };
-
-            push(ref(db, `tasks/${id}/comments`), newComment).then(() => {
-                input.value = "";
-                // تحديث العرض محلياً لتجنب إغلاق المودال
-                allTasks[id].comments = allTasks[id].comments || {};
-                renderComments(allTasks[id].comments);
-            });
+            const newComment = { user: currentUserName, text: text, time: Date.now() };
+            push(ref(db, `tasks/${id}/comments`), newComment).then(() => input.value = "");
         };
+
+        window.moveTaskStatus = (newStatus) => { const id = document.getElementById('dt-id').value; update(ref(db, `tasks/${id}`), { status: newStatus }).then(() => closeDetailsModal()); };
+        window.deleteTaskFromDetails = () => { if(!confirm("حذف نهائي؟")) return; const id = document.getElementById('dt-id').value; remove(ref(db, `tasks/${id}`)).then(() => closeDetailsModal()); };
 
         // --- السحب والإفلات ---
         window.dragStart = (e, id) => { e.dataTransfer.setData("taskId", id); e.target.style.opacity = "0.4"; };
         window.dragEnd = (e) => { e.target.style.opacity = "1"; };
         window.dragOver = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
         window.dragLeave = (e) => { e.currentTarget.classList.remove('drag-over'); };
-        window.drop = (e, status) => {
-            e.preventDefault(); e.currentTarget.classList.remove('drag-over');
-            const id = e.dataTransfer.getData("taskId");
-            if(id) update(ref(db, `tasks/${id}`), { status }); 
-        };
+        window.drop = (e, status) => { e.preventDefault(); e.currentTarget.classList.remove('drag-over'); const id = e.dataTransfer.getData("taskId"); if(id) update(ref(db, `tasks/${id}`), { status }); };
         
         // --- الملاحة والتقارير ---
         document.querySelectorAll('.nav-item').forEach(item => {
-            item.onclick = () => {
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                document.getElementById(item.dataset.target).classList.add('active');
-                if(item.dataset.target === 'dashboard' || item.dataset.target === 'reports') updateAdminStats();
-            }
+            item.onclick = () => { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); item.classList.add('active'); document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(item.dataset.target).classList.add('active'); if(item.dataset.target === 'dashboard' || item.dataset.target === 'reports') updateAdminStats(); }
         });
 
         // --- إحصائيات المدير وتصدير البيانات ---
@@ -723,13 +780,11 @@
             document.getElementById('st-total').innerText = arr.length;
             document.getElementById('st-hours').innerText = arr.reduce((a, b) => a + (b.estHours || 0), 0) + " س";
             document.getElementById('st-projects').innerText = [...new Set(arr.map(x => x.projectName))].length;
-            
             if(document.getElementById('dashboard').classList.contains('active')) drawCharts(arr);
             if(document.getElementById('reports').classList.contains('active')) drawReportTable(arr);
         };
 
         function drawCharts(arr) {
-            // ... (نفس كود الرسم السابق)
             const sData = [arr.filter(t => t.status === 'pending').length, arr.filter(t => t.status === 'inprogress').length, arr.filter(t => t.status === 'completed').length];
             if(chartS) chartS.destroy();
             const ctxS = document.getElementById('chartStatus');
@@ -742,25 +797,18 @@
             const map = {};
             arr.forEach(t => {
                 if(!map[t.projectName]) map[t.projectName] = { h: 0, c: 0, s: new Set() };
-                map[t.projectName].h += (t.estHours || 0); map[t.projectName].c++; map[t.projectName].s.add(t.assignedTo);
+                map[t.projectName].h += (t.estHours || 0); map[t.projectName].c++; 
+                let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
+                assignedToArray.forEach(u => map[t.projectName].s.add(u));
             });
-            
-            reportDataForExport = []; // حفظ الداتا للتصدير
-            
+            reportDataForExport = [];
             Object.keys(map).forEach(p => {
                 const teamStr = Array.from(map[p].s).join('، ');
                 body.innerHTML += `<tr><td><span class="project-chip"># ${p}</span></td><td>${teamStr}</td><td>${map[p].c}</td><td style="color:var(--accent); font-weight:700;">${map[p].h} س</td></tr>`;
-                
-                reportDataForExport.push({
-                    "اسم المشروع": p,
-                    "الفريق العامل": teamStr,
-                    "عدد المهام": map[p].c,
-                    "إجمالي الساعات": map[p].h
-                });
+                reportDataForExport.push({ "اسم المشروع": p, "الفريق العامل": teamStr, "عدد المهام": map[p].c, "إجمالي الساعات": map[p].h });
             });
         }
 
-        // تصدير Excel
         window.exportExcel = () => {
             if(reportDataForExport.length === 0) return alert("لا يوجد بيانات للتصدير");
             const ws = XLSX.utils.json_to_sheet(reportDataForExport);
@@ -769,21 +817,10 @@
             XLSX.writeFile(wb, "Blue_Studio_Report.xlsx");
         };
 
-        // تصدير PDF
         window.exportPDF = () => {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'pt', 'a4');
-            // استخدام خط افتراضي يدعم العربي في jsPDF قد يكون معقداً بدون تضمين ملف خط ضخم، 
-            // لكن autotable سيتعامل مع الجدول بشكل أساسي.
+            const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'pt', 'a4');
             doc.text("Blue Design Studio - Projects Report", 40, 40);
-            
-            doc.autoTable({
-                html: '#reportsTable',
-                startY: 60,
-                theme: 'grid',
-                styles: { font: 'helvetica', halign: 'right' }, // jsPDF default fonts lack full arabic shaping natively without custom font loads, but table structure will be perfect.
-                headStyles: { fillColor: [59, 164, 254] }
-            });
+            doc.autoTable({ html: '#reportsTable', startY: 60, theme: 'grid', styles: { font: 'helvetica', halign: 'right' }, headStyles: { fillColor: [59, 164, 254] } });
             doc.save('Blue_Studio_Report.pdf');
         };
 
