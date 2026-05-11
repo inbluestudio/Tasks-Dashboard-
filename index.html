@@ -4,17 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blue Design Studio — إدارة المهام والتقدير</title>
+  <title>Blue Design Studio — نظام الإدارة السحابي</title>
   
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, update, set } 
-    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, remove, update, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // إعدادات Firebase الخاصة بك
     const firebaseConfig = {
       apiKey: "AIzaSyD1qYudjPjPLGSEclPzW_wjHiXnoKHmj0c",
       authDomain: "task-dashboard-68e99.firebaseapp.com",
@@ -27,375 +26,379 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    window.dbRefs = { ref, push, onValue, remove, update, db };
+    const auth = getAuth(app);
+
+    window.firebaseTools = { ref, push, onValue, remove, update, set, db, auth, signInWithEmailAndPassword, signOut, onAuthStateChanged };
   </script>
 
   <style>
     /* تطبيق لوحة ألوان THE BLUE PALETTE */
     :root {
-      --ink-black: #020610;
-      --deep-navy: #0A1628;
-      --navy-mid: #0F2236;
-      --intel-blue: #0083FF;
-      --signal-blue: #3BA4FE;
-      --light-blue: #88CFFD;
-      --tech-white: #E8EEF5;
-      --blue-grey: #8FA3BC;
-      --muted-blue: #5A7DA0;
-      --soft-line: #1F3550;
-      
-      --bg: var(--ink-black);
-      --card-bg: var(--navy-mid);
-      --sidebar-bg: var(--deep-navy);
-      --accent: var(--signal-blue);
-      --text: var(--tech-white);
-      --border: var(--soft-line);
-      --radius: 16px;
+      --ink-black: #020610; --deep-navy: #0A1628; --navy-mid: #0F2236;
+      --intel-blue: #0083FF; --signal-blue: #3BA4FE; --light-blue: #88CFFD;
+      --tech-white: #E8EEF5; --blue-grey: #8FA3BC; --muted-blue: #5A7DA0;
+      --soft-line: #1F3550; --bg: var(--ink-black); --card-bg: var(--navy-mid);
+      --sidebar-bg: var(--deep-navy); --accent: var(--signal-blue); --text: var(--tech-white);
+      --border: var(--soft-line); --radius: 16px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { 
-        font-family: 'IBM Plex Sans Arabic', sans-serif; 
-        background: var(--bg); 
-        color: var(--text); 
-        display: flex; 
-        height: 100vh; 
-        overflow: hidden; 
-    }
+    body { font-family: 'IBM Plex Sans Arabic', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
 
-    /* الشريط الجانبي */
-    .sidebar { 
-        width: 260px; 
-        background: var(--sidebar-bg); 
-        border-left: 1px solid var(--border); 
-        padding: 30px; 
-        display: flex; 
-        flex-direction: column; 
-    }
+    /* شاشة الدخول */
+    #login-page { position: fixed; inset: 0; background: var(--ink-black); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+    .login-card { background: var(--deep-navy); padding: 40px; border-radius: 24px; width: 400px; border: 1px solid var(--border); text-align: center; }
+    
+    input, select { width: 100%; padding: 15px; margin-bottom: 20px; background: var(--ink-black); border: 1px solid var(--border); border-radius: 12px; color: white; outline: none; font-family: inherit; }
+    input:focus { border-color: var(--accent); }
+
+    /* النظام بعد الدخول */
+    #app-ui { display: none; width: 100%; height: 100%; }
+    .sidebar { width: 260px; background: var(--sidebar-bg); border-left: 1px solid var(--border); padding: 30px; display: flex; flex-direction: column; }
     .logo-area { margin-bottom: 40px; text-align: center; }
     .logo-main { font-weight: 700; font-size: 1.4rem; color: var(--accent); letter-spacing: 1px; }
-    .logo-tag { font-size: 0.6rem; color: var(--blue-grey); text-transform: uppercase; margin-top: 4px; }
     
-    .nav-item { 
-        padding: 14px 20px; 
-        border-radius: 12px; 
-        cursor: pointer; 
-        margin-bottom: 8px; 
-        transition: 0.3s; 
-        display: flex; 
-        align-items: center; 
-        gap: 12px;
-        color: var(--blue-grey);
-    }
+    .nav-item { padding: 14px 20px; border-radius: 12px; cursor: pointer; margin-bottom: 8px; transition: 0.3s; display: flex; align-items: center; gap: 12px; color: var(--blue-grey); }
     .nav-item:hover { background: rgba(59, 164, 254, 0.1); color: var(--light-blue); }
     .nav-item.active { background: var(--accent); color: var(--ink-black); font-weight: 600; box-shadow: 0 4px 20px rgba(59, 164, 254, 0.2); }
 
-    /* المنطقة الرئيسية */
     .main-content { flex: 1; padding: 40px; overflow-y: auto; background-image: radial-gradient(circle at 10% 20%, #0A1628 0%, #020610 100%); }
     .section { display: none; }
     .section.active { display: block; animation: slideUp 0.4s ease-out; }
     @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-    
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; }
-    
-    /* لوحة الكانبان */
+
+    /* الكانبان والبطاقات */
     .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    .column { 
-        background: rgba(15, 34, 54, 0.5); 
-        border-radius: var(--radius); 
-        padding: 20px; 
-        min-height: 75vh; 
-        border: 1px solid var(--border); 
-        transition: 0.3s;
-    }
-    .column.drag-over { background: rgba(59, 164, 254, 0.05); border-color: var(--accent); }
+    .column { background: rgba(15, 34, 54, 0.5); border-radius: var(--radius); padding: 20px; min-height: 75vh; border: 1px solid var(--border); transition: 0.3s; }
     .column h3 { font-size: 0.85rem; margin-bottom: 25px; color: var(--blue-grey); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
-
-    /* بطاقة المهمة */
-    .card { 
-        background: var(--card-bg); 
-        border: 1px solid var(--border); 
-        padding: 20px; 
-        border-radius: 14px; 
-        margin-bottom: 20px; 
-        position: relative; 
-        cursor: grab; 
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-    }
-    .card:active { cursor: grabbing; transform: scale(0.98); }
-    .card:hover { border-color: var(--accent); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); }
     
-    .project-chip { 
-        display: inline-block; 
-        padding: 4px 12px; 
-        background: rgba(59, 164, 254, 0.1); 
-        color: var(--accent); 
-        font-size: 0.7rem; 
-        border-radius: 6px; 
-        font-weight: 700; 
-        margin-bottom: 12px;
-        border: 1px solid rgba(59, 164, 254, 0.15);
-    }
-    .card-title { font-weight: 600; margin-bottom: 12px; font-size: 1rem; color: var(--tech-white); }
-    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; }
-    .user-info { font-size: 0.75rem; color: var(--blue-grey); display: flex; align-items: center; gap: 6px; }
-    .hour-badge { font-size: 0.75rem; color: var(--amber); font-weight: 600; background: rgba(251, 191, 36, 0.1); padding: 2px 8px; border-radius: 4px; }
-
-    /* التحكم بالبطاقة */
-    .card-btns { position: absolute; top: 15px; left: 15px; display: flex; gap: 6px; opacity: 0; transition: 0.2s; }
-    .card:hover .card-btns { opacity: 1; }
-    .action-btn { background: var(--ink-black); border: 1px solid var(--border); color: var(--blue-grey); padding: 4px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
-    .action-btn:hover { color: var(--accent); border-color: var(--accent); }
-
-    /* المودال */
-    .modal { position: fixed; inset: 0; background: rgba(2, 6, 16, 0.85); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(8px); }
-    .modal.active { display: flex; }
-    .modal-content { background: var(--deep-navy); padding: 40px; border-radius: 24px; width: 480px; border: 1px solid var(--border); }
+    .card { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 14px; margin-bottom: 20px; position: relative; cursor: grab; transition: 0.2s; }
+    .card:hover { border-color: var(--accent); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
     
-    input, select { 
-        width: 100%; padding: 15px; margin-bottom: 20px; background: var(--ink-black); border: 1px solid var(--border); border-radius: 12px; color: white; outline: none; font-family: inherit;
-    }
-    input:focus, select:focus { border-color: var(--accent); }
+    .project-chip { display: inline-block; padding: 4px 12px; background: rgba(59, 164, 254, 0.1); color: var(--accent); font-size: 0.7rem; border-radius: 6px; font-weight: 700; margin-bottom: 12px; border: 1px solid rgba(59, 164, 254, 0.15); }
+    .hour-badge { font-size: 1.3rem; color: var(--amber); font-weight: 700; background: rgba(251, 191, 36, 0.15); padding: 4px 12px; border-radius: 8px; }
+
+    /* التحكم بالمدير */
+    .admin-only { display: none; }
     .btn-main { background: var(--accent); color: var(--ink-black); border: none; padding: 16px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; font-size: 1rem; transition: 0.3s; }
     .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 164, 254, 0.4); }
 
+    /* الهاشتاقات في المودال */
+    .tag-suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+    .project-hashtag { background: var(--soft-line); color: var(--light-blue); padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 500; }
+    .project-hashtag:hover { background: var(--intel-blue); color: white; }
+
     /* الإحصائيات */
     .stat-box { background: var(--navy-mid); padding: 30px; border-radius: 20px; border: 1px solid var(--border); text-align: center; }
-    .stat-val { font-size: 2.6rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; }
-    .stat-lbl { color: var(--blue-grey); font-size: 0.9rem; }
+    .stat-val { font-size: 3.2rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; }
     
-    table { width: 100%; border-collapse: collapse; margin-top: 30px; }
-    th { padding: 20px; text-align: right; color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--border); }
-    td { padding: 20px; border-bottom: 1px solid var(--border); color: var(--tech-white); font-size: 0.95rem; }
-    tr:hover { background: rgba(255,255,255,0.02); }
+    table { width: 100%; border-collapse: collapse; margin-top: 30px; text-align: right; }
+    th { padding: 20px; color: var(--accent); border-bottom: 2px solid var(--border); }
+    td { padding: 20px; border-bottom: 1px solid var(--border); color: var(--tech-white); }
+
+    .modal { position: fixed; inset: 0; background: rgba(2, 6, 16, 0.85); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(8px); }
+    .modal.active { display: flex; }
+    .modal-content { background: var(--deep-navy); padding: 40px; border-radius: 24px; width: 480px; border: 1px solid var(--border); }
   </style>
 </head>
 
 <body>
-  <aside class="sidebar">
-    <div class="logo-area">
-        <div class="logo-main">BLUE STUDIO</div>
-        <div class="logo-tag">Engineering Management</div>
-    </div>
-    <div class="nav-item active" data-target="kanban">📋 المهام</div>
-    <div class="nav-item" data-target="dashboard">📊 التحليلات</div>
-    <div class="nav-item" data-target="reports">📄 التقارير</div>
-  </aside>
 
-  <main class="main-content">
-    <!-- صفحة المهام -->
-    <section id="kanban" class="section active">
-      <div class="page-header">
-        <h1>لوحة التحكم الذكية</h1>
-        <button onclick="openAddModal()" class="btn-main" style="width: auto; padding: 12px 35px;">+ مهمة جديدة</button>
+  <!-- شاشة تسجيل الدخول -->
+  <div id="login-page">
+    <div class="login-card">
+        <h2 style="color: var(--accent); margin-bottom: 10px;">Blue Design Studio</h2>
+        <p style="color: var(--blue-grey); margin-bottom: 30px;">نظام إدارة المشاريع السحابي</p>
+        <input type="email" id="login-email" placeholder="البريد الإلكتروني للهوية">
+        <input type="password" id="login-pass" placeholder="كلمة المرور">
+        <button class="btn-main" onclick="handleLogin()">دخول للنظام</button>
+        <p id="login-error" style="color: #f87171; margin-top: 15px; font-size: 0.8rem; display: none;">خطأ في بيانات الدخول، يرجى المحاولة مرة أخرى</p>
+    </div>
+  </div>
+
+  <!-- الواجهة الرئيسية -->
+  <div id="app-ui">
+    <aside class="sidebar">
+      <div class="logo-area">
+          <div class="logo-main">BLUE STUDIO</div>
+          <div id="user-display-role" style="font-size: 0.7rem; color: var(--light-blue); margin-top: 5px; text-transform: uppercase;"></div>
+          <div id="user-display-name" style="font-size: 0.9rem; margin-top: 5px; color: var(--tech-white);"></div>
       </div>
       
-      <div class="board">
-        <div class="column" data-status="pending" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'pending')">
-          <h3>⏳ انتظار</h3>
-          <div class="list" id="list-pending"></div>
+      <div class="nav-item active" data-target="kanban">📋 لوحة المهام</div>
+      <div class="nav-item admin-only" data-target="dashboard">📊 التحليلات والنمو</div>
+      <div class="nav-item admin-only" data-target="reports">📄 تقارير المشاريع</div>
+      
+      <div style="margin-top: auto;">
+          <button onclick="handleLogout()" style="background: none; border: 1px solid var(--border); color: #f87171; width: 100%; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 600;">تسجيل خروج</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <!-- اللوحة -->
+      <section id="kanban" class="section active">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px;">
+          <h1 id="page-title">إدارة العمل</h1>
+          <button onclick="openAddModal()" class="btn-main admin-only" style="width: auto; padding: 12px 35px;">+ مهمة جديدة</button>
         </div>
         
-        <div class="column" data-status="inprogress" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'inprogress')">
-          <h3>🔄 تنفيذ</h3>
-          <div class="list" id="list-inprogress"></div>
+        <div class="board">
+          <div class="column" data-status="pending" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'pending')">
+            <h3>⏳ انتظار</h3><div class="list" id="list-pending"></div>
+          </div>
+          <div class="column" data-status="inprogress" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'inprogress')">
+            <h3>🔄 تنفيذ</h3><div class="list" id="list-inprogress"></div>
+          </div>
+          <div class="column" data-status="completed" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'completed')">
+            <h3>✅ منتهية</h3><div class="list" id="list-completed"></div>
+          </div>
         </div>
-        
-        <div class="column" data-status="completed" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'completed')">
-          <h3>✅ منتهية</h3>
-          <div class="list" id="list-completed"></div>
+      </section>
+
+      <!-- التحليلات -->
+      <section id="dashboard" class="section">
+        <h1>تحليل أداء المكتب</h1>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 35px 0;">
+            <div class="stat-box"><div class="stat-val" id="st-total">0</div><div style="color: var(--blue-grey)">إجمالي التاسكات</div></div>
+            <div class="stat-box"><div class="stat-val" id="st-hours" style="color: var(--amber)">0</div><div style="color: var(--blue-grey)">إجمالي الساعات</div></div>
+            <div class="stat-box"><div class="stat-val" id="st-projects" style="color: var(--light-blue)">0</div><div style="color: var(--blue-grey)">مشاريع نشطة</div></div>
         </div>
-      </div>
-    </section>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div class="stat-box" style="height: 400px;"><canvas id="chartStatus"></canvas></div>
+            <div class="stat-box" style="height: 400px;"><canvas id="chartTeams"></canvas></div>
+        </div>
+      </section>
 
-    <!-- صفحة الإحصائيات -->
-    <section id="dashboard" class="section">
-      <h1>تحليل الأداء العام</h1>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 35px 0;">
-        <div class="stat-box"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">إجمالي المهام</div></div>
-        <div class="stat-box"><div class="stat-val" id="st-hours" style="color: var(--amber)">0</div><div class="stat-lbl">ساعات الجهد المقدرة</div></div>
-        <div class="stat-box"><div class="stat-val" id="st-projects" style="color: var(--light-blue)">0</div><div class="stat-lbl">مشاريع نشطة</div></div>
-      </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-        <div class="stat-box" style="height: 400px;"><canvas id="chartStatus"></canvas></div>
-        <div class="stat-box" style="height: 400px;"><canvas id="chartTeams"></canvas></div>
-      </div>
-    </section>
+      <!-- التقارير -->
+      <section id="reports" class="section">
+        <h1>تقارير المشاريع المفصلة</h1>
+        <div class="stat-box" style="margin-top: 30px; text-align: right;">
+            <table>
+                <thead><tr><th>المشروع</th><th>الفريق العامل</th><th>المهام</th><th>الساعات التقديرية</th></tr></thead>
+                <tbody id="report-body"></tbody>
+            </table>
+        </div>
+      </section>
+    </main>
+  </div>
 
-    <!-- صفحة التقارير -->
-    <section id="reports" class="section">
-      <h1>تقارير المشاريع المفصلة</h1>
-      <div class="stat-box" style="margin-top: 35px; text-align: right;">
-        <table>
-          <thead>
-            <tr>
-              <th>المشروع</th>
-              <th>فريق العمل</th>
-              <th>المهام</th>
-              <th>الساعات المتوقعة</th>
-            </tr>
-          </thead>
-          <tbody id="project-table-body"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
-  <!-- نافذة الإضافة والتعديل -->
+  <!-- مودال الإضافة والتعديل -->
   <div class="modal" id="taskModal">
     <div class="modal-content">
-      <h2 id="modalTitle" style="margin-bottom: 25px;">إضافة مهمة جديدة</h2>
+      <h2 id="modalTitle">إضافة مهمة جديدة</h2>
       <input type="hidden" id="editId">
+      <label style="font-size: 0.8rem; color: var(--blue-grey);">اسم المشروع</label>
+      <input type="text" id="pName" placeholder="اكتب اسم المشروع...">
+      <div id="hashtagContainer" class="tag-suggestions"></div>
       
-      <label>اسم المشروع الرئيسي</label>
-      <input type="text" id="pName" placeholder="مثلاً: فيلا دبي">
-      
-      <label>عنوان المهمة</label>
-      <input type="text" id="tTitle" placeholder="مثلاً: ريندر خارجي">
+      <label style="font-size: 0.8rem; color: var(--blue-grey);">عنوان التاسك</label>
+      <input type="text" id="tTitle" placeholder="مثلاً: ريندر المطبخ">
       
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
         <div>
-          <label>الفريق</label>
-          <select id="tType" onchange="updateStaff()">
-            <option value="">-- اختر --</option>
-            <option value="3D">3D</option>
-            <option value="unreal engine">unreal engine</option>
-            <option value="AI & Code">AI & Code</option>
-          </select>
+          <label style="font-size: 0.8rem; color: var(--blue-grey);">الفريق</label>
+          <select id="tType" onchange="updateStaff()"><option value="">-- اختر --</option><option value="3D">3D</option><option value="unreal engine">unreal engine</option><option value="AI & Code">AI & Code</option></select>
         </div>
         <div>
-          <label>المصمم</label>
-          <select id="sName">
-            <option value="">-- اختر الفريق --</option>
-          </select>
+          <label style="font-size: 0.8rem; color: var(--blue-grey);">المسؤول</label>
+          <select id="sName"><option value="">-- اختر الموظف --</option></select>
         </div>
       </div>
-
-      <label>الساعات المتوقعة للتاسك</label>
-      <input type="number" id="eHours" placeholder="مثلاً: 5" min="1">
       
-      <button class="btn-main" onclick="saveTask()">حفظ البيانات في السحابة</button>
+      <label style="font-size: 0.8rem; color: var(--blue-grey);">الساعات المتوقعة</label>
+      <input type="number" id="eHours" placeholder="مثلاً: 6" min="1">
+      
+      <button class="btn-main" onclick="saveTask()">حفظ في السحابة 🚀</button>
       <button onclick="document.getElementById('taskModal').classList.remove('active')" style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:15px; cursor:pointer;">إلغاء</button>
     </div>
   </div>
 
   <script type="module">
-    let tasks = {};
+    let allTasks = {};
+    let currentUser = null;
+    let isManager = false;
+    let currentUserName = "";
     let chartS, chartT;
 
-    const employees = {
-        "3D": ["نور", "تامر", "معتز"],
-        "unreal engine": ["ليث", "دانا", "بكر"],
-        "AI & Code": ["عبود", "صفوان"]
+    // قائمة الإيميلات المصرح لها بالدخول فقط (Whitelist)
+    const staffMap = {
+        "safwan.krasneh@bluedesignstudio.com": { name: "صفوان القراسنة", role: "manager" },
+        "hussam.banat@bluedesignstudio.com": { name: "حسام بنات", role: "manager" },
+        "nour@bluedesignstudio.com": { name: "نور", role: "3D" },
+        "tamer@bluedesignstudio.com": { name: "تامر", role: "3D" },
+        "moataz@bluedesignstudio.com": { name: "معتز", role: "3D" },
+        "laith@bluedesignstudio.com": { name: "ليث", role: "unreal engine" },
+        "dana@bluedesignstudio.com": { name: "دانا", role: "unreal engine" },
+        "bakr@bluedesignstudio.com": { name: "بكر", role: "unreal engine" },
+        "abboud@bluedesignstudio.com": { name: "عبود", role: "AI & Code" },
+        "safwan@bluedesignstudio.com": { name: "صفوان", role: "AI & Code" }
     };
 
-    window.updateStaff = () => {
-        const team = document.getElementById('tType').value;
-        const select = document.getElementById('sName');
-        select.innerHTML = '<option value="">-- اختر الموظف --</option>';
-        if (employees[team]) {
-            employees[team].forEach(e => {
-                const opt = document.createElement('option');
-                opt.value = e; opt.innerText = e; select.appendChild(opt);
-            });
-        }
-    };
-
-    // السحب والإفلات
-    window.dragStart = (e, id) => {
-        e.dataTransfer.setData("taskId", id);
-        e.target.style.opacity = "0.4";
-    };
-
-    window.dragEnd = (e) => {
-        e.target.style.opacity = "1";
-    };
-
-    window.dragOver = (e) => {
-        e.preventDefault();
-        e.currentTarget.classList.add('drag-over');
-    };
-
-    window.dragLeave = (e) => {
-        e.currentTarget.classList.remove('drag-over');
-    };
-
-    window.drop = (e, status) => {
-        e.preventDefault();
-        e.currentTarget.classList.remove('drag-over');
-        const id = e.dataTransfer.getData("taskId");
-        if (id) {
-            const { update, ref, db } = window.dbRefs;
-            update(ref(db, `tasks/${id}`), { status: status });
-        }
-    };
+    const employees = { "3D": ["نور", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "AI & Code": ["عبود", "صفوان"] };
 
     setTimeout(() => {
-        const { ref, push, onValue, remove, update, db } = window.dbRefs;
+        const { auth, onAuthStateChanged, signInWithEmailAndPassword, signOut, onValue, ref, db, update, push, remove } = window.firebaseTools;
 
-        // الملاحة
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.onclick = () => {
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                const target = item.dataset.target;
-                document.getElementById(target).classList.add('active');
-                if(target === 'dashboard') drawCharts();
-                if(target === 'reports') drawReports();
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // الفحص الأمني: هل الإيميل موجود في القائمة البيضاء؟
+                const userData = staffMap[user.email];
+                
+                if (!userData) {
+                    // إذا لم يكن موجوداً، قم بتسجيل خروجه فوراً وأظهر رسالة خطأ
+                    signOut(auth);
+                    document.getElementById('login-error').innerText = "عذراً، هذا الحساب غير مصرح له بدخول النظام.";
+                    document.getElementById('login-error').style.display = 'block';
+                    return;
+                }
+
+                currentUser = user;
+                isManager = userData.role === "manager";
+                currentUserName = userData.name;
+                
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('app-ui').style.display = 'flex';
+                document.getElementById('user-display-name').innerText = userData.name;
+                document.getElementById('user-display-role').innerText = isManager ? "مدير النظام" : `فريق ${userData.role}`;
+                
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = isManager ? 'flex' : 'none');
+                document.getElementById('page-title').innerText = isManager ? "لوحة تحكم المكتب الشاملة" : "مهامي الشخصية الجارية";
+
+                onValue(ref(db, 'tasks'), (snap) => {
+                    allTasks = snap.val() || {};
+                    renderBoard();
+                    renderProjectHashtags();
+                    if(isManager) updateAdminDashboard();
+                });
+            } else {
+                document.getElementById('login-page').style.display = 'flex';
+                document.getElementById('app-ui').style.display = 'none';
             }
         });
 
-        // جلب البيانات
-        onValue(ref(db, 'tasks'), (snap) => {
-            tasks = snap.val() || {};
-            renderBoard();
-            updateStats();
-            if(document.getElementById('dashboard').classList.contains('active')) drawCharts();
-            if(document.getElementById('reports').classList.contains('active')) drawReports();
-        });
+        window.handleLogin = () => {
+            const e = document.getElementById('login-email').value;
+            const p = document.getElementById('login-pass').value;
+            signInWithEmailAndPassword(auth, e, p).catch(() => {
+                document.getElementById('login-error').innerText = "خطأ في بيانات الدخول، يرجى المحاولة مرة أخرى";
+                document.getElementById('login-error').style.display = 'block';
+            });
+        };
+        window.handleLogout = () => signOut(auth);
 
         function renderBoard() {
             document.querySelectorAll('.column .list').forEach(l => l.innerHTML = '');
-            Object.keys(tasks).forEach(id => {
-                const t = tasks[id];
+            Object.keys(allTasks).forEach(id => {
+                const t = allTasks[id];
+                if(!isManager && t.assignedTo !== currentUserName) return;
+
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.draggable = true;
                 card.setAttribute('ondragstart', `dragStart(event, '${id}')`);
-                card.setAttribute('ondragend', `dragEnd(event)`);
                 
                 card.innerHTML = `
-                    <div class="card-btns">
-                        <button class="action-btn" onclick="openEditModal('${id}')">✏️</button>
-                        <button class="action-btn" onclick="deleteTask('${id}')">🗑️</button>
-                    </div>
+                    ${isManager ? `<div style="position:absolute; top:15px; left:15px; display:flex; gap:8px;">
+                        <button onclick="openEditModal('${id}')" style="background:none; border:none; cursor:pointer;">✏️</button>
+                        <button onclick="deleteTask('${id}')" style="background:none; border:none; color:#f87171; cursor:pointer;">🗑️</button>
+                    </div>` : ''}
                     <div class="project-chip"># ${t.projectName}</div>
-                    <div class="card-title">${t.title}</div>
-                    <div class="card-footer">
-                        <div class="user-info">👤 ${t.assignedTo}</div>
-                        <div class="hour-badge">🎯 ${t.estHours || 0} س</div>
+                    <div style="font-weight:600; margin-bottom:15px; font-size:1rem; color:var(--tech-white);">${t.title}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:15px;">
+                        <span style="font-size:0.8rem; color:var(--blue-grey);">👤 ${t.assignedTo}</span>
+                        <span class="hour-badge">${t.estHours} س</span>
                     </div>
                 `;
                 document.getElementById(`list-${t.status}`).appendChild(card);
             });
         }
 
-        window.openAddModal = () => {
+        window.renderProjectHashtags = () => {
+            const container = document.getElementById('hashtagContainer');
+            const projs = [...new Set(Object.values(allTasks).map(t => t.projectName))];
+            container.innerHTML = projs.map(p => `<span class="project-hashtag" onclick="document.getElementById('pName').value='${p}'"># ${p}</span>`).join('');
+        };
+
+        window.updateAdminDashboard = () => {
+            const arr = Object.values(allTasks);
+            document.getElementById('st-total').innerText = arr.length;
+            document.getElementById('st-hours').innerText = arr.reduce((a, b) => a + (b.estHours || 0), 0) + " س";
+            document.getElementById('st-projects').innerText = [...new Set(arr.map(x => x.projectName))].length;
+            
+            if(document.getElementById('dashboard').classList.contains('active')) drawCharts(arr);
+            if(document.getElementById('reports').classList.contains('active')) drawReportTable(arr);
+        };
+
+        function drawCharts(arr) {
+            const sData = [arr.filter(t => t.status === 'pending').length, arr.filter(t => t.status === 'inprogress').length, arr.filter(t => t.status === 'completed').length];
+            if(chartS) chartS.destroy();
+            chartS = new Chart(document.getElementById('chartStatus'), {
+                type: 'doughnut', data: { labels: ['انتظار', 'تنفيذ', 'منتهية'], datasets: [{ data: sData, backgroundColor: ['#fbbf24', '#3BA4FE', '#34d399'], borderWidth: 0 }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#8FA3BC' } } } }
+            });
+        }
+
+        function drawReportTable(arr) {
+            const body = document.getElementById('report-body');
+            body.innerHTML = '';
+            const map = {};
+            arr.forEach(t => {
+                if(!map[t.projectName]) map[t.projectName] = { h: 0, c: 0, s: new Set() };
+                map[t.projectName].h += (t.estHours || 0); map[t.projectName].c++; map[t.projectName].s.add(t.assignedTo);
+            });
+            Object.keys(map).forEach(p => {
+                body.innerHTML += `<tr><td><span class="project-chip"># ${p}</span></td><td>${Array.from(map[p].s).join(', ')}</td><td>${map[p].c} تاسكات</td><td style="color:var(--accent); font-weight:700;">${map[p].h} س</td></tr>`;
+            });
+        }
+
+        window.updateStaff = () => {
+            const team = document.getElementById('tType').value;
+            const select = document.getElementById('sName');
+            select.innerHTML = '<option value="">-- اختر الموظف --</option>';
+            if (employees[team]) employees[team].forEach(e => {
+                const opt = document.createElement('option'); opt.value = e; opt.innerText = e; select.appendChild(opt);
+            });
+        };
+
+        window.saveTask = () => {
+            const id = document.getElementById('editId').value;
+            const data = {
+                projectName: document.getElementById('pName').value, title: document.getElementById('tTitle').value,
+                assignedTo: document.getElementById('sName').value, team: document.getElementById('tType').value,
+                estHours: parseFloat(document.getElementById('eHours').value), status: 'pending', createdAt: Date.now()
+            };
+            if(id) update(ref(db, `tasks/${id}`), data); else push(ref(db, 'tasks'), data);
+            document.getElementById('taskModal').classList.remove('active');
+        };
+
+        window.deleteTask = (id) => confirm("حذف نهائي؟") && remove(ref(db, `tasks/${id}`));
+        window.dragStart = (e, id) => e.dataTransfer.setData("taskId", id);
+        window.dragOver = (e) => e.preventDefault();
+        window.drop = (e, status) => {
+            const id = e.dataTransfer.getData("taskId");
+            if(id) update(ref(db, `tasks/${id}`), { status });
+        };
+        
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.onclick = () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(item.dataset.target).classList.add('active');
+                if(item.dataset.target === 'dashboard') updateAdminDashboard();
+                if(item.dataset.target === 'reports') updateAdminDashboard();
+            }
+        });
+
+        window.openAddModal = () => { 
             document.getElementById('modalTitle').innerText = "إضافة مهمة جديدة";
             document.getElementById('editId').value = "";
-            document.getElementById('pName').value = "";
-            document.getElementById('tTitle').value = "";
-            document.getElementById('tType').value = "";
-            document.getElementById('sName').innerHTML = '<option value="">-- اختر الفريق --</option>';
-            document.getElementById('eHours').value = "";
-            document.getElementById('taskModal').classList.add('active');
+            document.getElementById('taskModal').classList.add('active'); 
         };
 
         window.openEditModal = (id) => {
-            const t = tasks[id];
-            document.getElementById('modalTitle').innerText = "تعديل بيانات المهمة";
+            const t = allTasks[id];
+            document.getElementById('modalTitle').innerText = "تعديل المهمة";
             document.getElementById('editId').value = id;
             document.getElementById('pName').value = t.projectName;
             document.getElementById('tTitle').value = t.title;
@@ -406,82 +409,7 @@
             document.getElementById('taskModal').classList.add('active');
         };
 
-        window.saveTask = () => {
-            const id = document.getElementById('editId').value;
-            const p = document.getElementById('pName').value;
-            const t = document.getElementById('tTitle').value;
-            const s = document.getElementById('sName').value;
-            const tm = document.getElementById('tType').value;
-            const h = document.getElementById('eHours').value;
-
-            if(!p || !t || !s || !h) return;
-
-            const data = { projectName: p, title: t, assignedTo: s, team: tm, estHours: parseFloat(h) };
-
-            if (id) {
-                update(ref(db, `tasks/${id}`), data);
-            } else {
-                push(ref(db, 'tasks'), { ...data, status: 'pending', createdAt: Date.now() });
-            }
-            document.getElementById('taskModal').classList.remove('active');
-        };
-
-        window.deleteTask = (id) => confirm("حذف نهائي؟") && remove(ref(db, `tasks/${id}`));
-
-        function updateStats() {
-            const arr = Object.values(tasks);
-            const hrs = arr.reduce((a, b) => a + (b.estHours || 0), 0);
-            const projs = [...new Set(arr.map(t => t.projectName))].length;
-            document.getElementById('st-total').innerText = arr.length;
-            document.getElementById('st-hours').innerText = hrs + " س";
-            document.getElementById('st-projects').innerText = projs;
-        }
-
-        function drawCharts() {
-            const arr = Object.values(tasks);
-            const statusD = [
-                arr.filter(t => t.status === 'pending').length,
-                arr.filter(t => t.status === 'inprogress').length,
-                arr.filter(t => t.status === 'completed').length
-            ];
-            if(chartS) chartS.destroy();
-            chartS = new Chart(document.getElementById('chartStatus'), {
-                type: 'doughnut',
-                data: { labels: ['انتظار', 'تنفيذ', 'منتهية'], datasets: [{ data: statusD, backgroundColor: ['#fbbf24', '#3BA4FE', '#34d399'], borderWidth: 0 }] },
-                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#8FA3BC' } } } }
-            });
-
-            const teams = ["3D", "unreal engine", "AI & Code"];
-            const teamD = teams.map(tm => arr.filter(t => t.team === tm).length);
-            if(chartT) chartT.destroy();
-            chartT = new Chart(document.getElementById('chartTeams'), {
-                type: 'bar',
-                data: { labels: teams, datasets: [{ label: 'توزيع المهام', data: teamD, backgroundColor: '#3BA4FE', borderRadius: 8 }] },
-                options: { maintainAspectRatio: false, scales: { y: { ticks: { color: '#8FA3BC' } }, x: { ticks: { color: '#8FA3BC' } } }, plugins: { legend: { display: false } } }
-            });
-        }
-
-        function drawReports() {
-            const body = document.getElementById('project-table-body');
-            body.innerHTML = '';
-            const map = {};
-            Object.values(tasks).forEach(t => {
-                if(!map[t.projectName]) map[t.projectName] = { h: 0, count: 0, staff: new Set() };
-                map[t.projectName].h += (t.estHours || 0);
-                map[t.projectName].count++;
-                map[t.projectName].staff.add(t.assignedTo);
-            });
-
-            Object.keys(map).forEach(p => {
-                body.innerHTML += `<tr>
-                    <td><span class="project-chip"># ${p}</span></td>
-                    <td style="color:var(--muted-blue)">${Array.from(map[p].staff).join('، ')}</td>
-                    <td>${map[p].count} مهام</td>
-                    <td style="color:var(--accent); font-weight:700;">${map[p].h} س</td>
-                </tr>`;
-            });
-        }
-    }, 1500);
+    }, 2000);
   </script>
 </body>
 </html>
