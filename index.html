@@ -45,6 +45,7 @@
       --soft-line: #1F3550; --bg: var(--ink-black); --card-bg: var(--navy-mid);
       --sidebar-bg: var(--deep-navy); --accent: var(--signal-blue); --text: var(--tech-white);
       --border: var(--soft-line); --radius: 12px;
+      --amber: #f97316; /* البرتقالي الخاص بالتقدم */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -109,12 +110,12 @@
     .card-progress-wrap { margin-top: 12px; margin-bottom: 5px; }
     .card-progress-header { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--blue-grey); margin-bottom: 6px; font-weight: 500; }
     .card-progress-bg { width: 100%; background: rgba(0,0,0,0.4); border-radius: 4px; height: 6px; overflow: hidden; }
-    .card-progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; border-radius: 4px; }
+    .card-progress-fill { height: 100%; background: var(--amber); transition: width 0.3s ease; border-radius: 4px; }
     .card-progress-fill.completed { background: #34d399; }
     
     .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; }
     .user-info { font-size: 0.8rem; color: var(--blue-grey); display: flex; align-items: center; gap: -5px; }
-    .user-info .avatar { margin-left: -8px; border: 2px solid var(--card-bg); } /* Overlap avatars */
+    .user-info .avatar { margin-left: -8px; border: 2px solid var(--card-bg); }
     .hour-badge { font-size: 1.1rem; color: var(--amber); font-weight: 700; background: rgba(251, 191, 36, 0.12); padding: 4px 10px; border-radius: 8px; }
 
     /* الأزرار العامة */
@@ -142,8 +143,11 @@
     .trello-header-top { display: flex; justify-content: space-between; align-items: center; }
     .header-progress-wrap { display: flex; align-items: center; gap: 15px; flex: 1; margin-right: 20px; }
     .header-progress-bg { flex: 1; max-width: 300px; background: rgba(0,0,0,0.4); border-radius: 6px; height: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-    .trello-header h2 { font-size: 1.5rem; color: var(--tech-white); margin: 0; }
     
+    /* تعديل الاسم */
+    .editable-title { background: transparent; border: 1px dashed transparent; color: var(--tech-white); font-size: 1.5rem; font-weight: bold; width: 100%; max-width: 500px; outline: none; margin: 0; padding: 5px; transition: 0.2s; border-radius: 8px; font-family: inherit; }
+    .editable-title:hover, .editable-title:focus { border-color: var(--blue-grey); background: rgba(0,0,0,0.2); }
+
     .trello-body { display: flex; flex: 1; overflow: hidden; }
     
     /* الجزء الأيمن (التفاصيل والتعليقات والـ Checklist) */
@@ -152,13 +156,15 @@
     .trello-desc-box { width: 100%; background: var(--ink-black); border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: var(--tech-white); min-height: 100px; resize: vertical; font-family: inherit; line-height: 1.6; }
     
     /* الـ Checklist */
-    .checklist-item { display: flex; align-items: center; justify-content: space-between; background: var(--ink-black); padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border); transition: 0.2s; gap: 15px; }
+    .checklist-item { display: flex; align-items: stretch; justify-content: space-between; background: var(--ink-black); padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border); transition: 0.2s; gap: 15px; flex-direction: column; }
     .checklist-item:hover { border-color: var(--muted-blue); }
     .checklist-item label { display: flex; align-items: center; gap: 10px; cursor: pointer; margin:0; flex: 1; font-size: 0.9rem; }
-    .checklist-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; margin: 0; }
-    .checklist-input-wrap { display: flex; gap: 10px; background: rgba(15, 34, 54, 0.3); padding: 15px; border-radius: 12px; border: 1px dashed var(--border); }
-    .checklist-input-wrap input { background: var(--ink-black); border: 1px solid var(--border); padding: 12px; border-radius: 8px; color: white; outline: none; }
-    .checklist-input-wrap input:focus { border-color: var(--accent); }
+    .checklist-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--amber); cursor: pointer; margin: 0; }
+    .checklist-item input[type="checkbox"]:disabled { cursor: not-allowed; opacity: 0.5; }
+    
+    .checklist-input-wrap { display: flex; gap: 10px; background: rgba(15, 34, 54, 0.3); padding: 15px; border-radius: 12px; border: 1px dashed var(--border); flex-wrap: wrap; }
+    .checklist-input-wrap input, .checklist-input-wrap select { background: var(--ink-black); border: 1px solid var(--border); padding: 12px; border-radius: 8px; color: white; outline: none; font-family: inherit; }
+    .checklist-input-wrap input:focus, .checklist-input-wrap select:focus { border-color: var(--accent); }
     .hours-badge-small { background: rgba(251, 191, 36, 0.1); color: var(--amber); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; border: 1px solid rgba(251, 191, 36, 0.2); }
 
     /* التعليقات */
@@ -375,9 +381,10 @@
                     <button onclick="closeDetailsModal()" style="background: none; border: none; font-size: 1.8rem; color: var(--blue-grey); cursor: pointer; transition: 0.2s;">✖</button>
                 </div>
             </div>
-            <div>
-                <h2 id="dt-title">عنوان المهمة</h2>
-                <div style="font-size: 0.85rem; color: var(--blue-grey); margin-top:5px;">الحالة الحالية: <span id="dt-status-text" style="color: var(--light-blue); font-weight:600;">الانتظار</span></div>
+            <!-- تعديل اسم المهمة من هنا -->
+            <div style="display: flex; flex-direction: column; flex: 1; margin-top: 10px;">
+                <input type="text" id="dt-title-input" class="editable-title" placeholder="عنوان المهمة">
+                <div style="font-size: 0.85rem; color: var(--blue-grey); margin-top:5px; padding-left:5px;">الحالة الحالية: <span id="dt-status-text" style="color: var(--light-blue); font-weight:600;">الانتظار</span></div>
             </div>
         </div>
 
@@ -399,8 +406,12 @@
                     </div>
 
                     <div class="checklist-input-wrap">
-                        <input type="text" id="dt-new-checklist-item" placeholder="إضافة خطوة فرعية (ماذا أنجزت؟)..." style="flex:2;">
-                        <input type="number" id="dt-new-checklist-hours" placeholder="الساعات المستغرقة" style="flex:1;" min="0">
+                        <input type="text" id="dt-new-checklist-item" placeholder="إضافة خطوة فرعية (ماذا أنجزت؟)..." style="flex:2; min-width:200px;">
+                        <!-- اختيار موظف للخطوة -->
+                        <select id="dt-new-checklist-assignee" style="flex:1; min-width:120px;">
+                            <option value="">-- موجه لـ --</option>
+                        </select>
+                        <input type="number" id="dt-new-checklist-hours" placeholder="الساعات المستغرقة" style="flex:1; min-width:100px;" min="0">
                         <button class="btn-main" style="padding: 10px 20px; width: auto;" onclick="addChecklistItem()">إضافة</button>
                     </div>
                 </div>
@@ -443,9 +454,6 @@
                 <input type="number" id="dt-hours" min="0">
 
                 <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
-                    <h4 style="color: var(--tech-white); margin-bottom: 15px; font-size: 0.9rem;">إدارة المهام</h4>
-                    <p style="font-size: 0.75rem; color: var(--blue-grey); margin-bottom: 15px;">لتغيير حالة المهمة (انتظار، قيد التنفيذ، مكتملة)، يرجى سحب البطاقة من اللوحة الرئيسية.</p>
-                    
                     <button class="action-btn-block admin-only" onclick="deleteTaskFromDetails()" style="background: rgba(248, 113, 113, 0.1); color: #f87171; border-color: #f87171;">
                         <span>حذف المهمة نهائياً</span> <span>🗑️</span>
                     </button>
@@ -490,6 +498,7 @@
 
     // دالة مساعدة لتوليد لون وأحرف الأفاتار
     function getAvatarHTML(name) {
+        if(!name) return '';
         const colors = ['#3BA4FE', '#f87171', '#34d399', '#fbbf24', '#a78bfa', '#818cf8'];
         const char = name.substring(0, 2);
         const color = colors[char.charCodeAt(0) % colors.length];
@@ -610,7 +619,6 @@
                         </div>`;
                 }
 
-                // عرض الأفاتارز للمسؤولين
                 let avatarsHtml = assignedToArray.map(name => getAvatarHTML(name)).join('');
 
                 const card = document.createElement('div');
@@ -668,7 +676,7 @@
                 team: document.getElementById('tTypeNew').value,
                 estHours: parseFloat(document.getElementById('eHoursNew').value) || 0,
                 status: 'pending', 
-                createdAt: Date.now(), // تاريخ إنشاء المهمة
+                createdAt: Date.now(), 
                 description: "", dueDate: "", comments: {}, checklist: {}
             };
             if(!data.projectName || !data.title || assignees.length === 0) return alert("يرجى إكمال البيانات الأساسية واختيار مسؤول واحد على الأقل.");
@@ -676,18 +684,32 @@
             document.getElementById('addTaskModal').classList.remove('active');
         };
 
+        // تحديث قائمة المنسدلة للـ Checklist لتعكس الموظفين المحددين
+        window.updateChecklistAssigneeOptions = () => {
+            const checkedBoxes = document.querySelectorAll('#dt-assignee-container input[type="checkbox"]:checked');
+            const select = document.getElementById('dt-new-checklist-assignee');
+            if(!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">-- موجه لـ --</option>';
+            checkedBoxes.forEach(cb => {
+                select.innerHTML += `<option value="${cb.value}">${cb.value}</option>`;
+            });
+            if (Array.from(checkedBoxes).some(cb => cb.value === currentVal)) {
+                select.value = currentVal;
+            }
+        };
+
         window.openTaskDetailsModal = (id) => {
             const t = allTasks[id];
             document.getElementById('dt-id').value = id;
             document.getElementById('dt-project').innerText = `# ${t.projectName}`;
-            document.getElementById('dt-title').innerText = t.title;
+            document.getElementById('dt-title-input').value = t.title; // وضع العنوان في الحقل القابل للتعديل
             
             const statusMap = { 'pending': 'الانتظار', 'inprogress': 'قيد التنفيذ', 'completed': 'مكتملة' };
             document.getElementById('dt-status-text').innerText = statusMap[t.status];
             
             document.getElementById('dt-desc').value = t.description || "";
             
-            // تعيين تاريخ افتراضي لليوم إذا لم يكن موجوداً
             if(!t.dueDate) {
                 document.getElementById('dt-duedate').valueAsDate = new Date();
             } else {
@@ -717,9 +739,10 @@
                 staffByTeam[team].forEach(e => {
                     const isChecked = selectedAssignees.includes(e) ? 'checked' : '';
                     const disabled = !hasAdminRights ? 'disabled' : '';
-                    container.innerHTML += `<label><input type="checkbox" value="${e}" ${isChecked} ${disabled}> ${getAvatarHTML(e)} ${e}</label>`;
+                    container.innerHTML += `<label><input type="checkbox" value="${e}" ${isChecked} ${disabled} onchange="updateChecklistAssigneeOptions()"> ${getAvatarHTML(e)} ${e}</label>`;
                 });
             }
+            updateChecklistAssigneeOptions();
         };
 
         window.saveTaskDetails = () => {
@@ -727,6 +750,7 @@
             const hasAdminRights = isManager || isTeamLead;
             
             const updates = {
+                title: document.getElementById('dt-title-input').value.trim() || "بدون عنوان",
                 description: document.getElementById('dt-desc').value,
                 dueDate: document.getElementById('dt-duedate').value,
                 estHours: parseFloat(document.getElementById('dt-hours').value) || 0
@@ -741,7 +765,7 @@
             update(ref(db, `tasks/${id}`), updates).then(() => {
                 const btn = document.getElementById('btn-save-details');
                 btn.innerText = "تم الحفظ بنجاح ✔️";
-                btn.style.background = "#10b981"; // لون أخضر داكن للنجاح
+                btn.style.background = "#10b981"; 
                 setTimeout(() => {
                     btn.innerText = "حفظ التعديلات";
                     btn.style.background = "#34d399";
@@ -755,11 +779,13 @@
             
             if(!checklistObj) {
                 document.getElementById('dt-header-progress-fill').style.width = '0%';
+                document.getElementById('dt-header-progress-fill').style.background = 'var(--amber)';
                 document.getElementById('dt-header-progress-text').innerText = '0%';
                 return;
             }
             
             let total = 0; let doneCount = 0;
+            const hasAdminRights = isManager || isTeamLead;
             
             Object.keys(checklistObj).forEach(k => {
                 total++;
@@ -768,16 +794,26 @@
                 
                 const hoursHtml = item.actualHours ? `<span class="hours-badge-small">⏱ أخذت ${item.actualHours} س</span>` : '';
                 
+                // تحديد من يحق له الضغط على الصح (المدير، الليدر، أو الموظف الموجهة له المهمة)
+                const isAssignedUser = currentUserName === item.assignedToItem;
+                const canCheck = hasAdminRights || isAssignedUser;
+                const disabledAttr = canCheck ? '' : 'disabled';
+                
+                // بناء التاقات
+                const tagAddedBy = `<span style="display:flex; align-items:center; gap:5px; font-size: 0.65rem; color: var(--blue-grey); background: var(--deep-navy); padding: 3px 8px; border-radius: 10px;">بواسطة: ${getAvatarHTML(item.addedBy)} ${item.addedBy}</span>`;
+                const tagAssignedTo = item.assignedToItem ? `<span style="display:flex; align-items:center; gap:5px; font-size: 0.65rem; color: var(--intel-blue); background: rgba(0, 131, 255, 0.1); padding: 3px 8px; border-radius: 10px; border: 1px solid rgba(0,131,255,0.2);">موجه لـ: ${getAvatarHTML(item.assignedToItem)} ${item.assignedToItem}</span>` : '';
+
                 list.innerHTML += `
-                    <div class="checklist-item" style="border-color: ${item.done ? 'var(--soft-line)' : 'var(--border)'}; opacity: ${item.done ? '0.6' : '1'};">
+                    <div class="checklist-item" style="border-color: ${item.done ? 'var(--soft-line)' : 'var(--border)'}; opacity: ${item.done ? '0.6' : '1'}; flex-direction: column; align-items: stretch; gap: 10px;">
                         <label style="text-decoration: ${item.done ? 'line-through' : 'none'}; color: ${item.done ? 'var(--blue-grey)' : 'var(--tech-white)'}">
-                            <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleChecklistItem('${k}', ${item.done})">
+                            <input type="checkbox" ${item.done ? 'checked' : ''} ${disabledAttr} onchange="toggleChecklistItem('${k}', ${item.done})">
                             ${item.text}
                         </label>
-                        <div style="display:flex; align-items:center; gap: 10px;">
+                        <div style="display:flex; align-items:center; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
                             ${hoursHtml}
-                            <span style="display:flex; align-items:center; gap:5px; font-size: 0.65rem; color: var(--blue-grey); background: var(--deep-navy); padding: 3px 8px; border-radius: 10px;">بواسطة: ${getAvatarHTML(item.addedBy)}</span>
-                            <button onclick="deleteChecklistItem('${k}')" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem;">✖</button>
+                            ${tagAddedBy}
+                            ${tagAssignedTo}
+                            ${hasAdminRights ? `<button onclick="deleteChecklistItem('${k}')" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem; margin-right: auto;">✖</button>` : ''}
                         </div>
                     </div>
                 `;
@@ -786,7 +822,7 @@
             const progress = total === 0 ? 0 : Math.round((doneCount / total) * 100);
             const fill = document.getElementById('dt-header-progress-fill');
             fill.style.width = `${progress}%`;
-            fill.style.background = progress === 100 ? '#34d399' : 'var(--accent)';
+            fill.style.background = progress === 100 ? '#34d399' : 'var(--amber)';
             document.getElementById('dt-header-progress-text').innerText = `${progress}%`;
         };
 
@@ -794,18 +830,21 @@
             const id = document.getElementById('dt-id').value;
             const input = document.getElementById('dt-new-checklist-item');
             const hoursInput = document.getElementById('dt-new-checklist-hours');
+            const assigneeInput = document.getElementById('dt-new-checklist-assignee');
+            
             const text = input.value.trim();
             const hours = parseFloat(hoursInput.value) || null;
+            const assignedToItem = assigneeInput ? assigneeInput.value : null;
+
             if(!text) return;
             
-            const newItem = { text: text, done: false, addedBy: currentUserName, actualHours: hours, time: Date.now() };
+            const newItem = { text: text, done: false, addedBy: currentUserName, actualHours: hours, time: Date.now(), assignedToItem: assignedToItem };
             
-            // تسجيل تاريخ البدء الفعلي للمهمة إذا كان هذا أول تحديث
             const task = allTasks[id];
             let updates = {};
             if(!task.startedAt) updates[`tasks/${id}/startedAt`] = Date.now();
             
-            update(ref(db), updates); // تحديث البدء الفعلي إن وجد
+            update(ref(db), updates); 
             push(ref(db, `tasks/${id}/checklist`), newItem).then(() => { input.value = ''; hoursInput.value = ''; });
         };
 
@@ -857,7 +896,6 @@
             const id = e.dataTransfer.getData("taskId"); 
             if(id) {
                 const updates = { status: status };
-                // تسجيل التواريخ بناء على الحالة
                 if(status === 'inprogress' && !allTasks[id].startedAt) updates.startedAt = Date.now();
                 if(status === 'completed') updates.completedAt = Date.now();
                 update(ref(db, `tasks/${id}`), updates); 
@@ -891,7 +929,6 @@
             body.innerHTML = '';
             const map = {};
             
-            // تجميع البيانات للمشاريع (تواريخ وتعليقات)
             arr.forEach(t => {
                 if(!map[t.projectName]) {
                     map[t.projectName] = { h: 0, c: 0, s: new Set(), earliestStart: null, latestEnd: null, creationDate: t.createdAt, allComments: [] };
@@ -902,12 +939,10 @@
                 let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
                 assignedToArray.forEach(u => map[t.projectName].s.add(u));
 
-                // التواريخ
                 if(t.createdAt < map[t.projectName].creationDate) map[t.projectName].creationDate = t.createdAt;
                 if(t.startedAt && (!map[t.projectName].earliestStart || t.startedAt < map[t.projectName].earliestStart)) map[t.projectName].earliestStart = t.startedAt;
                 if(t.completedAt && (!map[t.projectName].latestEnd || t.completedAt > map[t.projectName].latestEnd)) map[t.projectName].latestEnd = t.completedAt;
 
-                // تجميع التعليقات للـ Excel
                 if(t.comments) {
                     Object.values(t.comments).forEach(c => {
                         const d = new Date(c.time).toLocaleDateString('ar-EG');
