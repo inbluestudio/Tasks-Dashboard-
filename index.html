@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blue Design Studio — نظام الإدارة السحابي</title>
+  <title>Blue Design Studio — Cloud Management System</title>
   
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -14,7 +14,6 @@
     import { getDatabase, ref, push, onValue, remove, update, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // إعدادات Firebase الخاصة بـ Blue Design Studio
     const firebaseConfig = {
       apiKey: "AIzaSyD1qYudjPjPLGSEclPzW_wjHiXnoKHmj0c",
       authDomain: "task-dashboard-68e99.firebaseapp.com",
@@ -29,116 +28,201 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
-    // تصدير الأدوات للنافذة العالمية للاستخدام في السكربتات
     window.firebaseTools = { ref, push, onValue, remove, update, set, db, auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged };
   </script>
 
   <style>
-    /* تطبيق لوحة ألوان THE BLUE PALETTE */
+    /* التزام كامل بـ THE BLUE PALETTE المرفقة من قبل صفوان */
     :root {
-      --ink-black: #020610; --deep-navy: #0A1628; --navy-mid: #0F2236;
-      --intel-blue: #0083FF; --signal-blue: #3BA4FE; --light-blue: #88CFFD;
-      --tech-white: #E8EEF5; --blue-grey: #8FA3BC; --muted-blue: #5A7DA0;
-      --soft-line: #1F3550; --bg: var(--ink-black); --card-bg: var(--navy-mid);
-      --sidebar-bg: var(--deep-navy); --accent: var(--signal-blue); --text: var(--tech-white);
-      --border: var(--soft-line); --radius: 16px;
+      --ink-black: #020610;
+      --deep-navy: #0A1628;
+      --navy-mid: #0F2236;
+      --intel-blue: #0083FF;
+      --signal-blue: #3BA4FE;
+      --light-blue: #88CFFD;
+      --tech-white: #E8EEF5;
+      --blue-grey: #8FA3BC;
+      --muted-blue: #5A7DA0;
+      --soft-line: #1F3550;
+      
+      --bg: var(--ink-black);
+      --card-bg: var(--navy-mid);
+      --sidebar-bg: var(--deep-navy);
+      --accent: var(--signal-blue);
+      --text: var(--tech-white);
+      --border: var(--soft-line);
+      --radius: 18px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'IBM Plex Sans Arabic', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+    body { 
+      font-family: 'IBM Plex Sans Arabic', sans-serif; 
+      background: var(--bg); 
+      color: var(--text); 
+      display: flex; 
+      height: 100vh; 
+      overflow: hidden; 
+    }
+
+    /* الشريط الجانبي الفاخر */
+    .sidebar { 
+      width: 280px; 
+      background: var(--sidebar-bg); 
+      border-left: 1px solid var(--border); 
+      padding: 35px 25px; 
+      display: flex; 
+      flex-direction: column; 
+    }
+    .logo-container { margin-bottom: 45px; text-align: center; }
+    .logo-main { font-weight: 700; font-size: 1.6rem; color: var(--accent); letter-spacing: 1px; }
+    .logo-sub { font-size: 0.65rem; color: var(--blue-grey); text-transform: uppercase; margin-top: 6px; letter-spacing: 2px; }
+    
+    .nav-item { 
+      padding: 16px 22px; 
+      border-radius: 14px; 
+      cursor: pointer; 
+      margin-bottom: 12px; 
+      transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+      display: flex; 
+      align-items: center; 
+      gap: 15px;
+      color: var(--blue-grey);
+      font-weight: 500;
+    }
+    .nav-item:hover { background: rgba(59, 164, 254, 0.08); color: var(--light-blue); }
+    .nav-item.active { background: var(--accent); color: var(--ink-black); font-weight: 600; box-shadow: 0 8px 25px rgba(59, 164, 254, 0.25); }
+
+    /* المنطقة الرئيسية */
+    .main-content { flex: 1; padding: 45px; overflow-y: auto; background-image: radial-gradient(circle at 0% 0%, #0A1628 0%, #020610 100%); }
+    .section { display: none; }
+    .section.active { display: block; animation: contentFade 0.5s ease-out; }
+    @keyframes contentFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+    
+    /* لوحة الكانبان الاحترافية */
+    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+    .column { 
+      background: rgba(15, 34, 54, 0.4); 
+      border-radius: var(--radius); 
+      padding: 25px; 
+      min-height: 75vh; 
+      border: 1px solid var(--border); 
+      transition: border-color 0.3s;
+    }
+    .column.drag-over { border-color: var(--accent); background: rgba(59, 164, 254, 0.03); }
+    .column h3 { font-size: 0.8rem; margin-bottom: 30px; color: var(--muted-blue); text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 10px; }
+
+    /* بطاقة المهمة المحدثة */
+    .card { 
+      background: var(--card-bg); 
+      border: 1px solid var(--border); 
+      padding: 22px; 
+      border-radius: 16px; 
+      margin-bottom: 22px; 
+      position: relative; 
+      cursor: grab; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    .card:active { cursor: grabbing; transform: scale(0.97); }
+    .card:hover { border-color: var(--accent); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4); }
+    
+    .project-chip { 
+      display: inline-block; 
+      padding: 5px 14px; 
+      background: rgba(59, 164, 254, 0.1); 
+      color: var(--accent); 
+      font-size: 0.75rem; 
+      border-radius: 8px; 
+      font-weight: 700; 
+      margin-bottom: 15px;
+      border: 1px solid rgba(59, 164, 254, 0.15);
+    }
+    .card-title { font-weight: 600; margin-bottom: 15px; font-size: 1.1rem; color: var(--tech-white); line-height: 1.4; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px; }
+    .user-info { font-size: 0.85rem; color: var(--blue-grey); display: flex; align-items: center; gap: 8px; }
+    
+    /* تكبير عداد الساعات في البطاقة */
+    .hour-badge { 
+      font-size: 1.4rem; 
+      color: var(--amber); 
+      font-weight: 700; 
+      background: rgba(251, 191, 36, 0.12); 
+      padding: 6px 14px; 
+      border-radius: 10px; 
+      border: 1px solid rgba(251, 191, 36, 0.18);
+    }
+
+    /* أزرار التحكم */
+    .card-actions { position: absolute; top: 18px; left: 18px; display: flex; gap: 8px; opacity: 0; transition: 0.3s; }
+    .card:hover .card-actions { opacity: 1; }
+    .action-btn { background: var(--ink-black); border: 1px solid var(--border); color: var(--blue-grey); padding: 6px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+    .action-btn:hover { color: var(--accent); border-color: var(--accent); }
 
     /* شاشة الدخول */
-    #login-page { position: fixed; inset: 0; background: var(--ink-black); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-    .login-card { background: var(--deep-navy); padding: 40px; border-radius: 24px; width: 420px; border: 1px solid var(--border); text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+    #login-page { position: fixed; inset: 0; background: var(--ink-black); z-index: 5000; display: flex; align-items: center; justify-content: center; }
+    .login-card { background: var(--deep-navy); padding: 50px 40px; border-radius: 30px; width: 440px; border: 1px solid var(--border); text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.6); }
     
-    input, select { width: 100%; padding: 15px; margin-bottom: 20px; background: var(--ink-black); border: 1px solid var(--border); border-radius: 12px; color: white; outline: none; font-family: inherit; }
-    input:focus { border-color: var(--accent); }
+    input, select { 
+      width: 100%; padding: 16px; margin-bottom: 22px; background: var(--ink-black); border: 1px solid var(--border); border-radius: 14px; color: white; outline: none; font-family: inherit; font-size: 0.95rem;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    .btn-main { background: var(--accent); color: var(--ink-black); border: none; padding: 18px; border-radius: 14px; width: 100%; cursor: pointer; font-weight: 700; font-size: 1rem; transition: 0.3s; }
+    .btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(59, 164, 254, 0.4); }
 
-    .btn-main { background: var(--accent); color: var(--ink-black); border: none; padding: 16px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; font-size: 1rem; transition: 0.3s; }
-    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 164, 254, 0.4); }
+    /* الهاشتاقات الذكية */
+    .hashtag-area { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; max-height: 100px; overflow-y: auto; padding: 5px; }
+    .project-hashtag { background: var(--soft-line); color: var(--light-blue); padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: 500; transition: 0.2s; }
+    .project-hashtag:hover { background: var(--intel-blue); color: white; transform: translateY(-2px); }
 
-    .auth-toggle { margin-top: 20px; color: var(--blue-grey); font-size: 0.85rem; }
-    .auth-toggle span { color: var(--accent); cursor: pointer; font-weight: 600; text-decoration: underline; }
-
-    /* النظام بعد الدخول */
-    #app-ui { display: none; width: 100%; height: 100%; }
-    .sidebar { width: 260px; background: var(--sidebar-bg); border-left: 1px solid var(--border); padding: 30px; display: flex; flex-direction: column; }
-    .logo-area { margin-bottom: 40px; text-align: center; }
-    .logo-main { font-weight: 700; font-size: 1.4rem; color: var(--accent); letter-spacing: 1px; }
+    /* الإحصائيات الضخمة */
+    .stat-box { background: var(--navy-mid); padding: 35px; border-radius: 24px; border: 1px solid var(--border); text-align: center; }
+    .stat-val { font-size: 4rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; line-height: 1; }
+    .stat-lbl { color: var(--blue-grey); font-size: 1.1rem; }
     
-    .nav-item { padding: 14px 20px; border-radius: 12px; cursor: pointer; margin-bottom: 8px; transition: 0.3s; display: flex; align-items: center; gap: 12px; color: var(--blue-grey); }
-    .nav-item:hover { background: rgba(59, 164, 254, 0.1); color: var(--light-blue); }
-    .nav-item.active { background: var(--accent); color: var(--ink-black); font-weight: 600; box-shadow: 0 4px 20px rgba(59, 164, 254, 0.2); }
+    table { width: 100%; border-collapse: collapse; margin-top: 40px; text-align: right; }
+    th { padding: 22px; color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--border); background: rgba(255,255,255,0.02); }
+    td { padding: 22px; border-bottom: 1px solid var(--border); color: var(--tech-white); font-size: 1rem; }
 
-    .main-content { flex: 1; padding: 40px; overflow-y: auto; background-image: radial-gradient(circle at 10% 20%, #0A1628 0%, #020610 100%); }
-    .section { display: none; }
-    .section.active { display: block; animation: slideUp 0.4s ease-out; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* الكانبان والبطاقات */
-    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    .column { background: rgba(15, 34, 54, 0.5); border-radius: var(--radius); padding: 20px; min-height: 75vh; border: 1px solid var(--border); transition: 0.3s; }
-    .column h3 { font-size: 0.85rem; margin-bottom: 25px; color: var(--blue-grey); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
-    
-    .card { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 14px; margin-bottom: 20px; position: relative; cursor: grab; transition: 0.2s; }
-    .card:hover { border-color: var(--accent); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-    
-    .project-chip { display: inline-block; padding: 4px 12px; background: rgba(59, 164, 254, 0.1); color: var(--accent); font-size: 0.7rem; border-radius: 6px; font-weight: 700; margin-bottom: 12px; border: 1px solid rgba(59, 164, 254, 0.15); }
-    .hour-badge { font-size: 1.3rem; color: var(--amber); font-weight: 700; background: rgba(251, 191, 36, 0.15); padding: 4px 12px; border-radius: 8px; }
-
-    /* التحكم بالمدير */
-    .admin-only { display: none; }
-
-    /* الهاشتاقات */
-    .tag-suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
-    .project-hashtag { background: var(--soft-line); color: var(--light-blue); padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 500; }
-    .project-hashtag:hover { background: var(--intel-blue); color: white; }
-
-    /* الإحصائيات */
-    .stat-box { background: var(--navy-mid); padding: 30px; border-radius: 20px; border: 1px solid var(--border); text-align: center; }
-    .stat-val { font-size: 3.2rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; }
-    
-    table { width: 100%; border-collapse: collapse; margin-top: 30px; text-align: right; }
-    th { padding: 20px; color: var(--accent); border-bottom: 2px solid var(--border); }
-    td { padding: 20px; border-bottom: 1px solid var(--border); color: var(--tech-white); }
-
-    .modal { position: fixed; inset: 0; background: rgba(2, 6, 16, 0.85); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(8px); }
+    .modal { position: fixed; inset: 0; background: rgba(2, 6, 16, 0.9); display: none; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(12px); }
     .modal.active { display: flex; }
-    .modal-content { background: var(--deep-navy); padding: 40px; border-radius: 24px; width: 480px; border: 1px solid var(--border); }
+    .modal-content { background: var(--deep-navy); padding: 45px; border-radius: 28px; width: 500px; border: 1px solid var(--border); }
     
-    /* تنبيهات الخطأ المحسنة */
-    .error-box { background: rgba(248, 113, 113, 0.1); border: 1px solid #f87171; color: #f87171; padding: 12px; border-radius: 10px; margin-top: 15px; font-size: 0.85rem; display: none; text-align: right; line-height: 1.5; }
+    .admin-only { display: none; }
+    .error-msg { background: rgba(248, 113, 113, 0.1); border: 1px solid #f87171; color: #f87171; padding: 14px; border-radius: 12px; margin-top: 20px; font-size: 0.85rem; display: none; }
   </style>
 </head>
 
 <body>
 
-  <!-- شاشة تسجيل الدخول / إنشاء الحساب -->
+  <!-- شاشة الدخول والتفعيل -->
   <div id="login-page">
     <div class="login-card">
-        <h2 id="auth-title" style="color: var(--accent); margin-bottom: 10px;">تسجيل الدخول</h2>
-        <p style="color: var(--blue-grey); margin-bottom: 30px;">Blue Design Studio Cloud</p>
+        <h2 id="auth-title" style="color: var(--accent); margin-bottom: 12px;">تسجيل الدخول</h2>
+        <p style="color: var(--blue-grey); margin-bottom: 35px; font-size: 0.9rem;">Blue Design Studio Cloud v2.0</p>
         
-        <input type="email" id="login-email" placeholder="البريد الإلكتروني للهوية">
-        <input type="password" id="login-pass" placeholder="كلمة المرور (6 خانات فأكثر)">
+        <input type="email" id="login-email" placeholder="البريد الإلكتروني المهني">
+        <input type="password" id="login-pass" placeholder="كلمة المرور">
         
-        <button id="auth-btn" class="btn-main" onclick="handleAuthAction()">دخول للنظام</button>
+        <button id="auth-btn" class="btn-main" onclick="handleAuth()">دخول للنظام</button>
         
-        <div class="auth-toggle" id="auth-toggle-container">
-            ليس لديك حساب؟ <span onclick="toggleAuthMode(false)">أنشئ حساباً جديداً</span>
+        <div style="margin-top: 25px; color: var(--blue-grey); font-size: 0.85rem;">
+            <span id="auth-toggle-text">ليس لديك حساب؟</span> 
+            <span id="auth-toggle-btn" style="color: var(--accent); cursor: pointer; font-weight: 600; text-decoration: underline;" onclick="toggleAuthMode()">أنشئ حساباً جديداً</span>
         </div>
         
-        <div id="login-error" class="error-box"></div>
+        <div id="login-error" class="error-msg"></div>
     </div>
   </div>
 
-  <!-- الواجهة الرئيسية -->
+  <!-- واجهة النظام -->
   <div id="app-ui">
     <aside class="sidebar">
-      <div class="logo-area">
+      <div class="logo-container">
           <div class="logo-main">BLUE STUDIO</div>
-          <div id="user-display-role" style="font-size: 0.7rem; color: var(--light-blue); margin-top: 5px; text-transform: uppercase;"></div>
-          <div id="user-display-name" style="font-size: 0.9rem; margin-top: 5px; color: var(--tech-white);"></div>
+          <div id="user-role" style="font-size: 0.7rem; color: var(--light-blue); margin-top: 6px; letter-spacing: 1px;"></div>
+          <div id="user-name" style="font-size: 1rem; margin-top: 5px; font-weight: 600;"></div>
       </div>
       
       <div class="nav-item active" data-target="kanban">📋 لوحة المهام</div>
@@ -146,50 +230,48 @@
       <div class="nav-item admin-only" data-target="reports">📄 تقارير المشاريع</div>
       
       <div style="margin-top: auto;">
-          <button onclick="handleLogout()" style="background: none; border: 1px solid var(--border); color: #f87171; width: 100%; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 600;">تسجيل خروج</button>
+          <button onclick="handleLogout()" style="background: none; border: 1px solid var(--border); color: #f87171; width: 100%; padding: 15px; border-radius: 14px; cursor: pointer; font-weight: 600; transition: 0.3s;">تسجيل خروج</button>
       </div>
     </aside>
 
     <main class="main-content">
       <section id="kanban" class="section active">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px;">
+        <div class="page-header">
           <h1 id="page-title">إدارة العمل</h1>
-          <button onclick="openAddModal()" class="btn-main admin-only" style="width: auto; padding: 12px 35px;">+ مهمة جديدة</button>
+          <button onclick="openAddModal()" class="btn-main admin-only" style="width: auto; padding: 12px 40px;">+ مهمة جديدة</button>
         </div>
         
         <div class="board">
           <div class="column" data-status="pending" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'pending')">
-            <h3>⏳ انتظار</h3><div class="list" id="list-pending"></div>
+            <h3>⏳ بانتظار البدء</h3><div class="list" id="list-pending"></div>
           </div>
           <div class="column" data-status="inprogress" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'inprogress')">
-            <h3>🔄 تنفيذ</h3><div class="list" id="list-inprogress"></div>
+            <h3>🔄 قيد التنفيذ</h3><div class="list" id="list-inprogress"></div>
           </div>
           <div class="column" data-status="completed" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'completed')">
-            <h3>✅ منتهية</h3><div class="list" id="list-completed"></div>
+            <h3>✅ منتهية بنجاح</h3><div class="list" id="list-completed"></div>
           </div>
         </div>
       </section>
 
-      <!-- التحليلات -->
       <section id="dashboard" class="section">
-        <h1>تحليل أداء المكتب</h1>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 35px 0;">
-            <div class="stat-box"><div class="stat-val" id="st-total">0</div><div style="color: var(--blue-grey)">إجمالي التاسكات</div></div>
-            <div class="stat-box"><div class="stat-val" id="st-hours" style="color: var(--amber)">0</div><div style="color: var(--blue-grey)">إجمالي الساعات</div></div>
-            <div class="stat-box"><div class="stat-val" id="st-projects" style="color: var(--light-blue)">0</div><div style="color: var(--blue-grey)">مشاريع نشطة</div></div>
+        <h1>التحليل الاستراتيجي</h1>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin: 40px 0;">
+            <div class="stat-box"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">إجمالي التاسكات</div></div>
+            <div class="stat-box"><div class="stat-val" id="st-hours" style="color: var(--amber)">0</div><div class="stat-lbl">الساعات التقديرية</div></div>
+            <div class="stat-box"><div class="stat-val" id="st-projects" style="color: var(--light-blue)">0</div><div class="stat-lbl">مشاريع نشطة</div></div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-            <div class="stat-box" style="height: 400px;"><canvas id="chartStatus"></canvas></div>
-            <div class="stat-box" style="height: 400px;"><canvas id="chartTeams"></canvas></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div class="stat-box" style="height: 450px;"><canvas id="chartStatus"></canvas></div>
+            <div class="stat-box" style="height: 450px;"><canvas id="chartTeams"></canvas></div>
         </div>
       </section>
 
-      <!-- التقارير -->
       <section id="reports" class="section">
-        <h1>تقارير المشاريع المفصلة</h1>
-        <div class="stat-box" style="margin-top: 30px; text-align: right;">
+        <h1>تقارير أداء المشاريع</h1>
+        <div class="stat-box" style="margin-top: 35px;">
             <table>
-                <thead><tr><th>المشروع</th><th>الفريق العامل</th><th>المهام</th><th>الساعات التقديرية</th></tr></thead>
+                <thead><tr><th>المشروع الرئيسي</th><th>فريق العمل المشترك</th><th>المهام</th><th>إجمالي الساعات</th></tr></thead>
                 <tbody id="report-body"></tbody>
             </table>
         </div>
@@ -197,89 +279,88 @@
     </main>
   </div>
 
-  <!-- مودال الإضافة والتعديل -->
+  <!-- نافذة المهام -->
   <div class="modal" id="taskModal">
     <div class="modal-content">
-      <h2 id="modalTitle">إضافة مهمة جديدة</h2>
+      <h2 id="modalTitle" style="margin-bottom: 30px;">إضافة مهمة جديدة</h2>
       <input type="hidden" id="editId">
-      <label style="font-size: 0.8rem; color: var(--blue-grey);">اسم المشروع</label>
-      <input type="text" id="pName" placeholder="اكتب اسم المشروع...">
-      <div id="hashtagContainer" class="tag-suggestions"></div>
       
-      <label style="font-size: 0.8rem; color: var(--blue-grey);">عنوان التاسك</label>
-      <input type="text" id="tTitle" placeholder="مثلاً: ريندر المطبخ">
+      <label style="font-size: 0.8rem; color: var(--blue-grey); margin-bottom: 8px; display: block;">اسم المشروع</label>
+      <input type="text" id="pName" placeholder="اكتب اسم المشروع هنا...">
+      <div id="hashtagContainer" class="hashtag-area"></div>
       
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <label style="font-size: 0.8rem; color: var(--blue-grey); margin-bottom: 8px; display: block;">عنوان التاسك</label>
+      <input type="text" id="tTitle" placeholder="مثلاً: تصميم المخطط التنفيذي">
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
         <div>
-          <label style="font-size: 0.8rem; color: var(--blue-grey);">الفريق</label>
-          <select id="tType" onchange="updateStaff()"><option value="">-- اختر --</option><option value="3D">3D</option><option value="unreal engine">unreal engine</option><option value="AI & Code">AI & Code</option></select>
+          <label style="font-size: 0.8rem; color: var(--blue-grey);">الفريق المختص</label>
+          <select id="tType" onchange="updateStaffList()"><option value="">-- اختر --</option><option value="3D">3D</option><option value="unreal engine">unreal engine</option><option value="AI & Code">AI & Code</option></select>
         </div>
         <div>
           <label style="font-size: 0.8rem; color: var(--blue-grey);">المسؤول</label>
-          <select id="sName"><option value="">-- اختر الموظف --</option></select>
+          <select id="sName"><option value="">-- اختر الفريق --</option></select>
         </div>
       </div>
       
-      <label style="font-size: 0.8rem; color: var(--blue-grey);">الساعات المتوقعة</label>
-      <input type="number" id="eHours" placeholder="مثلاً: 6" min="1">
+      <label style="font-size: 0.8rem; color: var(--blue-grey); margin-bottom: 8px; display: block;">ساعات العمل المتوقعة</label>
+      <input type="number" id="eHours" placeholder="مثلاً: 8" min="1">
       
       <button class="btn-main" onclick="saveTask()">حفظ في السحابة 🚀</button>
-      <button onclick="document.getElementById('taskModal').classList.remove('active')" style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:15px; cursor:pointer;">إلغاء</button>
+      <button onclick="document.getElementById('taskModal').classList.remove('active')" style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:20px; cursor:pointer;">إلغاء</button>
     </div>
   </div>
 
   <script type="module">
     let allTasks = {};
-    let currentUser = null;
     let isManager = false;
     let currentUserName = "";
     let isLoginMode = true;
     let chartS, chartT;
 
-    const staffMap = {
-        "safwan.krasneh@bluedesignstudio.com": { name: "صفوان القراسنة", role: "manager" },
-        "hussam.banat@bluedesignstudio.com": { name: "حسام بنات", role: "manager" },
-        "nour@bluedesignstudio.com": { name: "نور", role: "3D" },
-        "tamer@bluedesignstudio.com": { name: "تامر", role: "3D" },
-        "moataz@bluedesignstudio.com": { name: "معتز", role: "3D" },
-        "laith@bluedesignstudio.com": { name: "ليث", role: "unreal engine" },
-        "dana@bluedesignstudio.com": { name: "دانا", role: "unreal engine" },
-        "bakr@bluedesignstudio.com": { name: "بكر", role: "unreal engine" },
-        "abboud@bluedesignstudio.com": { name: "عبود", role: "AI & Code" },
-        "safwan@bluedesignstudio.com": { name: "صفوان", role: "AI & Code" }
+    const whitelist = {
+      "safwan.krasneh@bluedesignstudio.com": { name: "صفوان القراسنة", role: "manager" },
+      "hussam.banat@bluedesignstudio.com": { name: "حسام بنات", role: "manager" },
+      "nour@bluedesignstudio.com": { name: "نور", role: "3D" },
+      "tamer@bluedesignstudio.com": { name: "تامر", role: "3D" },
+      "moataz@bluedesignstudio.com": { name: "معتز", role: "3D" },
+      "laith@bluedesignstudio.com": { name: "ليث", role: "unreal engine" },
+      "dana@bluedesignstudio.com": { name: "دانا", role: "unreal engine" },
+      "bakr@bluedesignstudio.com": { name: "بكر", role: "unreal engine" },
+      "abboud@bluedesignstudio.com": { name: "عبود", role: "AI & Code" },
+      "safwan@bluedesignstudio.com": { name: "صفوان", role: "AI & Code" }
     };
 
-    const employees = { "3D": ["نور", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "AI & Code": ["عبود", "صفوان"] };
+    const staffByTeam = { "3D": ["نور", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "AI & Code": ["عبود", "صفوان"] };
 
     setTimeout(() => {
         const { auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onValue, ref, db, update, push, remove } = window.firebaseTools;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                const userData = staffMap[user.email];
+                const userData = whitelist[user.email];
                 if (!userData) {
                     signOut(auth);
-                    showError("هذا الإيميل غير مصرح له بدخول نظام Blue Design Studio.");
+                    showError("عذراً، هذا البريد غير مصرح له بدخول النظام.");
                     return;
                 }
 
-                currentUser = user;
                 isManager = userData.role === "manager";
                 currentUserName = userData.name;
                 
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('app-ui').style.display = 'flex';
-                document.getElementById('user-display-name').innerText = userData.name;
-                document.getElementById('user-display-role').innerText = isManager ? "مدير النظام" : `فريق ${userData.role}`;
+                document.getElementById('user-name').innerText = userData.name;
+                document.getElementById('user-role').innerText = isManager ? "الإدارة العليا" : `فريق ${userData.role}`;
                 
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = isManager ? 'flex' : 'none');
-                document.getElementById('page-title').innerText = isManager ? "لوحة تحكم المكتب الشاملة" : "مهامي الشخصية الجارية";
+                document.getElementById('page-title').innerText = isManager ? "لوحة التحكم الشاملة" : "مهامي الجارية";
 
                 onValue(ref(db, 'tasks'), (snap) => {
                     allTasks = snap.val() || {};
                     renderBoard();
-                    renderProjectHashtags();
-                    if(isManager) updateAdminDashboard();
+                    renderHashtags();
+                    if(isManager) updateAdminStats();
                 });
             } else {
                 document.getElementById('login-page').style.display = 'flex';
@@ -287,56 +368,48 @@
             }
         });
 
-        window.toggleAuthMode = (login) => {
-            isLoginMode = login;
-            document.getElementById('auth-title').innerText = login ? "تسجيل الدخول" : "تفعيل حساب موظف";
-            document.getElementById('auth-btn').innerText = login ? "دخول للنظام" : "إنشاء كلمة مرور";
-            document.getElementById('auth-toggle-container').innerHTML = login ? 
-                `ليس لديك حساب؟ <span onclick="toggleAuthMode(false)">أنشئ حساباً جديداً</span>` :
-                `لديك حساب بالفعل؟ <span onclick="toggleAuthMode(true)">سجل دخولك هنا</span>`;
+        window.toggleAuthMode = () => {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب جديد";
+            document.getElementById('auth-btn').innerText = isLoginMode ? "دخول للنظام" : "تفعيل الحساب";
+            document.getElementById('auth-toggle-text').innerText = isLoginMode ? "ليس لديك حساب؟" : "لديك حساب بالفعل؟";
+            document.getElementById('auth-toggle-btn').innerText = isLoginMode ? "أنشئ حساباً جديداً" : "سجل دخولك هنا";
             document.getElementById('login-error').style.display = 'none';
         };
 
-        window.handleAuthAction = () => {
+        window.handleAuth = () => {
             const email = document.getElementById('login-email').value.trim();
             const pass = document.getElementById('login-pass').value;
 
-            if(!email || !pass) return showError("يرجى إدخال البريد وكلمة المرور.");
-            if (!staffMap[email]) return showError("هذا البريد غير مدرج في القائمة المعتمدة للمكتب.");
+            if(!email || !pass) return showError("يرجى إدخال البيانات المطلوبة.");
+            if (!whitelist[email]) return showError("هذا البريد غير مدرج في القائمة البيضاء للمكتب.");
 
             if (isLoginMode) {
                 signInWithEmailAndPassword(auth, email, pass).catch(err => {
                     if (err.code === 'auth/configuration-not-found') {
-                        showError("خطأ: خدمة تسجيل الدخول معطلة في Firebase Console. يرجى تفعيل Email/Password Sign-in Method.");
-                    } else if (err.code === 'auth/user-not-found') {
-                        showError("لم يتم العثور على هذا الحساب. يرجى إنشاء حساب جديد أولاً.");
-                    } else if (err.code === 'auth/wrong-password') {
-                        showError("كلمة المرور غير صحيحة.");
+                        showError("خطأ: خدمة تسجيل الدخول غير مفعلة في Firebase. يرجى تفعيل Email/Password من إعدادات Authentication.");
                     } else {
-                        showError("خطأ في تسجيل الدخول: " + err.message);
+                        showError("خطأ: تأكد من الإيميل وكلمة السر، أو قم بتفعيل الحساب أولاً.");
                     }
                 });
             } else {
-                if(pass.length < 6) return showError("يجب أن تكون كلمة المرور 6 رموز أو أكثر.");
+                if(pass.length < 6) return showError("قاعدة أمان: يجب أن تكون كلمة المرور 6 رموز أو أكثر.");
                 createUserWithEmailAndPassword(auth, email, pass).then(() => {
-                    alert("تم إنشاء حسابك بنجاح! يمكنك الآن الدخول.");
-                    toggleAuthMode(true);
+                    alert("تم تفعيل حسابك بنجاح! يمكنك الدخول الآن.");
+                    toggleAuthMode();
                 }).catch(err => {
                     if (err.code === 'auth/configuration-not-found') {
-                        showError("خطأ: خدمة تسجيل الدخول معطلة. يرجى تفعيل Email/Password في إعدادات Firebase.");
-                    } else if (err.code === 'auth/email-already-in-use') {
-                        showError("هذا الحساب موجود مسبقاً، جرب تسجيل الدخول.");
+                        showError("خطأ: خدمة تسجيل الدخول غير مفعلة في Firebase. يرجى تفعيل Email/Password من إعدادات Authentication.");
                     } else {
-                        showError("فشل إنشاء الحساب: " + err.message);
+                        showError("فشل التفعيل: ربما الحساب موجود مسبقاً.");
                     }
                 });
             }
         };
 
         function showError(msg) {
-            const err = document.getElementById('login-error');
-            err.innerText = msg;
-            err.style.display = 'block';
+            const box = document.getElementById('login-error');
+            box.innerText = msg; box.style.display = 'block';
         }
 
         window.handleLogout = () => signOut(auth);
@@ -353,38 +426,33 @@
                 card.setAttribute('ondragstart', `dragStart(event, '${id}')`);
                 
                 card.innerHTML = `
-                    ${isManager ? `<div style="position:absolute; top:15px; left:15px; display:flex; gap:8px;">
-                        <button onclick="openEditModal('${id}')" style="background:none; border:none; color:var(--blue-grey); cursor:pointer;">✏️</button>
-                        <button onclick="deleteTask('${id}')" style="background:none; border:none; color:#f87171; cursor:pointer;">🗑️</button>
+                    ${isManager ? `<div class="card-actions">
+                        <button class="action-btn" onclick="openEditModal('${id}')">✏️</button>
+                        <button class="action-btn" onclick="deleteTask('${id}')">🗑️</button>
                     </div>` : ''}
                     <div class="project-chip"># ${t.projectName}</div>
-                    <div style="font-weight:600; margin-bottom:15px; font-size:1rem; color:var(--tech-white);">${t.title}</div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:15px;">
-                        <span style="font-size:0.8rem; color:var(--blue-grey);">👤 ${t.assignedTo}</span>
-                        <span class="hour-badge">${t.estHours} س</span>
+                    <div class="card-title">${t.title}</div>
+                    <div class="card-footer">
+                        <div class="user-info">👤 ${t.assignedTo}</div>
+                        <div class="hour-badge">${t.estHours} س</div>
                     </div>
                 `;
                 document.getElementById(`list-${t.status}`).appendChild(card);
             });
         }
 
-        window.renderProjectHashtags = () => {
+        window.renderHashtags = () => {
             const container = document.getElementById('hashtagContainer');
             if(!container) return;
             const projs = [...new Set(Object.values(allTasks).map(t => t.projectName))];
             container.innerHTML = projs.map(p => `<span class="project-hashtag" onclick="document.getElementById('pName').value='${p}'"># ${p}</span>`).join('');
         };
 
-        window.updateAdminDashboard = () => {
+        window.updateAdminStats = () => {
             const arr = Object.values(allTasks);
-            const totalTasksEl = document.getElementById('st-total');
-            const totalHoursEl = document.getElementById('st-hours');
-            const totalProjectsEl = document.getElementById('st-projects');
-            
-            if(totalTasksEl) totalTasksEl.innerText = arr.length;
-            if(totalHoursEl) totalHoursEl.innerText = arr.reduce((a, b) => a + (b.estHours || 0), 0) + " س";
-            if(totalProjectsEl) totalProjectsEl.innerText = [...new Set(arr.map(x => x.projectName))].length;
-            
+            document.getElementById('st-total').innerText = arr.length;
+            document.getElementById('st-hours').innerText = arr.reduce((a, b) => a + (b.estHours || 0), 0) + " س";
+            document.getElementById('st-projects').innerText = [...new Set(arr.map(x => x.projectName))].length;
             if(document.getElementById('dashboard').classList.contains('active')) drawCharts(arr);
             if(document.getElementById('reports').classList.contains('active')) drawReportTable(arr);
         };
@@ -392,18 +460,14 @@
         function drawCharts(arr) {
             const sData = [arr.filter(t => t.status === 'pending').length, arr.filter(t => t.status === 'inprogress').length, arr.filter(t => t.status === 'completed').length];
             if(chartS) chartS.destroy();
-            const ctxS = document.getElementById('chartStatus');
-            if(ctxS) {
-                chartS = new Chart(ctxS, {
-                    type: 'doughnut', data: { labels: ['انتظار', 'تنفيذ', 'منتهية'], datasets: [{ data: sData, backgroundColor: ['#fbbf24', '#3BA4FE', '#34d399'], borderWidth: 0 }] },
-                    options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#8FA3BC' } } } }
-                });
-            }
+            chartS = new Chart(document.getElementById('chartStatus'), {
+                type: 'doughnut', data: { labels: ['انتظار', 'تنفيذ', 'منتهية'], datasets: [{ data: sData, backgroundColor: ['#fbbf24', '#3BA4FE', '#34d399'], borderWidth: 0 }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#8FA3BC' } } } }
+            });
         }
 
         function drawReportTable(arr) {
             const body = document.getElementById('report-body');
-            if(!body) return;
             body.innerHTML = '';
             const map = {};
             arr.forEach(t => {
@@ -415,11 +479,11 @@
             });
         }
 
-        window.updateStaff = () => {
+        window.updateStaffList = () => {
             const team = document.getElementById('tType').value;
             const select = document.getElementById('sName');
             select.innerHTML = '<option value="">-- اختر الموظف --</option>';
-            if (employees[team]) employees[team].forEach(e => {
+            if (staffByTeam[team]) staffByTeam[team].forEach(e => {
                 const opt = document.createElement('option'); opt.value = e; opt.innerText = e; select.appendChild(opt);
             });
         };
@@ -431,6 +495,7 @@
                 assignedTo: document.getElementById('sName').value, team: document.getElementById('tType').value,
                 estHours: parseFloat(document.getElementById('eHours').value) || 0, status: 'pending', createdAt: Date.now()
             };
+            if(!data.projectName || !data.title || !data.assignedTo) return alert("يرجى إكمال البيانات");
             if(id) update(ref(db, `tasks/${id}`), data); else push(ref(db, 'tasks'), data);
             document.getElementById('taskModal').classList.remove('active');
         };
@@ -449,13 +514,18 @@
                 item.classList.add('active');
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 document.getElementById(item.dataset.target).classList.add('active');
-                if(item.dataset.target === 'dashboard' || item.dataset.target === 'reports') updateAdminDashboard();
+                if(item.dataset.target === 'dashboard' || item.dataset.target === 'reports') updateAdminStats();
             }
         });
 
         window.openAddModal = () => { 
             document.getElementById('modalTitle').innerText = "إضافة مهمة جديدة";
             document.getElementById('editId').value = "";
+            document.getElementById('pName').value = "";
+            document.getElementById('tTitle').value = "";
+            document.getElementById('tType').value = "";
+            document.getElementById('sName').innerHTML = '<option value="">-- اختر الفريق --</option>';
+            document.getElementById('eHours').value = "";
             document.getElementById('taskModal').classList.add('active'); 
         };
 
@@ -466,13 +536,13 @@
             document.getElementById('pName').value = t.projectName;
             document.getElementById('tTitle').value = t.title;
             document.getElementById('tType').value = t.team;
-            window.updateStaff();
+            window.updateStaffList();
             document.getElementById('sName').value = t.assignedTo;
             document.getElementById('eHours').value = t.estHours;
             document.getElementById('taskModal').classList.add('active');
         };
 
-    }, 2000);
+    }, 1500);
   </script>
 </body>
 </html>
