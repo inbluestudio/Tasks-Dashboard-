@@ -14,6 +14,7 @@
     import { getDatabase, ref, push, onValue, remove, update, set } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+    // إعدادات Firebase الخاصة بك
     const firebaseConfig = {
       apiKey: "AIzaSyD1qYudjPjPLGSEclPzW_wjHiXnoKHmj0c",
       authDomain: "task-dashboard-68e99.firebaseapp.com",
@@ -30,143 +31,233 @@
   </script>
 
   <style>
+    /* تطبيق لوحة ألوان THE BLUE PALETTE */
     :root {
-      --bg: #0a0a0c;
-      --card-bg: #16161a;
-      --sidebar-bg: #0f0f12;
-      --accent: #6366f1;
-      --text: #f3f4f6;
-      --border: rgba(255, 255, 255, 0.08);
-      --green: #10b981;
-      --red: #ef4444;
-      --amber: #f59e0b;
-      --radius: 12px;
+      --ink-black: #020610;
+      --deep-navy: #0A1628;
+      --navy-mid: #0F2236;
+      --intel-blue: #0083FF;
+      --signal-blue: #3BA4FE;
+      --light-blue: #88CFFD;
+      --tech-white: #E8EEF5;
+      --blue-grey: #8FA3BC;
+      --muted-blue: #5A7DA0;
+      --soft-line: #1F3550;
+      
+      --bg: var(--ink-black);
+      --card-bg: var(--navy-mid);
+      --sidebar-bg: var(--deep-navy);
+      --accent: var(--signal-blue);
+      --text: var(--tech-white);
+      --border: var(--soft-line);
+      --radius: 16px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'IBM Plex Sans Arabic', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+    body { 
+        font-family: 'IBM Plex Sans Arabic', sans-serif; 
+        background: var(--bg); 
+        color: var(--text); 
+        display: flex; 
+        height: 100vh; 
+        overflow: hidden; 
+    }
 
-    .sidebar { width: 240px; background: var(--sidebar-bg); border-left: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
-    .logo { font-weight: 700; font-size: 1.2rem; color: var(--accent); margin-bottom: 30px; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+    /* الشريط الجانبي */
+    .sidebar { 
+        width: 260px; 
+        background: var(--sidebar-bg); 
+        border-left: 1px solid var(--border); 
+        padding: 30px; 
+        display: flex; 
+        flex-direction: column; 
+    }
+    .logo-area { margin-bottom: 40px; text-align: center; }
+    .logo-main { font-weight: 700; font-size: 1.4rem; color: var(--accent); letter-spacing: 1px; }
+    .logo-tag { font-size: 0.6rem; color: var(--blue-grey); text-transform: uppercase; margin-top: 4px; }
     
-    .nav-item { padding: 12px 15px; border-radius: 10px; cursor: pointer; margin-bottom: 8px; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
-    .nav-item:hover { background: rgba(99, 102, 241, 0.1); }
-    .nav-item.active { background: var(--accent); color: white; }
+    .nav-item { 
+        padding: 14px 20px; 
+        border-radius: 12px; 
+        cursor: pointer; 
+        margin-bottom: 8px; 
+        transition: 0.3s; 
+        display: flex; 
+        align-items: center; 
+        gap: 12px;
+        color: var(--blue-grey);
+    }
+    .nav-item:hover { background: rgba(59, 164, 254, 0.1); color: var(--light-blue); }
+    .nav-item.active { background: var(--accent); color: var(--ink-black); font-weight: 600; box-shadow: 0 4px 20px rgba(59, 164, 254, 0.2); }
 
-    .main { flex: 1; padding: 30px; overflow-y: auto; }
+    /* المنطقة الرئيسية */
+    .main-content { flex: 1; padding: 40px; overflow-y: auto; background-image: radial-gradient(circle at 10% 20%, #0A1628 0%, #020610 100%); }
     .section { display: none; }
-    .section.active { display: block; }
+    .section.active { display: block; animation: slideUp 0.4s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     
-    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    .column { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 15px; min-height: 70vh; border: 1px solid var(--border); }
-    .column h3 { font-size: 0.95rem; margin-bottom: 20px; opacity: 0.7; }
-
-    .card { background: var(--card-bg); border: 1px solid var(--border); padding: 15px; border-radius: 12px; margin-bottom: 15px; position: relative; transition: 0.2s; }
-    .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; }
     
-    .project-tag { display: inline-block; padding: 2px 10px; background: var(--accent); color: white; font-size: 0.7rem; border-radius: 20px; font-weight: 600; margin-bottom: 8px; }
-    .card .title { font-weight: 500; margin: 8px 0; font-size: 0.95rem; }
+    /* لوحة الكانبان */
+    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .column { 
+        background: rgba(15, 34, 54, 0.5); 
+        border-radius: var(--radius); 
+        padding: 20px; 
+        min-height: 75vh; 
+        border: 1px solid var(--border); 
+        transition: 0.3s;
+    }
+    .column.drag-over { background: rgba(59, 164, 254, 0.05); border-color: var(--accent); }
+    .column h3 { font-size: 0.85rem; margin-bottom: 25px; color: var(--blue-grey); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+
+    /* بطاقة المهمة */
+    .card { 
+        background: var(--card-bg); 
+        border: 1px solid var(--border); 
+        padding: 20px; 
+        border-radius: 14px; 
+        margin-bottom: 20px; 
+        position: relative; 
+        cursor: grab; 
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    }
+    .card:active { cursor: grabbing; transform: scale(0.98); }
+    .card:hover { border-color: var(--accent); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); }
     
-    .est-badge { font-size: 0.85rem; color: var(--amber); background: rgba(245, 158, 11, 0.1); padding: 5px 12px; border-radius: 8px; display: block; margin-top: 10px; text-align: center; border: 1px solid rgba(245, 158, 11, 0.2); }
+    .project-chip { 
+        display: inline-block; 
+        padding: 4px 12px; 
+        background: rgba(59, 164, 254, 0.1); 
+        color: var(--accent); 
+        font-size: 0.7rem; 
+        border-radius: 6px; 
+        font-weight: 700; 
+        margin-bottom: 12px;
+        border: 1px solid rgba(59, 164, 254, 0.15);
+    }
+    .card-title { font-weight: 600; margin-bottom: 12px; font-size: 1rem; color: var(--tech-white); }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; }
+    .user-info { font-size: 0.75rem; color: var(--blue-grey); display: flex; align-items: center; gap: 6px; }
+    .hour-badge { font-size: 0.75rem; color: var(--amber); font-weight: 600; background: rgba(251, 191, 36, 0.1); padding: 2px 8px; border-radius: 4px; }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .stat-card { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid var(--border); text-align: center; }
-    .stat-card h2 { font-size: 2.2rem; color: var(--accent); margin-bottom: 5px; }
+    /* التحكم بالبطاقة */
+    .card-btns { position: absolute; top: 15px; left: 15px; display: flex; gap: 6px; opacity: 0; transition: 0.2s; }
+    .card:hover .card-btns { opacity: 1; }
+    .action-btn { background: var(--ink-black); border: 1px solid var(--border); color: var(--blue-grey); padding: 4px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+    .action-btn:hover { color: var(--accent); border-color: var(--accent); }
 
-    .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-    .chart-box { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid var(--border); min-height: 380px; }
-
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(8px); }
+    /* المودال */
+    .modal { position: fixed; inset: 0; background: rgba(2, 6, 16, 0.85); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(8px); }
     .modal.active { display: flex; }
-    .modal-content { background: var(--card-bg); padding: 30px; border-radius: 20px; width: 450px; border: 1px solid var(--border); }
+    .modal-content { background: var(--deep-navy); padding: 40px; border-radius: 24px; width: 480px; border: 1px solid var(--border); }
     
-    label { font-size: 0.8rem; opacity: 0.6; margin-bottom: 5px; display: block; }
-    input, select { width: 100%; padding: 12px; margin-bottom: 15px; background: #0a0a0c; border: 1px solid var(--border); border-radius: 10px; color: white; outline: none; font-family: inherit; }
-    .btn-primary { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; cursor: pointer; font-weight: 600; font-size: 1rem; }
-    
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { padding: 15px; text-align: right; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-    th { color: var(--accent); font-weight: 600; background: rgba(255,255,255,0.02); }
+    input, select { 
+        width: 100%; padding: 15px; margin-bottom: 20px; background: var(--ink-black); border: 1px solid var(--border); border-radius: 12px; color: white; outline: none; font-family: inherit;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+    .btn-main { background: var(--accent); color: var(--ink-black); border: none; padding: 16px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; font-size: 1rem; transition: 0.3s; }
+    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 164, 254, 0.4); }
 
-    .badge-user { font-size: 0.75rem; color: var(--green); display: flex; align-items: center; gap: 5px; font-weight: 500; }
+    /* الإحصائيات */
+    .stat-box { background: var(--navy-mid); padding: 30px; border-radius: 20px; border: 1px solid var(--border); text-align: center; }
+    .stat-val { font-size: 2.6rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; }
+    .stat-lbl { color: var(--blue-grey); font-size: 0.9rem; }
     
-    .card-actions { position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; }
-    .btn-icon { background: none; border: none; cursor: pointer; font-size: 0.9rem; opacity: 0.5; transition: 0.2s; }
-    .btn-icon:hover { opacity: 1; transform: scale(1.1); }
-
-    .btn-status { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text); cursor: pointer; font-size: 0.75rem; transition: 0.2s; margin-top: 10px; }
-    .btn-status:hover { background: var(--accent); border-color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+    th { padding: 20px; text-align: right; color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--border); }
+    td { padding: 20px; border-bottom: 1px solid var(--border); color: var(--tech-white); font-size: 0.95rem; }
+    tr:hover { background: rgba(255,255,255,0.02); }
   </style>
 </head>
 
 <body>
   <aside class="sidebar">
-    <div class="logo">BLUE DESIGN</div>
-    <div class="nav-item active" data-target="kanban">📋 لوحة المهام</div>
-    <div class="nav-item" data-target="dashboard">📊 الإحصائيات</div>
-    <div class="nav-item" data-target="reports">📄 تقارير المشاريع</div>
+    <div class="logo-area">
+        <div class="logo-main">BLUE STUDIO</div>
+        <div class="logo-tag">Engineering Management</div>
+    </div>
+    <div class="nav-item active" data-target="kanban">📋 المهام</div>
+    <div class="nav-item" data-target="dashboard">📊 التحليلات</div>
+    <div class="nav-item" data-target="reports">📄 التقارير</div>
   </aside>
 
-  <main class="main">
+  <main class="main-content">
+    <!-- صفحة المهام -->
     <section id="kanban" class="section active">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h1>إدارة مهام مكتب Blue Design</h1>
-        <button onclick="openAddModal()" class="btn-primary" style="width: auto; padding: 10px 25px;">+ مهمة جديدة</button>
+      <div class="page-header">
+        <h1>لوحة التحكم الذكية</h1>
+        <button onclick="openAddModal()" class="btn-main" style="width: auto; padding: 12px 35px;">+ مهمة جديدة</button>
       </div>
+      
       <div class="board">
-        <div class="column" data-status="pending"><h3>⏳ بانتظار البدء</h3><div class="list" id="list-pending"></div></div>
-        <div class="column" data-status="inprogress"><h3>🔄 قيد التنفيذ</h3><div class="list" id="list-inprogress"></div></div>
-        <div class="column" data-status="completed"><h3>✅ منتهية</h3><div class="list" id="list-completed"></div></div>
+        <div class="column" data-status="pending" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'pending')">
+          <h3>⏳ انتظار</h3>
+          <div class="list" id="list-pending"></div>
+        </div>
+        
+        <div class="column" data-status="inprogress" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'inprogress')">
+          <h3>🔄 تنفيذ</h3>
+          <div class="list" id="list-inprogress"></div>
+        </div>
+        
+        <div class="column" data-status="completed" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'completed')">
+          <h3>✅ منتهية</h3>
+          <div class="list" id="list-completed"></div>
+        </div>
       </div>
     </section>
 
+    <!-- صفحة الإحصائيات -->
     <section id="dashboard" class="section">
-      <h1>📊 ملخص الأداء الهندسي</h1>
-      <div class="stats-grid">
-        <div class="stat-card"><h2 id="stat-total-tasks">0</h2><p>إجمالي المهام</p></div>
-        <div class="stat-card"><h2 id="stat-total-hours" style="color: var(--amber)">0</h2><p>إجمالي الساعات المتوقعة</p></div>
-        <div class="stat-card"><h2 id="stat-active-projects" style="color: var(--accent)">0</h2><p>مشاريع نشطة</p></div>
+      <h1>تحليل الأداء العام</h1>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 35px 0;">
+        <div class="stat-box"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">إجمالي المهام</div></div>
+        <div class="stat-box"><div class="stat-val" id="st-hours" style="color: var(--amber)">0</div><div class="stat-lbl">ساعات الجهد المقدرة</div></div>
+        <div class="stat-box"><div class="stat-val" id="st-projects" style="color: var(--light-blue)">0</div><div class="stat-lbl">مشاريع نشطة</div></div>
       </div>
-      <div class="charts-container">
-        <div class="chart-box"><canvas id="statusChart"></canvas></div>
-        <div class="chart-box"><canvas id="teamChart"></canvas></div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <div class="stat-box" style="height: 400px;"><canvas id="chartStatus"></canvas></div>
+        <div class="stat-box" style="height: 400px;"><canvas id="chartTeams"></canvas></div>
       </div>
     </section>
 
+    <!-- صفحة التقارير -->
     <section id="reports" class="section">
-      <h1>📄 تقارير الجهد حسب المشروع</h1>
-      <div class="chart-box" style="height: auto; margin-top: 20px;">
+      <h1>تقارير المشاريع المفصلة</h1>
+      <div class="stat-box" style="margin-top: 35px; text-align: right;">
         <table>
           <thead>
             <tr>
               <th>المشروع</th>
-              <th>المصممين</th>
-              <th>عدد المهام</th>
-              <th>إجمالي الساعات المتوقعة</th>
+              <th>فريق العمل</th>
+              <th>المهام</th>
+              <th>الساعات المتوقعة</th>
             </tr>
           </thead>
-          <tbody id="project-report-body"></tbody>
+          <tbody id="project-table-body"></tbody>
         </table>
       </div>
     </section>
   </main>
 
-  <!-- نافذة إضافة وتعديل المهمة -->
+  <!-- نافذة الإضافة والتعديل -->
   <div class="modal" id="taskModal">
     <div class="modal-content">
-      <h2 id="modalHeader">إضافة مهمة جديدة</h2>
-      <input type="hidden" id="editTaskId">
+      <h2 id="modalTitle" style="margin-bottom: 25px;">إضافة مهمة جديدة</h2>
+      <input type="hidden" id="editId">
       
-      <label>اسم المشروع</label>
-      <input type="text" id="projName" placeholder="مثلاً: فيلا عمان">
+      <label>اسم المشروع الرئيسي</label>
+      <input type="text" id="pName" placeholder="مثلاً: فيلا دبي">
       
       <label>عنوان المهمة</label>
-      <input type="text" id="taskTitle" placeholder="مثلاً: تصميم المخططات">
+      <input type="text" id="tTitle" placeholder="مثلاً: ريندر خارجي">
       
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
         <div>
           <label>الفريق</label>
-          <select id="teamType" onchange="updateStaffList()">
+          <select id="tType" onchange="updateStaff()">
             <option value="">-- اختر --</option>
             <option value="3D">3D</option>
             <option value="unreal engine">unreal engine</option>
@@ -175,47 +266,75 @@
         </div>
         <div>
           <label>المصمم</label>
-          <select id="staffName">
-            <option value="">-- اختر الفريق أولاً --</option>
+          <select id="sName">
+            <option value="">-- اختر الفريق --</option>
           </select>
         </div>
       </div>
 
-      <label>الساعات المتوقعة لإنجاز التاسك</label>
-      <input type="number" id="estHours" placeholder="مثلاً: 4" min="1">
+      <label>الساعات المتوقعة للتاسك</label>
+      <input type="number" id="eHours" placeholder="مثلاً: 5" min="1">
       
-      <button class="btn-primary" id="saveTaskBtn" onclick="saveTask()">حفظ التعديلات 🚀</button>
-      <button onclick="document.getElementById('taskModal').classList.remove('active')" style="background:transparent; color:#999; border:none; width:100%; margin-top:10px; cursor:pointer;">إلغاء</button>
+      <button class="btn-main" onclick="saveTask()">حفظ البيانات في السحابة</button>
+      <button onclick="document.getElementById('taskModal').classList.remove('active')" style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:15px; cursor:pointer;">إلغاء</button>
     </div>
   </div>
 
   <script type="module">
-    let allTasks = {};
-    let statusChart, teamChart;
+    let tasks = {};
+    let chartS, chartT;
 
-    const staffData = {
+    const employees = {
         "3D": ["نور", "تامر", "معتز"],
         "unreal engine": ["ليث", "دانا", "بكر"],
         "AI & Code": ["عبود", "صفوان"]
     };
 
-    window.updateStaffList = () => {
-        const team = document.getElementById('teamType').value;
-        const staffSelect = document.getElementById('staffName');
-        const currentStaff = staffSelect.value;
-        staffSelect.innerHTML = '<option value="">-- اختر --</option>';
-        if (staffData[team]) {
-            staffData[team].forEach(p => {
+    window.updateStaff = () => {
+        const team = document.getElementById('tType').value;
+        const select = document.getElementById('sName');
+        select.innerHTML = '<option value="">-- اختر الموظف --</option>';
+        if (employees[team]) {
+            employees[team].forEach(e => {
                 const opt = document.createElement('option');
-                opt.value = p; opt.innerText = p; staffSelect.appendChild(opt);
+                opt.value = e; opt.innerText = e; select.appendChild(opt);
             });
         }
-        staffSelect.value = currentStaff;
+    };
+
+    // السحب والإفلات
+    window.dragStart = (e, id) => {
+        e.dataTransfer.setData("taskId", id);
+        e.target.style.opacity = "0.4";
+    };
+
+    window.dragEnd = (e) => {
+        e.target.style.opacity = "1";
+    };
+
+    window.dragOver = (e) => {
+        e.preventDefault();
+        e.currentTarget.classList.add('drag-over');
+    };
+
+    window.dragLeave = (e) => {
+        e.currentTarget.classList.remove('drag-over');
+    };
+
+    window.drop = (e, status) => {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+        const id = e.dataTransfer.getData("taskId");
+        if (id) {
+            const { update, ref, db } = window.dbRefs;
+            update(ref(db, `tasks/${id}`), { status: status });
+        }
     };
 
     setTimeout(() => {
         const { ref, push, onValue, remove, update, db } = window.dbRefs;
 
+        // الملاحة
         document.querySelectorAll('.nav-item').forEach(item => {
             item.onclick = () => {
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -223,40 +342,40 @@
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 const target = item.dataset.target;
                 document.getElementById(target).classList.add('active');
-                if(target === 'dashboard') renderCharts();
-                if(target === 'reports') renderProjectReports();
+                if(target === 'dashboard') drawCharts();
+                if(target === 'reports') drawReports();
             }
         });
 
-        onValue(ref(db, 'tasks'), (snapshot) => {
-            allTasks = snapshot.val() || {};
+        // جلب البيانات
+        onValue(ref(db, 'tasks'), (snap) => {
+            tasks = snap.val() || {};
             renderBoard();
-            updateGlobalStats();
-            if(document.getElementById('dashboard').classList.contains('active')) renderCharts();
-            if(document.getElementById('reports').classList.contains('active')) renderProjectReports();
+            updateStats();
+            if(document.getElementById('dashboard').classList.contains('active')) drawCharts();
+            if(document.getElementById('reports').classList.contains('active')) drawReports();
         });
 
         function renderBoard() {
             document.querySelectorAll('.column .list').forEach(l => l.innerHTML = '');
-            Object.keys(allTasks).forEach(id => {
-                const t = allTasks[id];
+            Object.keys(tasks).forEach(id => {
+                const t = tasks[id];
                 const card = document.createElement('div');
                 card.className = 'card';
+                card.draggable = true;
+                card.setAttribute('ondragstart', `dragStart(event, '${id}')`);
+                card.setAttribute('ondragend', `dragEnd(event)`);
                 
                 card.innerHTML = `
-                    <div class="card-actions">
-                        <button class="btn-icon" onclick="openEditModal('${id}')">✏️</button>
-                        <button class="btn-icon" onclick="deleteTask('${id}')">🗑️</button>
+                    <div class="card-btns">
+                        <button class="action-btn" onclick="openEditModal('${id}')">✏️</button>
+                        <button class="action-btn" onclick="deleteTask('${id}')">🗑️</button>
                     </div>
-                    <div class="project-tag" style="margin-top: 5px;"># ${t.projectName}</div>
-                    <div class="title">${t.title}</div>
-                    <div class="badge-user">👤 المصمم: ${t.assignedTo}</div>
-                    <div class="est-badge">🎯 المتوقع: ${t.estHours || 0} ساعة</div>
-                    
-                    <div style="margin-top:15px; border-top:1px solid var(--border); padding-top:10px;">
-                        ${t.status === 'pending' ? `<button class="btn-status" onclick="updateStatus('${id}', 'inprogress')">نقل للتنفيذ 🔄</button>` : ''}
-                        ${t.status === 'inprogress' ? `<button class="btn-status" onclick="updateStatus('${id}', 'completed')">تم الإنجاز ✅</button>` : ''}
-                        ${t.status === 'completed' ? `<button class="btn-status" onclick="updateStatus('${id}', 'pending')">إعادة للانتظار ⏳</button>` : ''}
+                    <div class="project-chip"># ${t.projectName}</div>
+                    <div class="card-title">${t.title}</div>
+                    <div class="card-footer">
+                        <div class="user-info">👤 ${t.assignedTo}</div>
+                        <div class="hour-badge">🎯 ${t.estHours || 0} س</div>
                     </div>
                 `;
                 document.getElementById(`list-${t.status}`).appendChild(card);
@@ -264,112 +383,101 @@
         }
 
         window.openAddModal = () => {
-            document.getElementById('modalHeader').innerText = "إضافة مهمة جديدة";
-            document.getElementById('editTaskId').value = "";
-            document.getElementById('projName').value = "";
-            document.getElementById('taskTitle').value = "";
-            document.getElementById('teamType').value = "";
-            document.getElementById('staffName').innerHTML = '<option value="">-- اختر الفريق أولاً --</option>';
-            document.getElementById('estHours').value = "";
+            document.getElementById('modalTitle').innerText = "إضافة مهمة جديدة";
+            document.getElementById('editId').value = "";
+            document.getElementById('pName').value = "";
+            document.getElementById('tTitle').value = "";
+            document.getElementById('tType').value = "";
+            document.getElementById('sName').innerHTML = '<option value="">-- اختر الفريق --</option>';
+            document.getElementById('eHours').value = "";
             document.getElementById('taskModal').classList.add('active');
         };
 
         window.openEditModal = (id) => {
-            const t = allTasks[id];
-            document.getElementById('modalHeader').innerText = "تعديل بيانات التاسك";
-            document.getElementById('editTaskId').value = id;
-            document.getElementById('projName').value = t.projectName;
-            document.getElementById('taskTitle').value = t.title;
-            document.getElementById('teamType').value = t.team;
-            window.updateStaffList();
-            document.getElementById('staffName').value = t.assignedTo;
-            document.getElementById('estHours').value = t.estHours;
+            const t = tasks[id];
+            document.getElementById('modalTitle').innerText = "تعديل بيانات المهمة";
+            document.getElementById('editId').value = id;
+            document.getElementById('pName').value = t.projectName;
+            document.getElementById('tTitle').value = t.title;
+            document.getElementById('tType').value = t.team;
+            window.updateStaff();
+            document.getElementById('sName').value = t.assignedTo;
+            document.getElementById('eHours').value = t.estHours;
             document.getElementById('taskModal').classList.add('active');
         };
 
         window.saveTask = () => {
-            const id = document.getElementById('editTaskId').value;
-            const p = document.getElementById('projName').value;
-            const t = document.getElementById('taskTitle').value;
-            const staff = document.getElementById('staffName').value;
-            const team = document.getElementById('teamType').value;
-            const est = document.getElementById('estHours').value;
+            const id = document.getElementById('editId').value;
+            const p = document.getElementById('pName').value;
+            const t = document.getElementById('tTitle').value;
+            const s = document.getElementById('sName').value;
+            const tm = document.getElementById('tType').value;
+            const h = document.getElementById('eHours').value;
 
-            if(!p || !t || !staff || !est) return alert("يرجى إكمال جميع حقول المهمة");
+            if(!p || !t || !s || !h) return;
 
-            const taskData = {
-                projectName: p,
-                title: t,
-                assignedTo: staff,
-                team: team,
-                estHours: parseFloat(est)
-            };
+            const data = { projectName: p, title: t, assignedTo: s, team: tm, estHours: parseFloat(h) };
 
             if (id) {
-                update(ref(db, `tasks/${id}`), taskData);
+                update(ref(db, `tasks/${id}`), data);
             } else {
-                push(ref(db, 'tasks'), {
-                    ...taskData,
-                    status: 'pending',
-                    createdAt: Date.now()
-                });
+                push(ref(db, 'tasks'), { ...data, status: 'pending', createdAt: Date.now() });
             }
             document.getElementById('taskModal').classList.remove('active');
         };
 
-        window.updateStatus = (id, status) => update(ref(db, `tasks/${id}`), { status });
-        window.deleteTask = (id) => confirm("هل تود حذف هذا التاسك نهائياً؟") && remove(ref(db, `tasks/${id}`));
+        window.deleteTask = (id) => confirm("حذف نهائي؟") && remove(ref(db, `tasks/${id}`));
 
-        function updateGlobalStats() {
-            const tasksArr = Object.values(allTasks);
-            const totalEst = tasksArr.reduce((acc, t) => acc + (t.estHours || 0), 0);
-            document.getElementById('stat-total-tasks').innerText = tasksArr.length;
-            document.getElementById('stat-total-hours').innerText = totalEst + " س";
-            const projects = [...new Set(tasksArr.map(t => t.projectName))];
-            document.getElementById('stat-active-projects').innerText = projects.length;
+        function updateStats() {
+            const arr = Object.values(tasks);
+            const hrs = arr.reduce((a, b) => a + (b.estHours || 0), 0);
+            const projs = [...new Set(arr.map(t => t.projectName))].length;
+            document.getElementById('st-total').innerText = arr.length;
+            document.getElementById('st-hours').innerText = hrs + " س";
+            document.getElementById('st-projects').innerText = projs;
         }
 
-        function renderCharts() {
-            const tasksArr = Object.values(allTasks);
-            const statusData = [
-                tasksArr.filter(t => t.status === 'pending').length,
-                tasksArr.filter(t => t.status === 'inprogress').length,
-                tasksArr.filter(t => t.status === 'completed').length
+        function drawCharts() {
+            const arr = Object.values(tasks);
+            const statusD = [
+                arr.filter(t => t.status === 'pending').length,
+                arr.filter(t => t.status === 'inprogress').length,
+                arr.filter(t => t.status === 'completed').length
             ];
-            if(statusChart) statusChart.destroy();
-            statusChart = new Chart(document.getElementById('statusChart'), {
+            if(chartS) chartS.destroy();
+            chartS = new Chart(document.getElementById('chartStatus'), {
                 type: 'doughnut',
-                data: { labels: ['انتظار', 'تنفيذ', 'منتهية'], datasets: [{ data: statusData, backgroundColor: ['#f59e0b', '#6366f1', '#10b981'], borderWidth: 0 }] },
-                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } } }
+                data: { labels: ['انتظار', 'تنفيذ', 'منتهية'], datasets: [{ data: statusD, backgroundColor: ['#fbbf24', '#3BA4FE', '#34d399'], borderWidth: 0 }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#8FA3BC' } } } }
             });
 
             const teams = ["3D", "unreal engine", "AI & Code"];
-            const teamData = teams.map(team => tasksArr.filter(t => t.team === team).length);
-            if(teamChart) teamChart.destroy();
-            teamChart = new Chart(document.getElementById('teamChart'), {
+            const teamD = teams.map(tm => arr.filter(t => t.team === tm).length);
+            if(chartT) chartT.destroy();
+            chartT = new Chart(document.getElementById('chartTeams'), {
                 type: 'bar',
-                data: { labels: teams, datasets: [{ label: 'عدد المهام لكل فريق', data: teamData, backgroundColor: '#6366f1' }] },
-                options: { maintainAspectRatio: false, scales: { y: { ticks: { color: '#999' } }, x: { ticks: { color: '#999' } } } }
+                data: { labels: teams, datasets: [{ label: 'توزيع المهام', data: teamD, backgroundColor: '#3BA4FE', borderRadius: 8 }] },
+                options: { maintainAspectRatio: false, scales: { y: { ticks: { color: '#8FA3BC' } }, x: { ticks: { color: '#8FA3BC' } } }, plugins: { legend: { display: false } } }
             });
         }
 
-        function renderProjectReports() {
-            const reportBody = document.getElementById('project-report-body');
-            reportBody.innerHTML = '';
-            const projectsMap = {};
-            Object.values(allTasks).forEach(t => {
-                if(!projectsMap[t.projectName]) projectsMap[t.projectName] = { est: 0, count: 0, staff: new Set() };
-                projectsMap[t.projectName].est += (t.estHours || 0);
-                projectsMap[t.projectName].count++;
-                projectsMap[t.projectName].staff.add(t.assignedTo);
+        function drawReports() {
+            const body = document.getElementById('project-table-body');
+            body.innerHTML = '';
+            const map = {};
+            Object.values(tasks).forEach(t => {
+                if(!map[t.projectName]) map[t.projectName] = { h: 0, count: 0, staff: new Set() };
+                map[t.projectName].h += (t.estHours || 0);
+                map[t.projectName].count++;
+                map[t.projectName].staff.add(t.assignedTo);
             });
 
-            Object.keys(projectsMap).forEach(p => {
-                reportBody.innerHTML += `<tr>
-                    <td><span class="project-tag"># ${p}</span></td>
-                    <td style="font-size: 0.8rem; opacity: 0.8;">${Array.from(projectsMap[p].staff).join('، ')}</td>
-                    <td>${projectsMap[p].count} مهام</td>
-                    <td style="color:var(--amber)">${projectsMap[p].est} ساعة</td>
+            Object.keys(map).forEach(p => {
+                body.innerHTML += `<tr>
+                    <td><span class="project-chip"># ${p}</span></td>
+                    <td style="color:var(--muted-blue)">${Array.from(map[p].staff).join('، ')}</td>
+                    <td>${map[p].count} مهام</td>
+                    <td style="color:var(--accent); font-weight:700;">${map[p].h} س</td>
                 </tr>`;
             });
         }
