@@ -12,7 +12,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove, update, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD1qYudjPjPLGSEclPzW_wjHiXnoKHmj0c",
@@ -28,7 +28,7 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
-    window.firebaseTools = { ref, push, onValue, remove, update, set, db, auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged };
+    window.firebaseTools = { ref, push, onValue, remove, update, set, db, auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail };
   </script>
 
   <style>
@@ -191,6 +191,7 @@
     
     .admin-only { display: none; }
     .error-msg { background: rgba(248, 113, 113, 0.1); border: 1px solid #f87171; color: #f87171; padding: 14px; border-radius: 12px; margin-top: 20px; font-size: 0.85rem; display: none; }
+    .success-msg { background: rgba(52, 211, 153, 0.1); border: 1px solid #34d399; color: #34d399; padding: 14px; border-radius: 12px; margin-top: 20px; font-size: 0.85rem; display: none; }
   </style>
 </head>
 
@@ -202,17 +203,35 @@
         <h2 id="auth-title" style="color: var(--accent); margin-bottom: 12px;">تسجيل الدخول</h2>
         <p style="color: var(--blue-grey); margin-bottom: 35px; font-size: 0.9rem;">Blue Design Studio Cloud v2.0</p>
         
-        <input type="email" id="login-email" placeholder="البريد الإلكتروني المهني">
-        <input type="password" id="login-pass" placeholder="كلمة المرور">
-        
-        <button id="auth-btn" class="btn-main" onclick="handleAuth()">دخول للنظام</button>
-        
-        <div style="margin-top: 25px; color: var(--blue-grey); font-size: 0.85rem;">
-            <span id="auth-toggle-text">ليس لديك حساب؟</span> 
-            <span id="auth-toggle-btn" style="color: var(--accent); cursor: pointer; font-weight: 600; text-decoration: underline;" onclick="toggleAuthMode()">أنشئ حساباً جديداً</span>
+        <div id="auth-form-container">
+            <input type="email" id="login-email" placeholder="البريد الإلكتروني المهني">
+            <input type="password" id="login-pass" placeholder="كلمة المرور">
+            
+            <button id="auth-btn" class="btn-main" onclick="handleAuth()">دخول للنظام</button>
+            
+            <div style="margin-top: 25px; color: var(--blue-grey); font-size: 0.85rem;">
+                <span id="auth-toggle-text">ليس لديك حساب؟</span> 
+                <span id="auth-toggle-btn" style="color: var(--accent); cursor: pointer; font-weight: 600; text-decoration: underline;" onclick="toggleAuthMode()">أنشئ حساباً جديداً</span>
+            </div>
+            
+            <!-- رابط تغيير كلمة المرور -->
+            <div id="reset-pwd-container" style="margin-top: 15px; color: var(--blue-grey); font-size: 0.85rem;">
+                <span style="cursor: pointer; text-decoration: underline;" onclick="toggleResetView(true)">نسيت كلمة المرور؟</span>
+            </div>
+        </div>
+
+        <!-- نموذج استعادة كلمة المرور -->
+        <div id="reset-form-container" style="display: none;">
+            <p style="color: var(--blue-grey); margin-bottom: 20px; font-size: 0.85rem;">أدخل بريدك الإلكتروني لإرسال رابط الاستعادة.</p>
+            <input type="email" id="reset-email" placeholder="البريد الإلكتروني المهني">
+            <button class="btn-main" onclick="handleResetPassword()">إرسال الرابط</button>
+            <div style="margin-top: 20px; color: var(--blue-grey); font-size: 0.85rem;">
+                <span style="color: var(--accent); cursor: pointer; text-decoration: underline;" onclick="toggleResetView(false)">عودة لتسجيل الدخول</span>
+            </div>
         </div>
         
         <div id="login-error" class="error-msg"></div>
+        <div id="login-success" class="success-msg"></div>
     </div>
   </div>
 
@@ -352,7 +371,7 @@
     };
 
     setTimeout(() => {
-        const { auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onValue, ref, db, update, push, remove } = window.firebaseTools;
+        const { auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onValue, ref, db, update, push, remove, sendPasswordResetEmail } = window.firebaseTools;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -386,18 +405,39 @@
             }
         });
 
+        window.toggleResetView = (show) => {
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('login-success').style.display = 'none';
+            
+            if (show) {
+                document.getElementById('auth-title').innerText = "استعادة كلمة المرور";
+                document.getElementById('auth-form-container').style.display = 'none';
+                document.getElementById('reset-form-container').style.display = 'block';
+            } else {
+                document.getElementById('auth-title').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب جديد";
+                document.getElementById('auth-form-container').style.display = 'block';
+                document.getElementById('reset-form-container').style.display = 'none';
+            }
+        };
+
         window.toggleAuthMode = () => {
             isLoginMode = !isLoginMode;
             document.getElementById('auth-title').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب جديد";
             document.getElementById('auth-btn').innerText = isLoginMode ? "دخول للنظام" : "تفعيل الحساب";
             document.getElementById('auth-toggle-text').innerText = isLoginMode ? "ليس لديك حساب؟" : "لديك حساب بالفعل؟";
             document.getElementById('auth-toggle-btn').innerText = isLoginMode ? "أنشئ حساباً جديداً" : "سجل دخولك هنا";
+            document.getElementById('reset-pwd-container').style.display = isLoginMode ? "block" : "none";
+            
             document.getElementById('login-error').style.display = 'none';
+            document.getElementById('login-success').style.display = 'none';
         };
 
         window.handleAuth = () => {
             const email = document.getElementById('login-email').value.trim();
             const pass = document.getElementById('login-pass').value;
+
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('login-success').style.display = 'none';
 
             if(!email || !pass) return showError("يرجى إدخال البيانات المطلوبة.");
             if (!whitelist[email]) return showError("هذا البريد غير مدرج في القائمة البيضاء للمكتب.");
@@ -413,7 +453,7 @@
             } else {
                 if(pass.length < 6) return showError("قاعدة أمان: يجب أن تكون كلمة المرور 6 رموز أو أكثر.");
                 createUserWithEmailAndPassword(auth, email, pass).then(() => {
-                    alert("تم تفعيل حسابك بنجاح! يمكنك الدخول الآن.");
+                    showSuccess("تم تفعيل حسابك بنجاح! يمكنك الدخول الآن.");
                     toggleAuthMode();
                 }).catch(err => {
                     if (err.code === 'auth/configuration-not-found') {
@@ -425,8 +465,31 @@
             }
         };
 
+        window.handleResetPassword = () => {
+            const email = document.getElementById('reset-email').value.trim();
+            
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('login-success').style.display = 'none';
+
+            if(!email) return showError("يرجى كتابة البريد الإلكتروني في الخانة المخصصة لإرسال الرابط.");
+            if (!whitelist[email]) return showError("هذا البريد غير مدرج في القائمة البيضاء للمكتب.");
+
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    showSuccess("تم إرسال رابط استعادة كلمة المرور بنجاح! يرجى تفقد صندوق الوارد (Inbox) ومجلد الرسائل المزعجة (Spam).");
+                })
+                .catch((error) => {
+                    showError("فشل إرسال رابط التعيين: تأكد من صحة البريد الإلكتروني.");
+                });
+        };
+
         function showError(msg) {
             const box = document.getElementById('login-error');
+            box.innerText = msg; box.style.display = 'block';
+        }
+
+        function showSuccess(msg) {
+            const box = document.getElementById('login-success');
             box.innerText = msg; box.style.display = 'block';
         }
 
@@ -519,32 +582,31 @@
             document.getElementById('taskModal').classList.remove('active');
         };
 
-        // --- إصلاح وتعريف دوال السحب والإفلات ---
         window.deleteTask = (id) => confirm("حذف نهائي؟") && remove(ref(db, `tasks/${id}`));
         
         window.dragStart = (e, id) => {
             e.dataTransfer.setData("taskId", id);
-            e.target.style.opacity = "0.4"; // يخفف لون البطاقة عند سحبها
+            e.target.style.opacity = "0.4"; 
         };
         
         window.dragEnd = (e) => {
-            e.target.style.opacity = "1"; // يعيد اللون لطبيعته بعد الإفلات
+            e.target.style.opacity = "1"; 
         };
         
         window.dragOver = (e) => {
             e.preventDefault();
-            e.currentTarget.classList.add('drag-over'); // يُظهر تأثير التحديد على العمود
+            e.currentTarget.classList.add('drag-over'); 
         };
         
         window.dragLeave = (e) => {
-            e.currentTarget.classList.remove('drag-over'); // يزيل تأثير التحديد عند خروج الفأرة
+            e.currentTarget.classList.remove('drag-over'); 
         };
         
         window.drop = (e, status) => {
             e.preventDefault();
             e.currentTarget.classList.remove('drag-over');
             const id = e.dataTransfer.getData("taskId");
-            if(id) update(ref(db, `tasks/${id}`), { status }); // يقوم بتحديث الحالة في قاعدة البيانات
+            if(id) update(ref(db, `tasks/${id}`), { status }); 
         };
         
         document.querySelectorAll('.nav-item').forEach(item => {
