@@ -7,7 +7,10 @@
   <title>Blue Design Studio — Cloud Management System</title>
   
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Chart.js DataLabels Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
   
   <!-- مكتبات تصدير PDF و Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -91,7 +94,7 @@
     .project-filter-item .count { background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; }
     .project-filter-item.active .count { background: rgba(0,0,0,0.1); }
 
-    /* لوحة المهام - أصبحت Responsive */
+    /* لوحة المهام */
     .board { display: grid; grid-template-columns: repeat(3, minmax(320px, 1fr)); gap: 20px; flex: 1; overflow-x: auto; overflow-y: hidden; height: 100%; padding-bottom: 15px; }
     .column { background: rgba(15, 34, 54, 0.4); border-radius: var(--radius); padding: 15px; display: flex; flex-direction: column; border: 1px solid var(--border); height: 100%; overflow: hidden; }
     .column.drag-over { border-color: var(--accent); background: rgba(59, 164, 254, 0.05); }
@@ -203,11 +206,12 @@
     .stat-val { font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; line-height: 1; }
     .stat-lbl { font-size: 0.85rem; color: var(--blue-grey); }
 
-    /* قسم التقارير (الجداول) */
+    /* قسم التقارير (الجداول جنباً إلى جنب) */
     #reports { overflow-y: auto; padding-bottom: 20px; }
-    .report-section-title { color: var(--tech-white); font-size: 1.1rem; margin-bottom: 15px; margin-top: 10px; display: flex; align-items: center; gap: 8px; }
-    .table-container { background: var(--card-bg); padding: 0; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    table { width: 100%; min-width: 800px; border-collapse: collapse; text-align: right; } 
+    .reports-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: start; }
+    .report-section-title { color: var(--tech-white); font-size: 1.1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+    .table-container { background: var(--card-bg); padding: 0; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    table { width: 100%; min-width: 500px; border-collapse: collapse; text-align: right; } /* تم تقليل الحد الأدنى ليناسب العرض الجانبي */
     th { padding: 16px 20px; color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--border); background: var(--deep-navy); position: sticky; top: 0; z-index: 10; cursor: pointer; transition: 0.2s; white-space: nowrap; user-select: none; }
     th:hover { background: rgba(59, 164, 254, 0.1); }
     th.sort-asc::after { content: ' ▲'; font-size: 0.7rem; color: var(--light-blue); }
@@ -221,6 +225,7 @@
 
     /* Media Queries لضبط الاستجابة على الشاشات الأصغر */
     @media (max-width: 1024px) {
+        .reports-grid { grid-template-columns: 1fr; } /* جداول التقارير ترجع تحت بعض في الشاشات الصغيرة */
         .dashboard-grid { grid-template-columns: 1fr; }
         .board { grid-template-columns: 1fr; overflow-y: auto; overflow-x: hidden; height: auto; }
         .kanban-layout { flex-direction: column; overflow-y: auto;}
@@ -357,9 +362,9 @@
                 <canvas id="chartStatus"></canvas>
             </div>
             <div class="chart-wrapper">
-                <!-- الرسم الجديد: الساعات الفعلية لكل موظف -->
-                <h3>الساعات المنجزة حسب الموظف (الإنتاجية)</h3>
-                <canvas id="chartEmpHours"></canvas>
+                <!-- الرسم الجديد: أكبر المشاريع حسب عدد المهام -->
+                <h3>حجم المشاريع (أكثر المشاريع نشاطاً)</h3>
+                <canvas id="chartTopProjects"></canvas>
             </div>
         </div>
         <div class="dashboard-grid dashboard-grid-full">
@@ -379,40 +384,44 @@
             </div>
         </div>
         
-        <!-- الجدول الأول: تقرير المشاريع -->
-        <h3 class="report-section-title">📁 تقرير سير المشاريع</h3>
-        <div class="table-container">
-            <table id="projectsTable">
-                <thead>
-                    <tr>
-                        <th onclick="sortProjTable('project')">المشروع ↕</th>
-                        <th onclick="sortProjTable('team')">القسم (Team) ↕</th>
-                        <th onclick="sortProjTable('assignees')">الأشخاص (المنفذون) ↕</th>
-                        <th onclick="sortProjTable('tasks')">عدد المهام ↕</th>
-                        <th onclick="sortProjTable('estHours')">ساعات مخططة ↕</th>
-                        <th onclick="sortProjTable('actHours')">ساعات فعلية ↕</th>
-                    </tr>
-                </thead>
-                <tbody id="report-projects-body"></tbody>
-            </table>
-        </div>
+        <div class="reports-grid">
+            <!-- الجدول الأول: تقرير المشاريع -->
+            <div>
+                <h3 class="report-section-title">📁 تقرير سير المشاريع</h3>
+                <div class="table-container">
+                    <table id="projectsTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortProjTable('project')">المشروع ↕</th>
+                                <th onclick="sortProjTable('team')">القسم (Team) ↕</th>
+                                <th onclick="sortProjTable('tasks')">عدد المهام ↕</th>
+                                <th onclick="sortProjTable('estHours')">ساعات مخططة ↕</th>
+                                <th onclick="sortProjTable('actHours')">ساعات فعلية ↕</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-projects-body"></tbody>
+                    </table>
+                </div>
+            </div>
 
-        <!-- الجدول الثاني: تقرير الموظفين -->
-        <h3 class="report-section-title">👥 تقرير أداء الموظفين (ساعات العمل)</h3>
-        <div class="table-container">
-            <table id="employeesTable">
-                <thead>
-                    <tr>
-                        <th onclick="sortEmpTable('name')">اسم الموظف ↕</th>
-                        <th onclick="sortEmpTable('team')">القسم التابع له ↕</th>
-                        <th onclick="sortEmpTable('tasks')">مهام موكلة ↕</th>
-                        <th onclick="sortEmpTable('hours')">ساعات فعلية تم إنجازها ↕</th>
-                    </tr>
-                </thead>
-                <tbody id="report-employees-body"></tbody>
-            </table>
+            <!-- الجدول الثاني: تقرير الموظفين -->
+            <div>
+                <h3 class="report-section-title">👥 تقرير أداء الموظفين</h3>
+                <div class="table-container">
+                    <table id="employeesTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortEmpTable('name')">اسم الموظف ↕</th>
+                                <th onclick="sortEmpTable('team')">القسم التابع له ↕</th>
+                                <th onclick="sortEmpTable('tasks')">مهام موكلة ↕</th>
+                                <th onclick="sortEmpTable('hours')">ساعات فعلية مُنجزة ↕</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-employees-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-
       </section>
     </main>
   </div>
@@ -526,6 +535,9 @@
   </div>
 
   <script type="module">
+    // تفعيل إضافات Chart.js DataLabels
+    Chart.register(ChartDataLabels);
+
     let allTasks = {};
     let isManager = false;
     let isTeamLead = false;
@@ -536,7 +548,7 @@
     let searchTerm = "";
     
     // متغيرات التشارتس للداشبورد الجديد
-    let chartStatus, chartEmpHours, chartYearly;
+    let chartStatus, chartTopProjects, chartYearly;
     
     const now = new Date();
     let activeMonthFilter = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -997,28 +1009,50 @@
         };
 
         function drawCharts(arr) {
-            // 1. حالة المهام (Doughnut)
+            // 1. حالة المهام (Doughnut) مع إضافة الأرقام على الدائرة
             const sData = [arr.filter(t => t.status === 'pending').length, arr.filter(t => t.status === 'inprogress').length, arr.filter(t => t.status === 'completed').length];
             if(chartStatus) chartStatus.destroy();
-            chartStatus = new Chart(document.getElementById('chartStatus'), { type: 'doughnut', data: { labels: ['انتظار', 'تنفيذ', 'منتهية'], datasets: [{ data: sData, backgroundColor: ['#fbbf24', '#3BA4FE', '#34d399'], borderWidth: 0 }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#E8EEF5' } } } } });
-
-            // 2. الساعات الفعلية لكل موظف (Bar) - بديل استهلاك المشاريع
-            let empActualHours = {};
-            arr.forEach(t => {
-                if(t.checklist) {
-                    Object.values(t.checklist).forEach(item => {
-                        if(item.actualHours) {
-                            const worker = item.addedBy; // الشخص الذي سجل الساعات
-                            empActualHours[worker] = (empActualHours[worker] || 0) + item.actualHours;
+            chartStatus = new Chart(document.getElementById('chartStatus'), { 
+                type: 'doughnut', 
+                data: { 
+                    labels: ['انتظار', 'تنفيذ', 'منتهية'], 
+                    datasets: [{ data: sData, backgroundColor: ['#fbbf24', '#3BA4FE', '#34d399'], borderWidth: 0 }] 
+                }, 
+                options: { 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { color: '#E8EEF5' } },
+                        datalabels: {
+                            color: '#020610', // أسود داكن ليظهر على الألوان الفاتحة
+                            font: { weight: 'bold', size: 16 },
+                            formatter: (value) => { return value > 0 ? value : ''; } // إخفاء الصفر
                         }
-                    });
-                }
+                    } 
+                } 
             });
-            const empLabels = Object.keys(empActualHours);
-            const empActData = Object.values(empActualHours);
+
+            // 2. أكبر المشاريع حسب عدد المهام (Bar) - بديل أداء الموظفين
+            let projTaskCounts = {};
+            arr.forEach(t => {
+                projTaskCounts[t.projectName] = (projTaskCounts[t.projectName] || 0) + 1;
+            });
+            // جلب أعلى 7 مشاريع
+            const sortedProjs = Object.keys(projTaskCounts).sort((a, b) => projTaskCounts[b] - projTaskCounts[a]).slice(0, 7);
+            const projCountsData = sortedProjs.map(p => projTaskCounts[p]);
             
-            if(chartEmpHours) chartEmpHours.destroy();
-            chartEmpHours = new Chart(document.getElementById('chartEmpHours'), { type: 'bar', data: { labels: empLabels, datasets: [{ label: 'الساعات الفعلية المُنجزة', data: empActData, backgroundColor: '#3BA4FE', borderRadius: 4, indexAxis: 'y' }] }, options: { maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, grid: { color: '#1F3550' }, ticks: { color: '#8FA3BC' } }, y: { grid: { display: false }, ticks: { color: '#E8EEF5' } } }, plugins: { legend: { display: false } } } });
+            if(chartTopProjects) chartTopProjects.destroy();
+            chartTopProjects = new Chart(document.getElementById('chartTopProjects'), { 
+                type: 'bar', 
+                data: { labels: sortedProjs, datasets: [{ label: 'عدد المهام', data: projCountsData, backgroundColor: '#88CFFD', borderRadius: 4 }] }, 
+                options: { 
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: '#1F3550' }, ticks: { color: '#8FA3BC', stepSize: 1 } }, 
+                        x: { grid: { display: false }, ticks: { color: '#E8EEF5' } } 
+                    }, 
+                    plugins: { legend: { display: false }, datalabels: { display: false } } 
+                } 
+            });
 
             // 3. مسار المشاريع خلال السنة (Line)
             let currentYear = new Date().getFullYear();
@@ -1030,7 +1064,18 @@
             const monthLabels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
             const monthData = monthlyProjects.map(set => set.size);
             if(chartYearly) chartYearly.destroy();
-            chartYearly = new Chart(document.getElementById('chartYearly'), { type: 'line', data: { labels: monthLabels, datasets: [{ label: 'مشاريع جديدة', data: monthData, borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4 }] }, options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: '#1F3550' }, ticks: { color: '#8FA3BC', stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#E8EEF5' } } }, plugins: { legend: { display: false } } } });
+            chartYearly = new Chart(document.getElementById('chartYearly'), { 
+                type: 'line', 
+                data: { labels: monthLabels, datasets: [{ label: 'مشاريع جديدة', data: monthData, borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4 }] }, 
+                options: { 
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: '#1F3550' }, ticks: { color: '#8FA3BC', stepSize: 1 } }, 
+                        x: { grid: { display: false }, ticks: { color: '#E8EEF5' } } 
+                    }, 
+                    plugins: { legend: { display: false }, datalabels: { display: false } } 
+                } 
+            });
         }
 
         // ---------------- قسم التقارير (الجداول والترتيب) ----------------
@@ -1107,7 +1152,6 @@
                 body.innerHTML += `<tr>
                     <td><span class="project-chip" style="margin:0;"># ${p.project}</span></td>
                     <td style="color: var(--blue-grey);">${p.team || '-'}</td>
-                    <td>${p.assignees}</td>
                     <td>${p.tasks}</td>
                     <td>${p.estHours}</td>
                     <td style="color:var(--amber); font-weight:700;">${p.actHours}</td>
