@@ -56,7 +56,7 @@
     .avatar-lg { width: 35px; height: 35px; font-size: 0.9rem; }
 
     /* الشريط الجانبي */
-    .sidebar { width: 250px; background: var(--sidebar-bg); border-left: 1px solid var(--border); padding: 25px 20px; display: flex; flex-direction: column; flex-shrink: 0; }
+    .sidebar { width: 250px; background: var(--sidebar-bg); border-left: 1px solid var(--border); padding: 25px 20px; display: flex; flex-direction: column; flex-shrink: 0; transition: width 0.3s; }
     .logo-container { margin-bottom: 40px; text-align: center; }
     .logo-main { font-weight: 700; font-size: 1.5rem; color: var(--accent); letter-spacing: 1px; }
     .logo-sub { font-size: 0.65rem; color: var(--blue-grey); text-transform: uppercase; margin-top: 6px; letter-spacing: 1px; }
@@ -71,13 +71,13 @@
     .section.active { display: flex; animation: contentFade 0.4s ease-out; }
     @keyframes contentFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0; flex-wrap: wrap; gap: 10px; }
     
     /* فلاتر البحث */
-    .filters-bar { display: flex; gap: 15px; margin-bottom: 15px; flex-shrink: 0; }
-    .search-input { flex: 1; padding: 10px 18px; border-radius: var(--radius); background: var(--card-bg); border: 1px solid var(--border); color: var(--tech-white); outline: none; font-family: inherit; }
+    .filters-bar { display: flex; gap: 15px; margin-bottom: 15px; flex-shrink: 0; flex-wrap: wrap; }
+    .search-input { flex: 1; min-width: 200px; padding: 10px 18px; border-radius: var(--radius); background: var(--card-bg); border: 1px solid var(--border); color: var(--tech-white); outline: none; font-family: inherit; }
     .search-input:focus { border-color: var(--accent); }
-    .btn-clear { background: var(--soft-line); color: var(--tech-white); border: none; padding: 10px 20px; border-radius: var(--radius); cursor: pointer; transition: 0.2s; font-family: inherit; }
+    .btn-clear { background: var(--soft-line); color: var(--tech-white); border: none; padding: 10px 20px; border-radius: var(--radius); cursor: pointer; transition: 0.2s; font-family: inherit; white-space: nowrap; }
     .btn-clear:hover { background: var(--muted-blue); }
 
     /* تخطيط الكانبان */
@@ -91,8 +91,8 @@
     .project-filter-item .count { background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; }
     .project-filter-item.active .count { background: rgba(0,0,0,0.1); }
 
-    /* لوحة المهام */
-    .board { display: grid; grid-template-columns: repeat(3, minmax(380px, 1fr)); gap: 25px; flex: 1; overflow-x: auto; overflow-y: hidden; height: 100%; padding-bottom: 15px; }
+    /* لوحة المهام - أصبحت Responsive */
+    .board { display: grid; grid-template-columns: repeat(3, minmax(320px, 1fr)); gap: 20px; flex: 1; overflow-x: auto; overflow-y: hidden; height: 100%; padding-bottom: 15px; }
     .column { background: rgba(15, 34, 54, 0.4); border-radius: var(--radius); padding: 15px; display: flex; flex-direction: column; border: 1px solid var(--border); height: 100%; overflow: hidden; }
     .column.drag-over { border-color: var(--accent); background: rgba(59, 164, 254, 0.05); }
     .column h3 { font-size: 0.85rem; margin-bottom: 15px; color: var(--muted-blue); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -126,23 +126,23 @@
     .btn-save-big:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(52, 211, 153, 0.5); }
 
     /* شاشة الدخول */
-    #login-page { position: fixed; inset: 0; background: var(--ink-black); z-index: 5000; display: flex; align-items: center; justify-content: center; }
-    .login-card { background: var(--deep-navy); padding: 45px 35px; border-radius: 24px; width: 420px; border: 1px solid var(--border); text-align: center; }
+    #login-page { position: fixed; inset: 0; background: var(--ink-black); z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .login-card { background: var(--deep-navy); padding: 45px 35px; border-radius: 24px; width: 100%; max-width: 420px; border: 1px solid var(--border); text-align: center; }
     #login-page input { width: 100%; padding: 15px; margin-bottom: 20px; background: var(--ink-black); border: 1px solid var(--border); border-radius: 12px; color: white; outline: none; }
 
     /* النوافذ المنبثقة (Modals) */
-    .modal { position: fixed; inset: 0; background: rgba(2, 6, 16, 0.9); display: none; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(8px); }
+    .modal { position: fixed; inset: 0; background: rgba(2, 6, 16, 0.9); display: none; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(8px); padding: 20px; }
     .modal.active { display: flex; }
     
     /* نافذة تفاصيل المهمة */
-    .trello-modal { background: var(--card-bg); width: 950px; max-width: 95vw; height: 88vh; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+    .trello-modal { background: var(--card-bg); width: 100%; max-width: 1000px; height: 90vh; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
     .trello-header { padding: 20px 30px; border-bottom: 1px solid var(--border); background: var(--deep-navy); display: flex; flex-direction: column; gap: 15px; }
-    .trello-header-top { display: flex; justify-content: space-between; align-items: center; }
-    .header-progress-wrap { display: flex; align-items: center; gap: 15px; flex: 1; margin-right: 20px; }
+    .trello-header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+    .header-progress-wrap { display: flex; align-items: center; gap: 15px; flex: 1; min-width: 200px; }
     .header-progress-bg { flex: 1; max-width: 300px; background: rgba(0,0,0,0.4); border-radius: 6px; height: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
     .editable-title { background: transparent; border: 1px dashed transparent; color: var(--tech-white); font-size: 1.5rem; font-weight: bold; width: 100%; max-width: 500px; outline: none; margin: 0; padding: 5px; transition: 0.2s; border-radius: 8px; font-family: inherit; }
     .editable-title:hover, .editable-title:focus { border-color: var(--blue-grey); background: rgba(0,0,0,0.2); }
-    .trello-body { display: flex; flex: 1; overflow: hidden; }
+    .trello-body { display: flex; flex: 1; overflow: hidden; flex-direction: row; }
     .trello-main { flex: 1; padding: 30px; overflow-y: auto; border-left: 1px solid var(--border); display: flex; flex-direction: column; gap: 30px; }
     .trello-section-title { font-size: 1rem; color: var(--muted-blue); display: flex; align-items: center; gap: 8px; margin-bottom: 15px; font-weight: 600; }
     .trello-desc-box { width: 100%; background: var(--ink-black); border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: var(--tech-white); min-height: 100px; resize: vertical; font-family: inherit; line-height: 1.6; }
@@ -166,10 +166,10 @@
     .comment-item { background: var(--ink-black); padding: 15px; border-radius: 10px; border: 1px solid var(--border); display: flex; gap: 12px;}
     .comment-content { flex: 1; }
     .comment-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--blue-grey); margin-bottom: 8px; border-bottom: 1px solid var(--soft-line); padding-bottom: 5px;}
-    .comment-input-wrap { display: flex; gap: 10px; }
-    .comment-input-wrap input { flex: 1; margin: 0; background: var(--ink-black); border: 1px solid var(--border); padding: 12px; border-radius: 8px; color: white; outline: none;}
+    .comment-input-wrap { display: flex; gap: 10px; flex-wrap: wrap;}
+    .comment-input-wrap input { flex: 1; min-width: 200px; margin: 0; background: var(--ink-black); border: 1px solid var(--border); padding: 12px; border-radius: 8px; color: white; outline: none;}
     
-    .trello-sidebar { width: 280px; padding: 30px; background: rgba(10, 22, 40, 0.4); overflow-y: auto; }
+    .trello-sidebar { width: 280px; padding: 30px; background: rgba(10, 22, 40, 0.4); overflow-y: auto; flex-shrink: 0;}
     .trello-sidebar label { font-size: 0.8rem; color: var(--blue-grey); margin-bottom: 8px; display: block; }
     .trello-sidebar select, .trello-sidebar input[type="date"], .trello-sidebar input[type="number"] { width: 100%; padding: 12px; margin-bottom: 20px; background: var(--ink-black); border: 1px solid var(--border); border-radius: 8px; color: white; font-family: inherit; }
     .trello-sidebar select:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -178,8 +178,8 @@
     .checkbox-group label { display: flex; align-items: center; gap: 8px; color: var(--tech-white); font-size: 0.85rem; cursor: pointer; margin: 0; }
     .checkbox-group input[type="checkbox"] { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
 
-    /* نافذة الإضافة البسيطة + الهاشتاقات والبحث التلقائي */
-    .simple-modal { background: var(--deep-navy); padding: 35px; border-radius: 20px; width: 450px; border: 1px solid var(--border); }
+    /* نافذة الإضافة البسيطة */
+    .simple-modal { background: var(--deep-navy); padding: 35px; border-radius: 20px; width: 100%; max-width: 450px; border: 1px solid var(--border); }
     .simple-modal input, .simple-modal select { width: 100%; padding: 14px; margin-bottom: 15px; background: var(--ink-black); border: 1px solid var(--border); border-radius: 10px; color: white; font-family: inherit; }
     .hashtag-area { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; max-height: 80px; overflow-y: auto; padding: 5px; }
     .project-hashtag { background: var(--soft-line); color: var(--light-blue); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: 500; transition: 0.2s; border: 1px solid transparent;}
@@ -190,28 +190,49 @@
     .suggestion-item:last-child { border-bottom: none; }
     .suggestion-item:hover { background: rgba(59, 164, 254, 0.1); color: var(--light-blue); }
 
-    /* الداشبورد والتحليلات - تم التعديل لتناسب الشاشة بالكامل بدون سكرول طويل */
-    #dashboard { overflow: hidden; } 
-    .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 15px; flex: 1; min-height: 0; margin-top: 10px; overflow: hidden; }
-    .dashboard-grid .chart-wrapper:nth-child(3) { grid-column: span 2; } 
-    .chart-wrapper { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 15px; display: flex; flex-direction: column; position: relative; min-height: 0; }
-    .chart-wrapper h3 { font-size: 0.9rem; color: var(--tech-white); margin-bottom: 10px; text-align: center; font-weight: 500; border-bottom: 1px solid var(--soft-line); padding-bottom: 8px; flex-shrink: 0;}
+    /* الداشبورد والتحليلات (Responsive) */
+    #dashboard { overflow-y: auto; padding-bottom: 20px; } 
+    .stats-grid-top { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; flex-shrink: 0; margin-bottom: 20px; }
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; min-height: 400px; margin-bottom: 20px; }
+    .dashboard-grid-full { grid-template-columns: 1fr; min-height: 300px; }
+    .chart-wrapper { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; position: relative; min-height: 300px; }
+    .chart-wrapper h3 { font-size: 0.95rem; color: var(--tech-white); margin-bottom: 15px; text-align: center; font-weight: 600; border-bottom: 1px solid var(--soft-line); padding-bottom: 10px; flex-shrink: 0;}
     .chart-wrapper canvas { flex: 1; min-height: 0; width: 100% !important; height: 100% !important; }
     
-    .stat-box { background: var(--card-bg); padding: 15px; border-radius: var(--radius); border: 1px solid var(--border); text-align: center; display: flex; flex-direction: column; justify-content: center; }
+    .stat-box { background: var(--card-bg); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); text-align: center; display: flex; flex-direction: column; justify-content: center; }
     .stat-val { font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; line-height: 1; }
     .stat-lbl { font-size: 0.85rem; color: var(--blue-grey); }
 
-    /* قسم التقارير وتوسعة الجدول */
-    #reports { overflow-y: auto; }
-    .table-container { flex: 1; background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid var(--border); overflow-y: auto; overflow-x: auto;}
-    table { width: 100%; min-width: 1400px; border-collapse: collapse; text-align: right; } 
-    th { padding: 15px; color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--border); background: rgba(255,255,255,0.02); position: sticky; top: 0; z-index: 10; }
-    td { padding: 15px; border-bottom: 1px solid var(--border); color: var(--tech-white); font-size: 0.95rem; }
+    /* قسم التقارير (الجداول) */
+    #reports { overflow-y: auto; padding-bottom: 20px; }
+    .report-section-title { color: var(--tech-white); font-size: 1.1rem; margin-bottom: 15px; margin-top: 10px; display: flex; align-items: center; gap: 8px; }
+    .table-container { background: var(--card-bg); padding: 0; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    table { width: 100%; min-width: 800px; border-collapse: collapse; text-align: right; } 
+    th { padding: 16px 20px; color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--border); background: var(--deep-navy); position: sticky; top: 0; z-index: 10; cursor: pointer; transition: 0.2s; white-space: nowrap; user-select: none; }
+    th:hover { background: rgba(59, 164, 254, 0.1); }
+    th.sort-asc::after { content: ' ▲'; font-size: 0.7rem; color: var(--light-blue); }
+    th.sort-desc::after { content: ' ▼'; font-size: 0.7rem; color: var(--light-blue); }
+    td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--tech-white); font-size: 0.95rem; }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
 
     .admin-only { display: none; }
     .manager-lock { position: relative; }
     .manager-lock::after { content: '🔒 مدير أو Team Lead'; position: absolute; left: 10px; top: -5px; font-size: 0.6rem; color: #f87171; opacity: 0.8; }
+
+    /* Media Queries لضبط الاستجابة على الشاشات الأصغر */
+    @media (max-width: 1024px) {
+        .dashboard-grid { grid-template-columns: 1fr; }
+        .board { grid-template-columns: 1fr; overflow-y: auto; overflow-x: hidden; height: auto; }
+        .kanban-layout { flex-direction: column; overflow-y: auto;}
+        .projects-sidebar { width: 100%; max-height: 200px; flex-shrink: 0; }
+        .trello-body { flex-direction: column; overflow-y: auto;}
+        .trello-main { border-left: none; border-bottom: 1px solid var(--border); }
+        .trello-sidebar { width: 100%; }
+        .sidebar { width: 80px; padding: 20px 10px; align-items: center; }
+        .logo-main, .logo-sub, .nav-item span, #user-name, #user-role { display: none; }
+        .nav-item { justify-content: center; padding: 15px; }
+        .main-content { padding: 15px; }
+    }
   </style>
 </head>
 
@@ -255,7 +276,7 @@
     <!-- الشريط الجانبي -->
     <aside class="sidebar">
       <div class="logo-container">
-          <div class="logo-main">BLUE STUDIO</div>
+          <div class="logo-main">BLUE</div>
           <div id="user-role" style="font-size: 0.7rem; color: var(--light-blue); margin-top: 5px;"></div>
           <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:10px;">
               <span id="user-avatar-main" class="avatar avatar-lg" style="background: var(--accent); color: var(--ink-black);"></span>
@@ -263,12 +284,12 @@
           </div>
       </div>
       
-      <div class="nav-item active" data-target="kanban">📋 إدارة المهام</div>
-      <div class="nav-item admin-only" data-target="dashboard">📊 التحليلات والداشبورد</div>
-      <div class="nav-item admin-only" data-target="reports">📄 التقارير والتصدير</div>
+      <div class="nav-item active" data-target="kanban"><span>📋</span> <span>المهام</span></div>
+      <div class="nav-item admin-only" data-target="dashboard"><span>📊</span> <span>التحليلات</span></div>
+      <div class="nav-item admin-only" data-target="reports"><span>📄</span> <span>التقارير</span></div>
       
-      <div style="margin-top: auto;">
-          <button onclick="handleLogout()" style="background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171; width: 100%; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; font-family: inherit;">تسجيل خروج</button>
+      <div style="margin-top: auto; width: 100%;">
+          <button onclick="handleLogout()" style="background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171; width: 100%; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; font-family: inherit;">خروج</button>
       </div>
     </aside>
 
@@ -324,7 +345,7 @@
             <h1 style="margin-bottom: 0;">لوحة المعلومات والتحليلات الاستراتيجية</h1>
         </div>
         
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; flex-shrink: 0;">
+        <div class="stats-grid-top">
             <div class="stat-box"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">إجمالي المهام</div></div>
             <div class="stat-box"><div class="stat-val" id="st-hours" style="color: var(--amber)">0</div><div class="stat-lbl">الساعات التقديرية (الكلية)</div></div>
             <div class="stat-box"><div class="stat-val" id="st-projects" style="color: var(--light-blue)">0</div><div class="stat-lbl">مشاريع نشطة</div></div>
@@ -336,9 +357,12 @@
                 <canvas id="chartStatus"></canvas>
             </div>
             <div class="chart-wrapper">
-                <h3>استهلاك الساعات حسب المشروع</h3>
-                <canvas id="chartProjHours"></canvas>
+                <!-- الرسم الجديد: الساعات الفعلية لكل موظف -->
+                <h3>الساعات المنجزة حسب الموظف (الإنتاجية)</h3>
+                <canvas id="chartEmpHours"></canvas>
             </div>
+        </div>
+        <div class="dashboard-grid dashboard-grid-full">
             <div class="chart-wrapper">
                 <h3>حركة المشاريع خلال السنة الحالية</h3>
                 <canvas id="chartYearly"></canvas>
@@ -349,17 +373,46 @@
       <!-- التقارير -->
       <section id="reports" class="section">
         <div class="page-header">
-            <h1 style="margin-bottom: 0;">تقارير أداء المشاريع</h1>
+            <h1 style="margin-bottom: 0;">التقارير الشاملة</h1>
             <div style="display: flex; gap: 15px;">
-                <button class="btn-outline" onclick="exportExcel()">⬇ تصدير Excel (بالتواريخ والتعليقات)</button>
+                <button class="btn-outline" onclick="exportExcel()">⬇ تصدير الجداول لـ Excel</button>
             </div>
         </div>
+        
+        <!-- الجدول الأول: تقرير المشاريع -->
+        <h3 class="report-section-title">📁 تقرير سير المشاريع</h3>
         <div class="table-container">
-            <table id="reportsTable">
-                <thead><tr><th>المشروع</th><th>الفريق العامل</th><th>المهام</th><th>الساعات المخططة</th></tr></thead>
-                <tbody id="report-body"></tbody>
+            <table id="projectsTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortProjTable('project')">المشروع ↕</th>
+                        <th onclick="sortProjTable('team')">القسم (Team) ↕</th>
+                        <th onclick="sortProjTable('assignees')">الأشخاص (المنفذون) ↕</th>
+                        <th onclick="sortProjTable('tasks')">عدد المهام ↕</th>
+                        <th onclick="sortProjTable('estHours')">ساعات مخططة ↕</th>
+                        <th onclick="sortProjTable('actHours')">ساعات فعلية ↕</th>
+                    </tr>
+                </thead>
+                <tbody id="report-projects-body"></tbody>
             </table>
         </div>
+
+        <!-- الجدول الثاني: تقرير الموظفين -->
+        <h3 class="report-section-title">👥 تقرير أداء الموظفين (ساعات العمل)</h3>
+        <div class="table-container">
+            <table id="employeesTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortEmpTable('name')">اسم الموظف ↕</th>
+                        <th onclick="sortEmpTable('team')">القسم التابع له ↕</th>
+                        <th onclick="sortEmpTable('tasks')">مهام موكلة ↕</th>
+                        <th onclick="sortEmpTable('hours')">ساعات فعلية تم إنجازها ↕</th>
+                    </tr>
+                </thead>
+                <tbody id="report-employees-body"></tbody>
+            </table>
+        </div>
+
       </section>
     </main>
   </div>
@@ -369,10 +422,8 @@
     <div class="simple-modal">
       <h2 style="margin-bottom: 25px; color: var(--tech-white);">إضافة مهمة سريعة</h2>
       
-      <!-- إظهار أحدث 4 مشاريع كـ هاشتاقات سريعة -->
       <div id="hashtagContainerNew" class="hashtag-area"></div>
       
-      <!-- إدخال اسم المشروع مع البحث التلقائي -->
       <div style="position: relative; margin-bottom: 15px;">
         <input type="text" id="pNameNew" placeholder="اسم المشروع (أو اكتب # للبحث)" oninput="handleProjectInput()" autocomplete="off" style="margin-bottom: 0;">
         <div id="projectSuggestions" class="autocomplete-suggestions"></div>
@@ -434,7 +485,7 @@
                     <div class="checklist-input-wrap">
                         <input type="text" id="dt-new-checklist-item" placeholder="إضافة خطوة فرعية (ماذا أنجزت؟)..." style="flex:2; min-width:200px;">
                         <select id="dt-new-checklist-assignee" style="flex:1; min-width:120px;"><option value="">-- موجه لـ --</option></select>
-                        <input type="number" id="dt-new-checklist-hours" placeholder="الساعات المستغرقة" style="flex:1; min-width:100px;" min="0">
+                        <input type="number" id="dt-new-checklist-hours" placeholder="الساعات الفعلية" style="flex:1; min-width:100px;" min="0">
                         <button class="btn-main" style="padding: 10px 20px; width: auto;" onclick="addChecklistItem()">إضافة</button>
                     </div>
                 </div>
@@ -455,14 +506,14 @@
                 <input type="hidden" id="dt-id">
                 <h4 style="color: var(--tech-white); margin-bottom: 15px; font-size: 0.9rem; border-bottom: 1px solid var(--border); padding-bottom: 10px;">إعدادات التكليف</h4>
                 <div class="manager-lock" id="dt-assign-container">
-                    <label style="margin-top: 15px;">الفريق (Team)</label>
+                    <label style="margin-top: 15px;">القسم (Team)</label>
                     <select id="dt-team" onchange="updateStaffListDetails()"><option value="3D">3D</option><option value="unreal engine">Unreal Engine</option><option value="Code">Code</option></select>
                     <label>المسؤولون (Assignees)</label>
                     <div id="dt-assignee-container" class="checkbox-group"></div>
                 </div>
                 <label>تاريخ التسليم المتوقع (Due Date)</label>
                 <input type="date" id="dt-duedate">
-                <label>الساعات التقديرية (المطلوبة)</label>
+                <label>الساعات التقديرية (المخططة)</label>
                 <input type="number" id="dt-hours" min="0">
                 <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
                     <button class="action-btn-block admin-only" onclick="deleteTaskFromDetails()" style="background: rgba(248, 113, 113, 0.1); color: #f87171; border-color: #f87171; justify-content: center;">
@@ -485,7 +536,7 @@
     let searchTerm = "";
     
     // متغيرات التشارتس للداشبورد الجديد
-    let chartStatus, chartProjHours, chartYearly;
+    let chartStatus, chartEmpHours, chartYearly;
     
     const now = new Date();
     let activeMonthFilter = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -504,6 +555,12 @@
     };
 
     const staffByTeam = { "3D": ["نور الدين", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "Code": ["عبدالله"] };
+
+    // مصفوفات تخزين البيانات للترتيب والتصدير
+    let projectReportData = [];
+    let employeeReportData = [];
+    let sortStateProj = { key: null, asc: true };
+    let sortStateEmp = { key: null, asc: true };
 
     function getAvatarHTML(name) {
         if(!name) return '';
@@ -549,7 +606,10 @@
                     allTasks = snap.val() || {};
                     renderProjectsSidebar();
                     renderBoard();
-                    if(hasAdminRights) updateAdminStats();
+                    if(hasAdminRights) {
+                        updateAdminStats();
+                        prepareReportData(); // إعداد بيانات التقارير
+                    }
                     
                     if(document.getElementById('taskDetailsModal').classList.contains('active')) {
                         const activeId = document.getElementById('dt-id').value;
@@ -657,65 +717,44 @@
             document.getElementById('count-completed').innerText = counts.completed;
         }
 
-        // إظهار أحدث 4 مشاريع كـ هاشتاقات سريعة
         window.renderNewTaskHashtags = () => {
             const container = document.getElementById('hashtagContainerNew');
-            // ترتيب المشاريع حسب الأحدث
             const projMap = {};
             Object.values(allTasks).forEach(t => {
-                if(!projMap[t.projectName] || t.createdAt > projMap[t.projectName]) {
-                    projMap[t.projectName] = t.createdAt;
-                }
+                if(!projMap[t.projectName] || t.createdAt > projMap[t.projectName]) projMap[t.projectName] = t.createdAt;
             });
-            // استخراج أسماء المشاريع وفرزها وأخذ أول 4 فقط
             const sortedProjs = Object.keys(projMap).sort((a,b) => projMap[b] - projMap[a]);
             const top4 = sortedProjs.slice(0, 4);
-            
             container.innerHTML = top4.map(p => `<span class="project-hashtag" onclick="document.getElementById('pNameNew').value='${p}'; document.getElementById('projectSuggestions').style.display='none';"># ${p}</span>`).join('');
         };
         
-        // ميزة البحث التلقائي عن المشاريع (Autocomplete)
         window.handleProjectInput = () => {
             const input = document.getElementById('pNameNew');
             const val = input.value.toLowerCase();
             const suggestionsBox = document.getElementById('projectSuggestions');
-            
-            if (!val) {
-                suggestionsBox.style.display = 'none';
-                return;
-            }
-
+            if (!val) { suggestionsBox.style.display = 'none'; return; }
             const projs = [...new Set(Object.values(allTasks).map(t => t.projectName))];
             let filtered = [];
-
             if (val.includes('#')) {
-                // إذا كتب المستخدم إشارة # نقوم بالبحث فيما بعدها (أو نعرض كل شيء إذا كانت # فقط)
                 const searchStr = val.substring(val.indexOf('#') + 1).trim();
                 filtered = projs.filter(p => p.toLowerCase().includes(searchStr));
             } else {
-                // البحث العادي بدون #
                 filtered = projs.filter(p => p.toLowerCase().includes(val));
             }
-
             if (filtered.length > 0) {
                 suggestionsBox.innerHTML = filtered.map(p => `<div class="suggestion-item" onclick="selectProjectSuggestion('${p}')"># ${p}</div>`).join('');
                 suggestionsBox.style.display = 'block';
-            } else {
-                suggestionsBox.style.display = 'none';
-            }
+            } else { suggestionsBox.style.display = 'none'; }
         };
 
-        window.selectProjectSuggestion = (pName) => {
-            document.getElementById('pNameNew').value = pName;
-            document.getElementById('projectSuggestions').style.display = 'none';
-        };
+        window.selectProjectSuggestion = (pName) => { document.getElementById('pNameNew').value = pName; document.getElementById('projectSuggestions').style.display = 'none'; };
 
         window.openAddModal = () => { 
             document.getElementById('pNameNew').value = activeProjectFilter || "";
             document.getElementById('tTitleNew').value = "";
             document.getElementById('eHoursNew').value = "";
             document.getElementById('sNameNewContainer').innerHTML = '<div style="color: var(--muted-blue); font-size: 0.8rem; padding: 5px;">يرجى اختيار القسم أولاً...</div>';
-            document.getElementById('projectSuggestions').style.display = 'none'; // إخفاء قائمة البحث عند الفتح
+            document.getElementById('projectSuggestions').style.display = 'none'; 
             renderNewTaskHashtags();
             document.getElementById('addTaskModal').classList.add('active'); 
         };
@@ -725,9 +764,7 @@
             const container = document.getElementById('sNameNewContainer');
             container.innerHTML = '';
             if (staffByTeam[team]) {
-                staffByTeam[team].forEach(e => {
-                    container.innerHTML += `<label><input type="checkbox" value="${e}"> ${getAvatarHTML(e)} ${e}</label>`;
-                });
+                staffByTeam[team].forEach(e => { container.innerHTML += `<label><input type="checkbox" value="${e}"> ${getAvatarHTML(e)} ${e}</label>`; });
             }
         };
 
@@ -735,7 +772,7 @@
             const checkedBoxes = document.querySelectorAll('#sNameNewContainer input[type="checkbox"]:checked');
             const assignees = Array.from(checkedBoxes).map(cb => cb.value);
             const data = {
-                projectName: document.getElementById('pNameNew').value.replace('#', '').trim(), // تنظيف الاسم إذا احتوى على #
+                projectName: document.getElementById('pNameNew').value.replace('#', '').trim(), 
                 title: document.getElementById('tTitleNew').value.trim(),
                 assignedTo: assignees,
                 team: document.getElementById('tTypeNew').value,
@@ -957,7 +994,6 @@
             document.getElementById('st-hours').innerText = arr.reduce((a, b) => a + (b.estHours || 0), 0) + " س";
             document.getElementById('st-projects').innerText = [...new Set(arr.map(x => x.projectName))].length;
             if(document.getElementById('dashboard').classList.contains('active')) drawCharts(arr);
-            if(document.getElementById('reports').classList.contains('active')) drawReportTable(arr);
         };
 
         function drawCharts(arr) {
@@ -966,20 +1002,23 @@
             if(chartStatus) chartStatus.destroy();
             chartStatus = new Chart(document.getElementById('chartStatus'), { type: 'doughnut', data: { labels: ['انتظار', 'تنفيذ', 'منتهية'], datasets: [{ data: sData, backgroundColor: ['#fbbf24', '#3BA4FE', '#34d399'], borderWidth: 0 }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#E8EEF5' } } } } });
 
-            // 2. استهلاك الساعات حسب المشروع (Bar)
-            let projHours = {};
+            // 2. الساعات الفعلية لكل موظف (Bar) - بديل استهلاك المشاريع
+            let empActualHours = {};
             arr.forEach(t => {
-                let actual = 0;
-                if(t.checklist) Object.values(t.checklist).forEach(item => actual += (item.actualHours || 0));
-                if(!projHours[t.projectName]) projHours[t.projectName] = { est: 0, act: 0 };
-                projHours[t.projectName].est += (t.estHours || 0);
-                projHours[t.projectName].act += actual;
+                if(t.checklist) {
+                    Object.values(t.checklist).forEach(item => {
+                        if(item.actualHours) {
+                            const worker = item.addedBy; // الشخص الذي سجل الساعات
+                            empActualHours[worker] = (empActualHours[worker] || 0) + item.actualHours;
+                        }
+                    });
+                }
             });
-            const projLabels = Object.keys(projHours);
-            const estData = projLabels.map(p => projHours[p].est);
-            const actData = projLabels.map(p => projHours[p].act);
-            if(chartProjHours) chartProjHours.destroy();
-            chartProjHours = new Chart(document.getElementById('chartProjHours'), { type: 'bar', data: { labels: projLabels, datasets: [{ label: 'مخطط (تقديري)', data: estData, backgroundColor: '#3BA4FE', borderRadius: 4 }, { label: 'فعلي (مُنجز)', data: actData, backgroundColor: '#34d399', borderRadius: 4 }] }, options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: '#1F3550' }, ticks: { color: '#8FA3BC' } }, x: { grid: { display: false }, ticks: { color: '#E8EEF5' } } }, plugins: { legend: { labels: { color: '#E8EEF5' } } } } });
+            const empLabels = Object.keys(empActualHours);
+            const empActData = Object.values(empActualHours);
+            
+            if(chartEmpHours) chartEmpHours.destroy();
+            chartEmpHours = new Chart(document.getElementById('chartEmpHours'), { type: 'bar', data: { labels: empLabels, datasets: [{ label: 'الساعات الفعلية المُنجزة', data: empActData, backgroundColor: '#3BA4FE', borderRadius: 4, indexAxis: 'y' }] }, options: { maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, grid: { color: '#1F3550' }, ticks: { color: '#8FA3BC' } }, y: { grid: { display: false }, ticks: { color: '#E8EEF5' } } }, plugins: { legend: { display: false } } } });
 
             // 3. مسار المشاريع خلال السنة (Line)
             let currentYear = new Date().getFullYear();
@@ -994,45 +1033,155 @@
             chartYearly = new Chart(document.getElementById('chartYearly'), { type: 'line', data: { labels: monthLabels, datasets: [{ label: 'مشاريع جديدة', data: monthData, borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4 }] }, options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: '#1F3550' }, ticks: { color: '#8FA3BC', stepSize: 1 } }, x: { grid: { display: false }, ticks: { color: '#E8EEF5' } } }, plugins: { legend: { display: false } } } });
         }
 
-        let reportDataForExport = [];
+        // ---------------- قسم التقارير (الجداول والترتيب) ----------------
+        
+        window.prepareReportData = () => {
+            const arr = Object.values(allTasks);
+            
+            // بيانات المشاريع
+            const projMap = {};
+            // بيانات الموظفين
+            const empMap = {};
 
-        function drawReportTable(arr) {
-            const body = document.getElementById('report-body');
-            body.innerHTML = '';
-            const map = {};
             arr.forEach(t => {
-                if(!map[t.projectName]) map[t.projectName] = { h: 0, c: 0, s: new Set(), earliestStart: null, latestEnd: null, creationDate: t.createdAt, allComments: [] };
-                map[t.projectName].h += (t.estHours || 0); map[t.projectName].c++; 
+                // تجميع بيانات المشاريع
+                if(!projMap[t.projectName]) projMap[t.projectName] = { project: t.projectName, teams: new Set(), assignees: new Set(), tasks: 0, estHours: 0, actHours: 0 };
+                projMap[t.projectName].estHours += (t.estHours || 0); 
+                projMap[t.projectName].tasks++; 
+                if(t.team) projMap[t.projectName].teams.add(t.team);
+                
                 let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
-                assignedToArray.forEach(u => map[t.projectName].s.add(u));
-                if(t.createdAt < map[t.projectName].creationDate) map[t.projectName].creationDate = t.createdAt;
-                if(t.startedAt && (!map[t.projectName].earliestStart || t.startedAt < map[t.projectName].earliestStart)) map[t.projectName].earliestStart = t.startedAt;
-                if(t.completedAt && (!map[t.projectName].latestEnd || t.completedAt > map[t.projectName].latestEnd)) map[t.projectName].latestEnd = t.completedAt;
-                if(t.comments) {
-                    Object.values(t.comments).forEach(c => {
-                        const d = new Date(c.time).toLocaleDateString('ar-EG');
-                        map[t.projectName].allComments.push(`[${d}] ${c.user}: ${c.text}`);
+                assignedToArray.forEach(u => projMap[t.projectName].assignees.add(u));
+
+                // تجميع الساعات الفعلية للمشروع والموظفين
+                if(t.checklist) {
+                    Object.values(t.checklist).forEach(item => {
+                        if(item.actualHours) {
+                            projMap[t.projectName].actHours += item.actualHours;
+                            // تحديث الموظف
+                            const worker = item.addedBy;
+                            if(!empMap[worker]) empMap[worker] = { name: worker, team: t.team, tasks: 0, hours: 0 };
+                            empMap[worker].hours += item.actualHours;
+                        }
                     });
                 }
+                
+                // حساب عدد المهام الموكلة لكل موظف
+                assignedToArray.forEach(worker => {
+                     if(!empMap[worker]) empMap[worker] = { name: worker, team: t.team, tasks: 0, hours: 0 };
+                     empMap[worker].tasks++;
+                });
             });
-            reportDataForExport = [];
-            Object.keys(map).forEach(p => {
-                const teamStr = Array.from(map[p].s).join('، ');
-                const createDateStr = new Date(map[p].creationDate).toLocaleDateString('ar-EG');
-                const startDateStr = map[p].earliestStart ? new Date(map[p].earliestStart).toLocaleDateString('ar-EG') : 'لم يبدأ فعلياً';
-                const endDateStr = map[p].latestEnd ? new Date(map[p].latestEnd).toLocaleDateString('ar-EG') : 'غير مكتمل';
-                const commentsStr = map[p].allComments.join('\n');
-                body.innerHTML += `<tr><td><span class="project-chip"># ${p}</span><div style="font-size:0.7rem; color:var(--blue-grey)">أنشئ: ${createDateStr}</div></td><td>${teamStr}</td><td>${map[p].c}</td><td style="color:var(--accent); font-weight:700;">${map[p].h} س</td></tr>`;
-                reportDataForExport.push({ "اسم المشروع": p, "الفريق": teamStr, "تاريخ التسجيل": createDateStr, "تاريخ بدء العمل (أول تاسك)": startDateStr, "تاريخ الإنجاز (آخر تاسك)": endDateStr, "الساعات التقديرية": map[p].h, "سجل التقارير والتعليقات الميدانية": commentsStr });
+
+            // تحويل Maps إلى Arrays
+            projectReportData = Object.values(projMap).map(p => ({
+                project: p.project,
+                team: Array.from(p.teams).join('، '),
+                assignees: Array.from(p.assignees).join('، '),
+                tasks: p.tasks,
+                estHours: p.estHours,
+                actHours: p.actHours
+            }));
+
+            employeeReportData = Object.values(empMap);
+            
+            renderProjTable();
+            renderEmpTable();
+        };
+
+        function renderProjTable() {
+            const body = document.getElementById('report-projects-body');
+            body.innerHTML = '';
+            
+            // ترتيب
+            if(sortStateProj.key) {
+                projectReportData.sort((a, b) => {
+                    let valA = a[sortStateProj.key];
+                    let valB = b[sortStateProj.key];
+                    if (typeof valA === 'string') return sortStateProj.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    return sortStateProj.asc ? valA - valB : valB - valA;
+                });
+            }
+
+            projectReportData.forEach(p => {
+                body.innerHTML += `<tr>
+                    <td><span class="project-chip" style="margin:0;"># ${p.project}</span></td>
+                    <td style="color: var(--blue-grey);">${p.team || '-'}</td>
+                    <td>${p.assignees}</td>
+                    <td>${p.tasks}</td>
+                    <td>${p.estHours}</td>
+                    <td style="color:var(--amber); font-weight:700;">${p.actHours}</td>
+                </tr>`;
             });
+            updateSortIcons('projectsTable', sortStateProj);
         }
 
+        function renderEmpTable() {
+            const body = document.getElementById('report-employees-body');
+            body.innerHTML = '';
+            
+            // ترتيب
+            if(sortStateEmp.key) {
+                employeeReportData.sort((a, b) => {
+                    let valA = a[sortStateEmp.key];
+                    let valB = b[sortStateEmp.key];
+                    if (typeof valA === 'string') return sortStateEmp.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    return sortStateEmp.asc ? valA - valB : valB - valA;
+                });
+            }
+
+            employeeReportData.forEach(e => {
+                body.innerHTML += `<tr>
+                    <td><div style="display:flex; align-items:center; gap:8px;">${getAvatarHTML(e.name)} <span style="font-weight:600;">${e.name}</span></div></td>
+                    <td style="color: var(--blue-grey);">${e.team || '-'}</td>
+                    <td>${e.tasks}</td>
+                    <td style="color:var(--amber); font-weight:700;">${e.hours}</td>
+                </tr>`;
+            });
+            updateSortIcons('employeesTable', sortStateEmp);
+        }
+
+        window.sortProjTable = (key) => {
+            if(sortStateProj.key === key) sortStateProj.asc = !sortStateProj.asc;
+            else { sortStateProj.key = key; sortStateProj.asc = true; }
+            renderProjTable();
+        };
+
+        window.sortEmpTable = (key) => {
+            if(sortStateEmp.key === key) sortStateEmp.asc = !sortStateEmp.asc;
+            else { sortStateEmp.key = key; sortStateEmp.asc = true; }
+            renderEmpTable();
+        };
+
+        function updateSortIcons(tableId, state) {
+            const ths = document.querySelectorAll(`#${tableId} th`);
+            ths.forEach(th => { th.classList.remove('sort-asc', 'sort-desc'); });
+            if(!state.key) return;
+            const activeTh = document.querySelector(`#${tableId} th[onclick*="'${state.key}'"]`);
+            if(activeTh) activeTh.classList.add(state.asc ? 'sort-asc' : 'sort-desc');
+        }
+
+        // تحديث ميزة التصدير لتشمل الجدولين
         window.exportExcel = () => {
-            if(reportDataForExport.length === 0) return alert("لا يوجد بيانات للتصدير");
-            const ws = XLSX.utils.json_to_sheet(reportDataForExport);
+            if(projectReportData.length === 0) return alert("لا يوجد بيانات للتصدير");
+            
+            // تحضير داتا المشاريع
+            const projExport = projectReportData.map(p => ({
+                "اسم المشروع": p.project, "القسم": p.team, "الموظفون المنفذون": p.assignees, 
+                "عدد المهام": p.tasks, "الساعات المخططة": p.estHours, "الساعات الفعلية": p.actHours
+            }));
+            
+            // تحضير داتا الموظفين
+            const empExport = employeeReportData.map(e => ({
+                "اسم الموظف": e.name, "القسم": e.team, 
+                "إجمالي المهام الموكلة": e.tasks, "الساعات الفعلية المُنجزة": e.hours
+            }));
+
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Detailed_Reports");
-            XLSX.writeFile(wb, "Blue_Studio_Detailed_Report.xlsx");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(projExport), "تقرير المشاريع");
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(empExport), "إنتاجية الموظفين");
+            
+            XLSX.writeFile(wb, "Blue_Studio_Full_Reports.xlsx");
         };
 
     }, 1500);
