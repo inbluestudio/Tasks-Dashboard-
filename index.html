@@ -324,7 +324,7 @@
             <h1 id="page-title" style="margin-bottom: 5px;">مساحة العمل</h1>
             <p style="font-size: 0.85rem; color: var(--blue-grey);">تتبع وإدارة المشاريع الجارية</p>
           </div>
-          <!-- زر الإضافة الدائري الجديد -->
+          <!-- زر الإضافة الدائري -->
           <button onclick="openAddModal()" class="btn-main btn-add-circle admin-only" title="إضافة مهمة">+</button>
         </div>
         
@@ -591,13 +591,15 @@
 
     const staffByTeam = { "3D": ["نور الدين", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "Code": ["عبدالله"] };
 
-    // تنظيف الإيميل لاستخدامه كمفتاح في قاعدة البيانات
-    const sanitizeEmail = (email) => email.replace(/\./g, ',');
+    // مصفوفات تخزين البيانات للترتيب والتصدير
+    let projectReportData = [];
+    let employeeReportData = [];
+    let sortStateProj = { key: null, asc: true };
+    let sortStateEmp = { key: null, asc: true };
 
     function getAvatarHTML(name, emailKey = null) {
         if(!name) return '';
         
-        // محاولة العثور على الإيميل من الاسم إذا لم يتم تمريره
         if (!emailKey) {
             for (let e in whitelist) {
                 if (whitelist[e].name === name) {
@@ -607,12 +609,10 @@
             }
         }
         
-        // التحقق مما إذا كان هناك صورة مرفوعة لهذا المستخدم
         if (emailKey && customAvatars[emailKey]) {
             return `<span class="avatar" title="${name}"><img src="${customAvatars[emailKey]}" alt="${name}"></span>`;
         }
 
-        // الصورة الافتراضية (الحروف الأولى)
         const colors = ['#3BA4FE', '#f87171', '#34d399', '#fbbf24', '#a78bfa', '#818cf8'];
         const char = name.substring(0, 2);
         const color = colors[char.charCodeAt(0) % colors.length];
@@ -625,6 +625,123 @@
         const taskMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         return taskMonth === activeMonthFilter;
     }
+
+    // --- تعريف دوال التقارير لكي يتم رفعها (Hoisting) وتجنب أخطاء ReferenceError ---
+    function prepareReportData() {
+        const arr = Object.values(allTasks);
+        
+        const projMap = {};
+        const empMap = {};
+
+        arr.forEach(t => {
+            if(!projMap[t.projectName]) projMap[t.projectName] = { project: t.projectName, teams: new Set(), assignees: new Set(), tasks: 0, estHours: 0, actHours: 0 };
+            projMap[t.projectName].estHours += (t.estHours || 0); 
+            projMap[t.projectName].tasks++; 
+            if(t.team) projMap[t.projectName].teams.add(t.team);
+            
+            let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
+            assignedToArray.forEach(u => projMap[t.projectName].assignees.add(u));
+
+            if(t.checklist) {
+                Object.values(t.checklist).forEach(item => {
+                    if(item.actualHours) {
+                        projMap[t.projectName].actHours += item.actualHours;
+                        const worker = item.addedBy;
+                        if(!empMap[worker]) empMap[worker] = { name: worker, team: t.team, tasks: 0, hours: 0 };
+                        empMap[worker].hours += item.actualHours;
+                    }
+                });
+            }
+            
+            assignedToArray.forEach(worker => {
+                 if(!empMap[worker]) empMap[worker] = { name: worker, team: t.team, tasks: 0, hours: 0 };
+                 empMap[worker].tasks++;
+            });
+        });
+
+        projectReportData = Object.values(projMap).map(p => ({
+            project: p.project,
+            team: Array.from(p.teams).join('، '),
+            assignees: Array.from(p.assignees).join('، '),
+            tasks: p.tasks,
+            estHours: p.estHours,
+            actHours: p.actHours
+        }));
+
+        employeeReportData = Object.values(empMap);
+        
+        renderProjTable();
+        renderEmpTable();
+    }
+    window.prepareReportData = prepareReportData;
+
+    function renderProjTable() {
+        const body = document.getElementById('report-projects-body');
+        body.innerHTML = '';
+        
+        if(sortStateProj.key) {
+            projectReportData.sort((a, b) => {
+                let valA = a[sortStateProj.key];
+                let valB = b[sortStateProj.key];
+                if (typeof valA === 'string') return sortStateProj.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                return sortStateProj.asc ? valA - valB : valB - valA;
+            });
+        }
+
+        projectReportData.forEach(p => {
+            body.innerHTML += `<tr>
+                <td><span class="project-chip" style="margin:0;"># ${p.project}</span></td>
+                <td style="color: var(--blue-grey);">${p.team || '-'}</td>
+                <td>${p.tasks}</td>
+                <td>${p.estHours}</td>
+                <td style="color:var(--amber); font-weight:700;">${p.actHours}</td>
+            </tr>`;
+        });
+        updateSortIcons('projectsTable', sortStateProj);
+    }
+    window.renderProjTable = renderProjTable;
+
+    function renderEmpTable() {
+        const body = document.getElementById('report-employees-body');
+        body.innerHTML = '';
+        
+        if(sortStateEmp.key) {
+            employeeReportData.sort((a, b) => {
+                let valA = a[sortStateEmp.key];
+                let valB = b[sortStateEmp.key];
+                if (typeof valA === 'string') return sortStateEmp.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                return sortStateEmp.asc ? valA - valB : valB - valA;
+            });
+        }
+
+        employeeReportData.forEach(e => {
+            body.innerHTML += `<tr>
+                <td><div style="display:flex; align-items:center; gap:8px;">${getAvatarHTML(e.name)} <span style="font-weight:600;">${e.name}</span></div></td>
+                <td style="color: var(--blue-grey);">${e.team || '-'}</td>
+                <td>${e.tasks}</td>
+                <td style="color:var(--amber); font-weight:700;">${e.hours}</td>
+            </tr>`;
+        });
+        updateSortIcons('employeesTable', sortStateEmp);
+    }
+    window.renderEmpTable = renderEmpTable;
+
+    function updateAdminStats() {
+        const arr = Object.values(allTasks);
+        document.getElementById('st-total').innerText = arr.length;
+        document.getElementById('st-hours').innerText = arr.reduce((a, b) => a + (b.estHours || 0), 0) + " س";
+        document.getElementById('st-projects').innerText = [...new Set(arr.map(x => x.projectName))].length;
+        
+        if(document.getElementById('dashboard').classList.contains('active')) {
+            drawCharts(arr);
+            renderProjectCompletion(arr);
+        }
+    }
+    window.updateAdminStats = updateAdminStats;
+
+
+    const sanitizeEmail = (email) => email.replace(/\./g, ',');
+
 
     setTimeout(() => {
         const { auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onValue, ref, db, update, push, remove, set, sendPasswordResetEmail } = window.firebaseTools;
@@ -641,13 +758,11 @@
             reader.onload = (e) => {
                 const img = new Image();
                 img.onload = () => {
-                    // تصغير الصورة لتقليل مساحة التخزين (100x100 بكسل)
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     canvas.width = 100;
                     canvas.height = 100;
                     
-                    // قص الصورة كـ مربع
                     const minSize = Math.min(img.width, img.height);
                     const startX = (img.width - minSize) / 2;
                     const startY = (img.height - minSize) / 2;
@@ -687,7 +802,6 @@
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = hasAdminRights ? 'flex' : 'none');
                 document.getElementById('dt-team').disabled = !hasAdminRights;
 
-                // الاستماع لتحديثات صور المستخدمين أولاً
                 onValue(ref(db, 'users'), (userSnap) => {
                     const usersData = userSnap.val() || {};
                     customAvatars = {};
@@ -695,14 +809,12 @@
                         if (usersData[key].avatar) customAvatars[key] = usersData[key].avatar;
                     }
                     
-                    // تحديث الصورة الشخصية في القائمة الجانبية فوراً
                     const safeEmail = sanitizeEmail(user.email);
                     const avatarContainer = document.getElementById('user-avatar-main');
                     if (avatarContainer) {
                         avatarContainer.outerHTML = getAvatarHTML(userData.name, safeEmail).replace('class="avatar"', 'id="user-avatar-main" class="avatar avatar-lg"');
                     }
                     
-                    // إعادة رسم اللوحة لتحديث صور بطاقات المهام المفتوحة
                     renderBoard();
                     if(document.getElementById('taskDetailsModal').classList.contains('active')) {
                         const activeId = document.getElementById('dt-id').value;
@@ -710,14 +822,12 @@
                             renderComments(allTasks[activeId].comments);
                             renderChecklist(allTasks[activeId].checklist);
                             
-                            // تحديث صور قائمة المسؤولين الجانبية في المودال
                             let assignedToArray = Array.isArray(allTasks[activeId].assignedTo) ? allTasks[activeId].assignedTo : [allTasks[activeId].assignedTo];
                             updateStaffListDetails(assignedToArray);
                         }
                     }
                 });
 
-                // الاستماع للمهام
                 onValue(ref(db, 'tasks'), (snap) => {
                     allTasks = snap.val() || {};
                     renderProjectsSidebar();
@@ -1100,30 +1210,28 @@
         };
         
         document.querySelectorAll('.nav-item').forEach(item => {
-            item.onclick = () => { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); item.classList.add('active'); document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(item.dataset.target).classList.add('active'); if(item.dataset.target === 'dashboard' || item.dataset.target === 'reports') updateAdminStats(); }
+            item.onclick = () => { 
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); 
+                item.classList.add('active'); 
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
+                document.getElementById(item.dataset.target).classList.add('active'); 
+                if(item.dataset.target === 'dashboard' || item.dataset.target === 'reports') {
+                    if (isManager || isTeamLead) {
+                        updateAdminStats(); 
+                        prepareReportData();
+                    }
+                }
+            }
         });
 
         // ---------------- إعدادات الداشبورد (الرسوم البيانية) ----------------
-        window.updateAdminStats = () => {
-            const arr = Object.values(allTasks);
-            document.getElementById('st-total').innerText = arr.length;
-            document.getElementById('st-hours').innerText = arr.reduce((a, b) => a + (b.estHours || 0), 0) + " س";
-            document.getElementById('st-projects').innerText = [...new Set(arr.map(x => x.projectName))].length;
-            
-            if(document.getElementById('dashboard').classList.contains('active')) {
-                drawCharts(arr);
-                renderProjectCompletion(arr); // رسم قائمة الإنجاز بدلا من الأعمدة
-            }
-        };
-
-        // دالة جديدة لرسم نسبة إنجاز المشاريع كأشرطة أفقية
+        
         function renderProjectCompletion(arr) {
             let projStats = {};
             
             arr.forEach(t => {
                 if(!projStats[t.projectName]) projStats[t.projectName] = { totalChecklistItems: 0, completedChecklistItems: 0 };
                 
-                // حساب التقدم بناءً على عدد المهام الفرعية (Checklist Items) في المشروع كاملاً
                 if (t.checklist) {
                     Object.values(t.checklist).forEach(item => {
                         projStats[t.projectName].totalChecklistItems++;
@@ -1136,16 +1244,13 @@
             if(!compContainer) return;
             compContainer.innerHTML = '';
             
-            // ألوان الهوية لتلوين الأشرطة
             const colors = ['#34d399', '#fbbf24', '#f97316', '#3BA4FE', '#a78bfa', '#f87171']; 
             let colorIdx = 0;
 
-            // الترتيب الأبجدي للمشاريع
             const sortedProjs = Object.keys(projStats).sort((a,b) => a.localeCompare(b, 'ar'));
 
             sortedProjs.forEach(pName => {
                 const stats = projStats[pName];
-                // إذا لم يكن هناك أي Checklist في المشروع، نعتبر النسبة 0
                 const pct = stats.totalChecklistItems > 0 ? Math.round((stats.completedChecklistItems / stats.totalChecklistItems) * 100) : 0;
                 const color = colors[colorIdx % colors.length];
                 colorIdx++;
@@ -1165,7 +1270,6 @@
         }
 
         function drawCharts(arr) {
-            // 1. حالة المهام (Doughnut)
             const sData = [arr.filter(t => t.status === 'pending').length, arr.filter(t => t.status === 'inprogress').length, arr.filter(t => t.status === 'completed').length];
             if(chartStatus) chartStatus.destroy();
             chartStatus = new Chart(document.getElementById('chartStatus'), { 
@@ -1187,7 +1291,6 @@
                 } 
             });
 
-            // 2. أكبر المشاريع حسب عدد المهام (Bar)
             let projTaskCounts = {};
             arr.forEach(t => {
                 projTaskCounts[t.projectName] = (projTaskCounts[t.projectName] || 0) + 1;
@@ -1209,7 +1312,6 @@
                 } 
             });
 
-            // 3. حركة المشاريع خلال السنة (Line)
             let currentYear = new Date().getFullYear();
             let monthlyProjects = Array(12).fill().map(() => new Set());
             arr.forEach(t => {
@@ -1233,144 +1335,14 @@
             });
         }
 
-        // ---------------- قسم التقارير (الجداول والترتيب) ----------------
-        
-        window.prepareReportData = () => {
-            const arr = Object.values(allTasks);
-            
-            // بيانات المشاريع
-            const projMap = {};
-            // بيانات الموظفين
-            const empMap = {};
-
-            arr.forEach(t => {
-                // تجميع بيانات المشاريع
-                if(!projMap[t.projectName]) projMap[t.projectName] = { project: t.projectName, teams: new Set(), assignees: new Set(), tasks: 0, estHours: 0, actHours: 0 };
-                projMap[t.projectName].estHours += (t.estHours || 0); 
-                projMap[t.projectName].tasks++; 
-                if(t.team) projMap[t.projectName].teams.add(t.team);
-                
-                let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
-                assignedToArray.forEach(u => projMap[t.projectName].assignees.add(u));
-
-                // تجميع الساعات الفعلية للمشروع والموظفين
-                if(t.checklist) {
-                    Object.values(t.checklist).forEach(item => {
-                        if(item.actualHours) {
-                            projMap[t.projectName].actHours += item.actualHours;
-                            // تحديث الموظف
-                            const worker = item.addedBy;
-                            if(!empMap[worker]) empMap[worker] = { name: worker, team: t.team, tasks: 0, hours: 0 };
-                            empMap[worker].hours += item.actualHours;
-                        }
-                    });
-                }
-                
-                // حساب عدد المهام الموكلة لكل موظف
-                assignedToArray.forEach(worker => {
-                     if(!empMap[worker]) empMap[worker] = { name: worker, team: t.team, tasks: 0, hours: 0 };
-                     empMap[worker].tasks++;
-                });
-            });
-
-            // تحويل Maps إلى Arrays
-            projectReportData = Object.values(projMap).map(p => ({
-                project: p.project,
-                team: Array.from(p.teams).join('، '),
-                assignees: Array.from(p.assignees).join('، '),
-                tasks: p.tasks,
-                estHours: p.estHours,
-                actHours: p.actHours
-            }));
-
-            employeeReportData = Object.values(empMap);
-            
-            renderProjTable();
-            renderEmpTable();
-        };
-
-        function renderProjTable() {
-            const body = document.getElementById('report-projects-body');
-            body.innerHTML = '';
-            
-            // ترتيب
-            if(sortStateProj.key) {
-                projectReportData.sort((a, b) => {
-                    let valA = a[sortStateProj.key];
-                    let valB = b[sortStateProj.key];
-                    if (typeof valA === 'string') return sortStateProj.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-                    return sortStateProj.asc ? valA - valB : valB - valA;
-                });
-            }
-
-            projectReportData.forEach(p => {
-                body.innerHTML += `<tr>
-                    <td><span class="project-chip" style="margin:0;"># ${p.project}</span></td>
-                    <td style="color: var(--blue-grey);">${p.team || '-'}</td>
-                    <td>${p.tasks}</td>
-                    <td>${p.estHours}</td>
-                    <td style="color:var(--amber); font-weight:700;">${p.actHours}</td>
-                </tr>`;
-            });
-            updateSortIcons('projectsTable', sortStateProj);
-        }
-
-        function renderEmpTable() {
-            const body = document.getElementById('report-employees-body');
-            body.innerHTML = '';
-            
-            // ترتيب
-            if(sortStateEmp.key) {
-                employeeReportData.sort((a, b) => {
-                    let valA = a[sortStateEmp.key];
-                    let valB = b[sortStateEmp.key];
-                    if (typeof valA === 'string') return sortStateEmp.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-                    return sortStateEmp.asc ? valA - valB : valB - valA;
-                });
-            }
-
-            employeeReportData.forEach(e => {
-                body.innerHTML += `<tr>
-                    <td><div style="display:flex; align-items:center; gap:8px;">${getAvatarHTML(e.name)} <span style="font-weight:600;">${e.name}</span></div></td>
-                    <td style="color: var(--blue-grey);">${e.team || '-'}</td>
-                    <td>${e.tasks}</td>
-                    <td style="color:var(--amber); font-weight:700;">${e.hours}</td>
-                </tr>`;
-            });
-            updateSortIcons('employeesTable', sortStateEmp);
-        }
-
-        window.sortProjTable = (key) => {
-            if(sortStateProj.key === key) sortStateProj.asc = !sortStateProj.asc;
-            else { sortStateProj.key = key; sortStateProj.asc = true; }
-            renderProjTable();
-        };
-
-        window.sortEmpTable = (key) => {
-            if(sortStateEmp.key === key) sortStateEmp.asc = !sortStateEmp.asc;
-            else { sortStateEmp.key = key; sortStateEmp.asc = true; }
-            renderEmpTable();
-        };
-
-        function updateSortIcons(tableId, state) {
-            const ths = document.querySelectorAll(`#${tableId} th`);
-            ths.forEach(th => { th.classList.remove('sort-asc', 'sort-desc'); });
-            if(!state.key) return;
-            const activeTh = document.querySelector(`#${tableId} th[onclick*="'${state.key}'"]`);
-            if(activeTh) activeTh.classList.add(state.asc ? 'sort-asc' : 'sort-desc');
-        }
-
-        // تحديث ميزة التصدير لتشمل الجدولين
         window.exportExcel = () => {
             if(projectReportData.length === 0) return alert("لا يوجد بيانات للتصدير");
             
-            // تحضير داتا المشاريع
             const projExport = projectReportData.map(p => ({
                 "اسم المشروع": p.project, "القسم": p.team, "الموظفون المنفذون": p.assignees, 
                 "عدد المهام": p.tasks, "الساعات المخططة": p.estHours, "الساعات الفعلية": p.actHours
             }));
             
-            // تحضير داتا الموظفين
             const empExport = employeeReportData.map(e => ({
                 "اسم الموظف": e.name, "القسم": e.team, 
                 "إجمالي المهام الموكلة": e.tasks, "الساعات الفعلية المُنجزة": e.hours
