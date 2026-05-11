@@ -1,0 +1,500 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blue Design Studio — إدارة المهام السحابية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap"
+          rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, onValue, remove, update, set }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    // إعدادات Firebase الخاصة بك (تم دمجها من الصور التي أرفقتها)
+    const firebaseConfig = {
+      apiKey: "AIzaSyD1qYudjPjPLGSEclPzW_wjHiXnoKHmj0c",
+      authDomain: "task-dashboard-68e99.firebaseapp.com",
+      projectId: "task-dashboard-68e99",
+      storageBucket: "task-dashboard-68e99.firebasestorage.app",
+      messagingSenderId: "105243462131",
+      appId: "1:105243462131:web:c049ff5f313e351a2f2a86",
+      databaseURL: "https://task-dashboard-68e99-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // جعل الوظائف متاحة عالمياً للـ HTML
+    window.db = db;
+    window.dbRefs = { ref, push, onValue, remove, update, set };
+    </script>
+
+    <style>
+        :root {
+            --bg: #0f0f11;
+            --surface: #17171a;
+            --surface2: #1f1f23;
+            --surface3: #26262c;
+            --border: rgba(255, 255, 255, .07);
+            --text: #e0e0e0;
+            --accent: #7c6dfa;
+            --accent2: #a897ff;
+            --green: #34d399;
+            --red: #f87171;
+            --amber: #fbbf24;
+            --cyan: #22d3ee;
+            --pink: #f472b6;
+            --orange: #fb923c;
+            --teal: #2dd4bf;
+            --radius: 12px;
+            --gap: 1rem;
+            --transition: .2s ease
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Inter', 'IBM Plex Sans Arabic', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh
+        }
+
+        .sidebar {
+            width: 220px;
+            background: var(--surface);
+            padding: var(--gap);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .nav-item {
+            font-size: .95rem;
+            cursor: pointer;
+            padding: .7rem 1rem;
+            border-radius: var(--radius);
+            transition: var(--transition)
+        }
+
+            .nav-item:hover, .nav-item.active {
+                background: var(--accent);
+                color: #fff
+            }
+
+        .main {
+            flex: 1;
+            padding: var(--gap);
+            overflow: auto
+        }
+
+        .section {
+            display: none
+        }
+
+            .section.active {
+                display: block
+            }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--gap);
+            flex-wrap: wrap;
+            gap: 8px
+        }
+
+        #addTaskBtn {
+            width: 90%;
+            margin: 0 auto 20px auto;
+            display: block;
+            padding: .75rem 1.2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            cursor: pointer;
+            transition: var(--transition)
+        }
+
+            #addTaskBtn:hover {
+                transform: scale(1.03);
+                box-shadow: 0 4px 20px rgba(124, 109, 250, .4)
+            }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--gap)
+        }
+
+        .column {
+            background: var(--surface2);
+            border-radius: var(--radius);
+            padding: var(--gap);
+            min-height: 60vh
+        }
+
+        .card {
+            background: var(--surface3);
+            border-right: 4px solid var(--accent);
+            border-radius: var(--radius);
+            padding: .75rem;
+            margin-bottom: 0.8rem;
+            cursor: grab;
+            transition: var(--transition);
+            position: relative
+        }
+
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, .3)
+            }
+
+        .project-badge {
+            font-size: 0.7rem;
+            color: var(--accent2);
+            background: rgba(124, 109, 250, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            display: inline-block;
+        }
+
+        .user-badge {
+            font-size: 0.7rem;
+            color: var(--green);
+            margin-top: 4px;
+            display: block;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99
+        }
+
+            .modal.active {
+                display: flex
+            }
+
+        .modal-content {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            width: 92%;
+            max-width: 450px
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: .6rem;
+            margin-top: .4rem;
+            margin-bottom: .8rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface3);
+            color: var(--text)
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+            .modal-btns button {
+                flex: 1;
+                padding: .7rem;
+                border: none;
+                border-radius: var(--radius);
+                cursor: pointer;
+                font-weight: 600;
+            }
+
+        /* Charts and stats same as original */
+        .stat-card {
+            background: var(--surface2);
+            padding: 1rem;
+            border-radius: var(--radius);
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+            .stat-card .num {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: var(--accent2);
+            }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--gap);
+            margin-top: 20px;
+        }
+
+        .chart-box {
+            background: var(--surface2);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+        }
+
+        @media(max-width:768px) {
+            .board, .charts-row {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div style="padding: 10px; text-align: center; margin-bottom: 20px;">
+            <h3 style="color: var(--accent2);">Blue Design</h3>
+            <p style="font-size: 0.7rem; opacity: 0.5;">Cloud Dashboard v1.0</p>
+        </div>
+        <div class="nav-item active" data-target="kanban">📋 اللوحة السحابية</div>
+        <div class="nav-item" data-target="dashboard">📊 الإحصائيات</div>
+        <div class="nav-item" data-target="reports">📄 التقارير</div>
+    </aside>
+
+    <main class="main">
+        <!-- ===== KANBAN SECTION ===== -->
+        <section id="kanban" class="section active">
+            <div class="dash-summary" style="margin-bottom: 20px;">
+                <div class="stat-card"><div class="num" id="mTotal">0</div><div class="lbl">إجمالي المهام</div></div>
+                <div class="stat-card"><div class="num" id="mDone" style="color: var(--green)">0</div><div class="lbl">مكتمل</div></div>
+                <div class="stat-card"><div class="num" id="mLeft" style="color: var(--amber)">0</div><div class="lbl">قيد التنفيذ</div></div>
+            </div>
+
+            <button id="addTaskBtn">+ إضافة مهمة هندسية جديدة</button>
+
+            <div class="board">
+                <div class="column" data-status="pending"><h3>⏳ قيد الانتظار</h3><div class="task-list"></div></div>
+                <div class="column" data-status="inprogress"><h3>🔄 جاري العمل</h3><div class="task-list"></div></div>
+                <div class="column" data-status="completed"><h3>✅ مكتمل</h3><div class="task-list"></div></div>
+            </div>
+        </section>
+
+        <!-- ===== DASHBOARD SECTION ===== -->
+        <section id="dashboard" class="section">
+            <h2>📊 إحصائيات المشاريع</h2>
+            <div class="charts-row">
+                <div class="chart-box"><canvas id="donutChart"></canvas></div>
+                <div class="chart-box"><canvas id="teamChart"></canvas></div>
+            </div>
+        </section>
+
+        <!-- ===== REPORTS SECTION ===== -->
+        <section id="reports" class="section">
+            <h2>📄 تقارير المكتب</h2>
+            <div class="chart-box" style="margin-top: 20px; overflow-x: auto;">
+                <table id="reportTable" style="width: 100%; border-collapse: collapse; text-align: right;">
+                    <thead>
+                        <tr style="background: var(--surface3);">
+                            <th style="padding: 10px;">المهمة</th>
+                            <th>المشروع</th>
+                            <th>المسؤول</th>
+                            <th>الحالة</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportContent"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== TASK MODAL ===== -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">تفاصيل المهمة</h2>
+            <input type="hidden" id="editId" />
+
+            <label>اسم المشروع</label>
+            <input type="text" id="projectName" placeholder="مثلاً: فيلا دبي - الدور الأول" />
+
+            <label>عنوان المهمة</label>
+            <input type="text" id="taskTitle" placeholder="مثلاً: ريندر المطبخ" />
+
+            <label>الشخص المسؤول</label>
+            <input type="text" id="assignedTo" placeholder="اسم المهندس/المصمم" />
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>الفريق</label>
+                    <select id="taskTeam">
+                        <option value="Unreal Engine">Unreal Engine</option>
+                        <option value="3D Design">3D Design</option>
+                        <option value="Programming">Programming</option>
+                    </select>
+                </div>
+                <div>
+                    <label>الأولوية</label>
+                    <select id="taskPriority">
+                        <option value="low">منخفضة</option>
+                        <option value="medium">متوسطة</option>
+                        <option value="high">عالية</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-btns" style="margin-top: 20px;">
+                <button class="btn-save" id="saveTaskBtn" style="background: var(--accent);">حفظ في السحابة</button>
+                <button class="btn-cancel" onclick="document.getElementById('taskModal').classList.remove('active')" style="background: var(--surface3);">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+    // ننتظر قليلاً لضمان تحميل Firebase من نافذة window
+    setTimeout(() => {
+        const { ref, push, onValue, remove, update } = window.dbRefs;
+        const db = window.db;
+
+        // --- NAVIGATION ---
+        document.querySelectorAll('.nav-item').forEach(n => {
+            n.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                n.classList.add('active');
+                const t = n.dataset.target;
+                document.querySelectorAll('.section').forEach(s => s.classList.toggle('active', s.id === t));
+                if(t === 'dashboard') updateCharts();
+            });
+        });
+
+        // --- REALTIME DATA FETCHING ---
+        onValue(ref(db, 'tasks'), (snapshot) => {
+            const data = snapshot.val();
+            renderBoard(data);
+            updateStats(data);
+            renderReport(data);
+        });
+
+        function renderBoard(tasks) {
+            document.querySelectorAll('.task-list').forEach(l => l.innerHTML = '');
+            if (!tasks) return;
+
+            Object.keys(tasks).forEach(id => {
+                const t = tasks[id];
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.draggable = true;
+                card.innerHTML = `
+                    <span class="project-badge">${t.projectName || 'مشروع عام'}</span>
+                    <div style="font-weight: 600; margin-bottom: 5px;">${t.title}</div>
+                    <span class="user-badge">👤 المسؤول: ${t.assignedTo || 'غير محدد'}</span>
+                    <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.6rem; opacity: 0.5;">${t.team}</span>
+                        <button onclick="deleteTask('${id}')" style="background: none; border: none; color: var(--red); cursor: pointer; font-size: 0.8rem;">🗑️</button>
+                    </div>
+                `;
+
+                card.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', id));
+                const targetCol = document.querySelector(`.column[data-status="${t.status}"] .task-list`);
+                if(targetCol) targetCol.appendChild(card);
+            });
+        }
+
+        // --- DRAG AND DROP ---
+        document.querySelectorAll('.column').forEach(col => {
+            col.addEventListener('dragover', e => e.preventDefault());
+            col.addEventListener('drop', e => {
+                const id = e.dataTransfer.getData('text/plain');
+                const newStatus = col.dataset.status;
+                update(ref(db, `tasks/${id}`), { status: newStatus });
+            });
+        });
+
+        // --- ADD TASK ---
+        document.getElementById('addTaskBtn').onclick = () => {
+            document.getElementById('taskModal').classList.add('active');
+        };
+
+        document.getElementById('saveTaskBtn').onclick = () => {
+            const title = document.getElementById('taskTitle').value;
+            const project = document.getElementById('projectName').value;
+            const user = document.getElementById('assignedTo').value;
+            const team = document.getElementById('taskTeam').value;
+            const priority = document.getElementById('taskPriority').value;
+
+            if(!title || !project) return alert("يرجى إدخال اسم المشروع وعنوان المهمة");
+
+            push(ref(db, 'tasks'), {
+                title,
+                projectName: project,
+                assignedTo: user,
+                team,
+                priority,
+                status: 'pending',
+                date: new Date().toISOString().split('T')[0]
+            });
+
+            document.getElementById('taskModal').classList.remove('active');
+            // Clear inputs
+            document.querySelectorAll('#taskModal input').forEach(i => i.value = '');
+        };
+         
+
+        window.deleteTask = (id) => {
+            if(confirm("هل أنت متأكد من حذف هذه المهمة نهائياً؟")) {
+                remove(ref(db, `tasks/${id}`));
+            }
+        };
+
+        // --- STATS & CHARTS ---
+        function updateStats(tasks) {
+            if(!tasks) {
+                document.getElementById('mTotal').innerText = 0;
+                return;
+            }
+            const arr = Object.values(tasks);
+            document.getElementById('mTotal').innerText = arr.length;
+            document.getElementById('mDone').innerText = arr.filter(t => t.status === 'completed').length;
+            document.getElementById('mLeft').innerText = arr.filter(t => t.status !== 'completed').length;
+        }
+
+        function renderReport(tasks) {
+            const tbody = document.getElementById('reportContent');
+            tbody.innerHTML = '';
+            if(!tasks) return;
+            Object.values(tasks).forEach(t => {
+                tbody.innerHTML += `
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 10px;">${t.title}</td>
+                        <td>${t.projectName}</td>
+                        <td>${t.assignedTo}</td>
+                        <td>${t.status}</td>
+                        <td>${t.date}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateCharts() {
+            // منطق الرسوم البيانية مشابه للقديم ولكن يسحب من Firebase
+            // سيتم تفعيله بالكامل في المرحلة الثانية لتحليل الوقت
+        }
+
+    }, 1500);
+    </script>
+</body>
+</html>
