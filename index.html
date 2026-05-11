@@ -50,6 +50,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'IBM Plex Sans Arabic', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
 
+    /* توليد الأفاتار */
+    .avatar { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: #fff; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.2); }
+    .avatar-lg { width: 35px; height: 35px; font-size: 0.9rem; }
+
     /* الشريط الجانبي */
     .sidebar { width: 250px; background: var(--sidebar-bg); border-left: 1px solid var(--border); padding: 25px 20px; display: flex; flex-direction: column; flex-shrink: 0; }
     .logo-container { margin-bottom: 40px; text-align: center; }
@@ -101,7 +105,7 @@
     .due-date-chip { display: inline-block; padding: 4px 10px; background: rgba(248, 113, 113, 0.1); color: #f87171; font-size: 0.7rem; border-radius: 6px; margin-bottom: 10px; margin-right: 5px; }
     .card-title { font-weight: 600; margin-bottom: 12px; font-size: 0.95rem; color: var(--tech-white); line-height: 1.4; }
     
-    /* شريط التقدم داخل البطاقة */
+    /* شريط التقدم داخل البطاقة المربّعة */
     .card-progress-wrap { margin-top: 12px; margin-bottom: 5px; }
     .card-progress-header { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--blue-grey); margin-bottom: 6px; font-weight: 500; }
     .card-progress-bg { width: 100%; background: rgba(0,0,0,0.4); border-radius: 4px; height: 6px; overflow: hidden; }
@@ -109,7 +113,8 @@
     .card-progress-fill.completed { background: #34d399; }
     
     .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; }
-    .user-info { font-size: 0.8rem; color: var(--blue-grey); }
+    .user-info { font-size: 0.8rem; color: var(--blue-grey); display: flex; align-items: center; gap: -5px; }
+    .user-info .avatar { margin-left: -8px; border: 2px solid var(--card-bg); } /* Overlap avatars */
     .hour-badge { font-size: 1.1rem; color: var(--amber); font-weight: 700; background: rgba(251, 191, 36, 0.12); padding: 4px 10px; border-radius: 8px; }
 
     /* الأزرار العامة */
@@ -117,6 +122,10 @@
     .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 164, 254, 0.3); }
     .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 14px 20px; border-radius: var(--radius); cursor: pointer; font-weight: 600; transition: 0.3s; }
     .btn-outline:hover { background: rgba(59, 164, 254, 0.1); }
+    
+    /* الزر الأخضر الكبير للحفظ */
+    .btn-save-big { background: #34d399; color: var(--ink-black); font-size: 1.1rem; font-weight: 700; padding: 12px 35px; border-radius: 12px; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(52, 211, 153, 0.3); }
+    .btn-save-big:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(52, 211, 153, 0.5); }
 
     /* شاشة الدخول */
     #login-page { position: fixed; inset: 0; background: var(--ink-black); z-index: 5000; display: flex; align-items: center; justify-content: center; }
@@ -128,9 +137,13 @@
     .modal.active { display: flex; }
     
     /* نافذة تفاصيل المهمة (Trello Style) */
-    .trello-modal { background: var(--card-bg); width: 900px; max-width: 95vw; height: 85vh; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
-    .trello-header { padding: 25px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; background: var(--deep-navy); }
-    .trello-header h2 { font-size: 1.4rem; color: var(--tech-white); margin-bottom: 5px; }
+    .trello-modal { background: var(--card-bg); width: 950px; max-width: 95vw; height: 88vh; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+    .trello-header { padding: 20px 30px; border-bottom: 1px solid var(--border); background: var(--deep-navy); display: flex; flex-direction: column; gap: 15px; }
+    .trello-header-top { display: flex; justify-content: space-between; align-items: center; }
+    .header-progress-wrap { display: flex; align-items: center; gap: 15px; flex: 1; margin-right: 20px; }
+    .header-progress-bg { flex: 1; max-width: 300px; background: rgba(0,0,0,0.4); border-radius: 6px; height: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+    .trello-header h2 { font-size: 1.5rem; color: var(--tech-white); margin: 0; }
+    
     .trello-body { display: flex; flex: 1; overflow: hidden; }
     
     /* الجزء الأيمن (التفاصيل والتعليقات والـ Checklist) */
@@ -139,20 +152,20 @@
     .trello-desc-box { width: 100%; background: var(--ink-black); border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: var(--tech-white); min-height: 100px; resize: vertical; font-family: inherit; line-height: 1.6; }
     
     /* الـ Checklist */
-    .progress-bar-container { width: 100%; background: rgba(0,0,0,0.3); border-radius: 10px; height: 10px; margin-bottom: 15px; overflow: hidden; border: 1px solid var(--border); }
-    .progress-bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease; }
-    .checklist-item { display: flex; align-items: center; justify-content: space-between; background: var(--ink-black); padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border); transition: 0.2s; }
+    .checklist-item { display: flex; align-items: center; justify-content: space-between; background: var(--ink-black); padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border); transition: 0.2s; gap: 15px; }
     .checklist-item:hover { border-color: var(--muted-blue); }
     .checklist-item label { display: flex; align-items: center; gap: 10px; cursor: pointer; margin:0; flex: 1; font-size: 0.9rem; }
     .checklist-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; margin: 0; }
-    .checklist-input-wrap { display: flex; gap: 10px; }
-    .checklist-input-wrap input { flex: 1; background: var(--ink-black); border: 1px solid var(--border); padding: 12px; border-radius: 8px; color: white; outline: none; }
+    .checklist-input-wrap { display: flex; gap: 10px; background: rgba(15, 34, 54, 0.3); padding: 15px; border-radius: 12px; border: 1px dashed var(--border); }
+    .checklist-input-wrap input { background: var(--ink-black); border: 1px solid var(--border); padding: 12px; border-radius: 8px; color: white; outline: none; }
     .checklist-input-wrap input:focus { border-color: var(--accent); }
+    .hours-badge-small { background: rgba(251, 191, 36, 0.1); color: var(--amber); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; border: 1px solid rgba(251, 191, 36, 0.2); }
 
     /* التعليقات */
     .comments-area { background: rgba(15, 34, 54, 0.3); border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
     .comment-list { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-    .comment-item { background: var(--ink-black); padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
+    .comment-item { background: var(--ink-black); padding: 15px; border-radius: 10px; border: 1px solid var(--border); display: flex; gap: 12px;}
+    .comment-content { flex: 1; }
     .comment-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--blue-grey); margin-bottom: 8px; border-bottom: 1px solid var(--soft-line); padding-bottom: 5px;}
     .comment-input-wrap { display: flex; gap: 10px; }
     .comment-input-wrap input { flex: 1; margin: 0; background: var(--ink-black); border: 1px solid var(--border); padding: 12px; border-radius: 8px; color: white; outline: none;}
@@ -168,9 +181,6 @@
     .checkbox-group label { display: flex; align-items: center; gap: 8px; color: var(--tech-white); font-size: 0.85rem; cursor: pointer; margin: 0; }
     .checkbox-group input[type="checkbox"] { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
 
-    .action-btn-block { width: 100%; padding: 12px; background: var(--soft-line); border: 1px solid var(--border); color: var(--tech-white); border-radius: 8px; cursor: pointer; text-align: right; margin-bottom: 10px; transition: 0.2s; display: flex; justify-content: space-between;}
-    .action-btn-block:hover { background: var(--muted-blue); }
-
     /* نافذة الإضافة البسيطة */
     .simple-modal { background: var(--deep-navy); padding: 35px; border-radius: 20px; width: 450px; border: 1px solid var(--border); }
     .simple-modal input, .simple-modal select { width: 100%; padding: 14px; margin-bottom: 15px; background: var(--ink-black); border: 1px solid var(--border); border-radius: 10px; color: white; font-family: inherit; }
@@ -184,7 +194,7 @@
 
     .admin-only { display: none; }
     .manager-lock { position: relative; }
-    .manager-lock::after { content: '🔒 مدير فقط'; position: absolute; left: 10px; top: -5px; font-size: 0.6rem; color: #f87171; opacity: 0.8; }
+    .manager-lock::after { content: '🔒 مدير أو Team Lead'; position: absolute; left: 10px; top: -5px; font-size: 0.6rem; color: #f87171; opacity: 0.8; }
   </style>
 </head>
 
@@ -230,7 +240,10 @@
       <div class="logo-container">
           <div class="logo-main">BLUE STUDIO</div>
           <div id="user-role" style="font-size: 0.7rem; color: var(--light-blue); margin-top: 5px;"></div>
-          <div id="user-name" style="font-size: 1rem; margin-top: 5px; color: var(--tech-white); font-weight: 600;"></div>
+          <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:10px;">
+              <span id="user-avatar-main" class="avatar avatar-lg" style="background: var(--accent); color: var(--ink-black);"></span>
+              <div id="user-name" style="font-size: 1rem; color: var(--tech-white); font-weight: 600;"></div>
+          </div>
       </div>
       
       <div class="nav-item active" data-target="kanban">📋 إدارة المهام</div>
@@ -305,13 +318,12 @@
         <div class="page-header">
             <h1 style="margin-bottom: 0;">تقارير أداء المشاريع</h1>
             <div style="display: flex; gap: 15px;">
-                <button class="btn-outline" onclick="exportExcel()">⬇ تصدير Excel</button>
-                <button class="btn-outline" onclick="exportPDF()" style="color: #f87171; border-color: #f87171;">⬇ تصدير PDF</button>
+                <button class="btn-outline" onclick="exportExcel()">⬇ تصدير Excel (بالتواريخ والتعليقات)</button>
             </div>
         </div>
         <div class="stat-box" style="margin-top: 10px; padding: 20px;">
             <table id="reportsTable">
-                <thead><tr><th>المشروع</th><th>الفريق العامل</th><th>المهام</th><th>الساعات التقديرية</th></tr></thead>
+                <thead><tr><th>المشروع</th><th>الفريق العامل</th><th>المهام</th><th>الساعات المخططة</th></tr></thead>
                 <tbody id="report-body"></tbody>
             </table>
         </div>
@@ -331,7 +343,6 @@
       <div style="margin-bottom: 15px;">
         <label style="font-size: 0.8rem; color: var(--blue-grey); margin-bottom: 8px; display: block;">اختيار المسؤولين (يمكن تحديد أكثر من شخص)</label>
         <div id="sNameNewContainer" class="checkbox-group">
-            <!-- سيتم توليد الـ Checkboxes هنا -->
             <div style="color: var(--muted-blue); font-size: 0.8rem; padding: 5px;">يرجى اختيار القسم أولاً...</div>
         </div>
       </div>
@@ -345,14 +356,29 @@
   <!-- نافذة تفاصيل المهمة (Trello Style) -->
   <div class="modal" id="taskDetailsModal">
     <div class="trello-modal">
-        <!-- الرأس -->
+        <!-- الرأس الجديد (يحتوي زر الحفظ وشريط التقدم) -->
         <div class="trello-header">
-            <div>
-                <span id="dt-project" class="project-chip" style="margin-bottom: 5px;"># مشروع</span>
-                <h2 id="dt-title">عنوان المهمة</h2>
-                <div style="font-size: 0.8rem; color: var(--blue-grey);">في قائمة <span id="dt-status-text" style="color: var(--light-blue); text-decoration: underline;">الانتظار</span></div>
+            <div class="trello-header-top">
+                <div style="display:flex; align-items:center; gap: 20px; flex:1;">
+                    <span id="dt-project" class="project-chip" style="margin: 0; font-size: 0.8rem; padding: 6px 15px;"># مشروع</span>
+                    <!-- شريط التقدم في الرأس -->
+                    <div class="header-progress-wrap">
+                        <span style="font-size: 0.85rem; color: var(--blue-grey); font-weight:600;" id="dt-header-progress-text">0%</span>
+                        <div class="header-progress-bg">
+                            <div id="dt-header-progress-fill" class="card-progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap: 15px;">
+                    <!-- الزر الأخضر الكبير للحفظ -->
+                    <button id="btn-save-details" class="btn-save-big" onclick="saveTaskDetails()">حفظ التعديلات</button>
+                    <button onclick="closeDetailsModal()" style="background: none; border: none; font-size: 1.8rem; color: var(--blue-grey); cursor: pointer; transition: 0.2s;">✖</button>
+                </div>
             </div>
-            <button onclick="closeDetailsModal()" style="background: none; border: none; font-size: 1.5rem; color: var(--blue-grey); cursor: pointer;">✖</button>
+            <div>
+                <h2 id="dt-title">عنوان المهمة</h2>
+                <div style="font-size: 0.85rem; color: var(--blue-grey); margin-top:5px;">الحالة الحالية: <span id="dt-status-text" style="color: var(--light-blue); font-weight:600;">الانتظار</span></div>
+            </div>
         </div>
 
         <div class="trello-body">
@@ -362,31 +388,30 @@
                 <div>
                     <div class="trello-section-title">📝 الوصف الأساسي للمهمة</div>
                     <textarea id="dt-desc" class="trello-desc-box" placeholder="أضف تفاصيل عامة للمهمة هنا..."></textarea>
-                    <button class="btn-outline" onclick="saveTaskDetails()" style="padding: 8px 15px; font-size: 0.8rem;">حفظ الوصف</button>
                 </div>
 
-                <!-- قسم الـ Checklist الجديد -->
+                <!-- قسم الـ Checklist الجديد مع الساعات الفعلية -->
                 <div>
-                    <div class="trello-section-title">☑️ قائمة المهام الفرعية (Checklist)</div>
-                    <div class="progress-bar-container"><div class="progress-bar" id="dt-checklist-progress"></div></div>
+                    <div class="trello-section-title">☑️ قائمة المهام الفرعية (Checklist) والإنجاز الفعلي</div>
                     
                     <div id="dt-checklist-items" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
                         <!-- العناصر تظهر هنا -->
                     </div>
 
                     <div class="checklist-input-wrap">
-                        <input type="text" id="dt-new-checklist-item" placeholder="إضافة خطوة فرعية أو تحديث (اضغط إرسال)...">
-                        <button class="btn-main" style="padding: 10px; width: auto;" onclick="addChecklistItem()">إضافة</button>
+                        <input type="text" id="dt-new-checklist-item" placeholder="إضافة خطوة فرعية (ماذا أنجزت؟)..." style="flex:2;">
+                        <input type="number" id="dt-new-checklist-hours" placeholder="الساعات المستغرقة" style="flex:1;" min="0">
+                        <button class="btn-main" style="padding: 10px 20px; width: auto;" onclick="addChecklistItem()">إضافة</button>
                     </div>
                 </div>
 
                 <!-- قسم التعليقات -->
                 <div>
-                    <div class="trello-section-title">💬 النشاطات والتعليقات</div>
+                    <div class="trello-section-title">💬 التقارير والتعليقات الميدانية</div>
                     <div class="comments-area">
                         <div class="comment-input-wrap">
-                            <input type="text" id="dt-new-comment" placeholder="اكتب تعليقاً لزملائك أو للمدير...">
-                            <button class="btn-main" style="padding: 10px; width: auto;" onclick="addComment()">إرسال</button>
+                            <input type="text" id="dt-new-comment" placeholder="اكتب تقريراً أو ملاحظة للمدير والزملاء...">
+                            <button class="btn-main" style="padding: 10px 20px; width: auto;" onclick="addComment()">إرسال</button>
                         </div>
                         <div class="comment-list" id="dt-comments-list">
                             <!-- التعليقات تظهر هنا -->
@@ -399,7 +424,7 @@
             <div class="trello-sidebar">
                 <input type="hidden" id="dt-id">
                 
-                <h4 style="color: var(--tech-white); margin-bottom: 15px; font-size: 0.9rem;">إعدادات المهمة</h4>
+                <h4 style="color: var(--tech-white); margin-bottom: 15px; font-size: 0.9rem; border-bottom: 1px solid var(--border); padding-bottom: 10px;">إعدادات التكليف</h4>
 
                 <div class="manager-lock" id="dt-assign-container">
                     <label style="margin-top: 15px;">الفريق (Team)</label>
@@ -411,20 +436,18 @@
                     </div>
                 </div>
 
-                <label>تاريخ التسليم (Due Date)</label>
+                <label>تاريخ التسليم المتوقع (Due Date)</label>
                 <input type="date" id="dt-duedate">
 
-                <label>الساعات التقديرية</label>
-                <input type="number" id="dt-hours">
+                <label>الساعات التقديرية (المطلوبة)</label>
+                <input type="number" id="dt-hours" min="0">
 
                 <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
-                    <h4 style="color: var(--tech-white); margin-bottom: 15px; font-size: 0.9rem;">إجراءات سريعة</h4>
-                    <button class="action-btn-block" onclick="moveTaskStatus('pending')"><span>نقل للانتظار</span> <span>⏳</span></button>
-                    <button class="action-btn-block" onclick="moveTaskStatus('inprogress')"><span>قيد التنفيذ</span> <span>🔄</span></button>
-                    <button class="action-btn-block" onclick="moveTaskStatus('completed')"><span>تم الإنجاز</span> <span>✅</span></button>
+                    <h4 style="color: var(--tech-white); margin-bottom: 15px; font-size: 0.9rem;">إدارة المهام</h4>
+                    <p style="font-size: 0.75rem; color: var(--blue-grey); margin-bottom: 15px;">لتغيير حالة المهمة (انتظار، قيد التنفيذ، مكتملة)، يرجى سحب البطاقة من اللوحة الرئيسية.</p>
                     
-                    <button class="action-btn-block admin-only" onclick="deleteTaskFromDetails()" style="background: rgba(248, 113, 113, 0.1); color: #f87171; border-color: #f87171; margin-top: 30px;">
-                        <span>حذف المهمة</span> <span>🗑️</span>
+                    <button class="action-btn-block admin-only" onclick="deleteTaskFromDetails()" style="background: rgba(248, 113, 113, 0.1); color: #f87171; border-color: #f87171;">
+                        <span>حذف المهمة نهائياً</span> <span>🗑️</span>
                     </button>
                 </div>
             </div>
@@ -435,25 +458,28 @@
   <script type="module">
     let allTasks = {};
     let isManager = false;
+    let isTeamLead = false;
     let currentUserName = "";
     let isLoginMode = true;
     
-    // الفلاتر
     let activeProjectFilter = null;
     let searchTerm = "";
 
-    // القائمة البيضاء
+    // القائمة البيضاء + تحديد الـ Team Leads
     const whitelist = {
       "safwan.krasneh@bluedesignstudio.com": { name: "صفوان القراسنة", role: "manager" },
       "hussam.banat@bluedesignstudio.com": { name: "حسام بنات", role: "manager" },
       "yazan.reyal@bluedesignstudio.com": { name: "يزن", role: "manager" },
-      "nooradeen.awad@bluedesignstudio.com": { name: "نور الدين", role: "3D" },
+      
+      "nooradeen.awad@bluedesignstudio.com": { name: "نور الدين", role: "3D", isLead: true },
       "tamer.shishani@bluedesignstudio.com": { name: "تامر", role: "3D" },
       "motaz.hawari@bluedesignstudio.com": { name: "معتز", role: "3D" },
-      "laith.jebril@bluedesignstudio.com": { name: "ليث", role: "unreal engine" },
+      
+      "laith.jebril@bluedesignstudio.com": { name: "ليث", role: "unreal engine", isLead: true },
       "dana.bojoq@bluedesignstudio.com": { name: "دانا", role: "unreal engine" },
       "baker.hasan@bluedesignstudio.com": { name: "بكر", role: "unreal engine" },
-      "abdullah.tekreeti@bluedesignstudio.com": { name: "عبدالله", role: "Code" }
+      
+      "abdullah.tekreeti@bluedesignstudio.com": { name: "عبدالله", role: "Code" } // فريق الكود بدون Lead حاليا
     };
 
     const staffByTeam = { 
@@ -461,6 +487,14 @@
       "unreal engine": ["ليث", "دانا", "بكر"], 
       "Code": ["عبدالله"] 
     };
+
+    // دالة مساعدة لتوليد لون وأحرف الأفاتار
+    function getAvatarHTML(name) {
+        const colors = ['#3BA4FE', '#f87171', '#34d399', '#fbbf24', '#a78bfa', '#818cf8'];
+        const char = name.substring(0, 2);
+        const color = colors[char.charCodeAt(0) % colors.length];
+        return `<span class="avatar" style="background-color: ${color};">${char}</span>`;
+    }
 
     setTimeout(() => {
         const { auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onValue, ref, db, update, push, remove, sendPasswordResetEmail } = window.firebaseTools;
@@ -471,25 +505,29 @@
                 if (!userData) { signOut(auth); showError("عذراً، هذا البريد غير مصرح له."); return; }
                 
                 isManager = userData.role === "manager";
+                isTeamLead = userData.isLead === true;
                 currentUserName = userData.name;
                 
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('app-ui').style.display = 'flex';
+                
                 document.getElementById('user-name').innerText = userData.name;
-                document.getElementById('user-role').innerText = isManager ? "الإدارة العليا" : `فريق ${userData.role}`;
+                document.getElementById('user-role').innerText = isManager ? "الإدارة العليا" : (isTeamLead ? `Team Lead (${userData.role})` : `فريق ${userData.role}`);
+                document.getElementById('user-avatar-main').innerText = userData.name.substring(0,2);
                 
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = isManager ? 'flex' : 'none');
+                // إظهار أزرار المدير لمن يملك صلاحية (المدير + التيم ليد)
+                const hasAdminRights = isManager || isTeamLead;
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = hasAdminRights ? 'flex' : 'none');
                 
-                // حظر تغيير المسؤول لغير المدير
-                document.getElementById('dt-team').disabled = !isManager;
+                // حظر تغيير المسؤول لغير الإدارة أو التيم ليد
+                document.getElementById('dt-team').disabled = !hasAdminRights;
 
                 onValue(ref(db, 'tasks'), (snap) => {
                     allTasks = snap.val() || {};
                     renderProjectsSidebar();
                     renderBoard();
-                    if(isManager) updateAdminStats();
+                    if(hasAdminRights) updateAdminStats();
                     
-                    // التزامن الحي داخل المودال إذا كان مفتوحاً
                     if(document.getElementById('taskDetailsModal').classList.contains('active')) {
                         const activeId = document.getElementById('dt-id').value;
                         if(activeId && allTasks[activeId]) {
@@ -504,7 +542,6 @@
             }
         });
 
-        // دوال المصادقة (نفس السابقة)
         window.toggleAuthMode = () => { isLoginMode = !isLoginMode; document.getElementById('auth-title').innerText = isLoginMode ? "تسجيل الدخول" : "إنشاء حساب"; document.getElementById('reset-form-container').style.display = 'none'; document.getElementById('auth-form-container').style.display = 'block'; };
         window.toggleResetView = (show) => { document.getElementById('auth-form-container').style.display = show ? 'none' : 'block'; document.getElementById('reset-form-container').style.display = show ? 'block' : 'none'; document.getElementById('auth-title').innerText = show ? "استعادة كلمة المرور" : "تسجيل الدخول"; };
         window.handleAuth = () => { const e = document.getElementById('login-email').value.trim(); const p = document.getElementById('login-pass').value; if(!e || !p) return showError("أدخل البيانات"); if (!whitelist[e]) return showError("بريد غير معتمد"); if(isLoginMode) signInWithEmailAndPassword(auth, e, p).catch(err=>showError("خطأ بالبيانات")); else { if(p.length < 6) return showError("كلمة السر قصيرة"); createUserWithEmailAndPassword(auth, e, p).then(()=>alert("تم التفعيل")).catch(e=>showError("فشل التفعيل")); }};
@@ -513,7 +550,6 @@
         function showError(m) { const b = document.getElementById('login-error'); b.innerText = m; b.style.display = 'block'; document.getElementById('login-success').style.display = 'none';}
         function showSuccess(m) { const b = document.getElementById('login-success'); b.innerText = m; b.style.display = 'block'; document.getElementById('login-error').style.display = 'none';}
 
-        // --- نظام الفلاتر ---
         window.handleSearch = () => { searchTerm = document.getElementById('searchInput').value.toLowerCase(); renderBoard(); };
         window.setProjectFilter = (projName) => { activeProjectFilter = projName === activeProjectFilter ? null : projName; renderProjectsSidebar(); renderBoard(); };
         window.clearFilters = () => { activeProjectFilter = null; searchTerm = ""; document.getElementById('searchInput').value = ""; renderProjectsSidebar(); renderBoard(); };
@@ -522,9 +558,10 @@
             const container = document.getElementById('project-filters-list');
             if(!container) return;
             const projCounts = {};
+            const hasAdminRights = isManager || isTeamLead;
             Object.values(allTasks).forEach(t => {
                 let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
-                if(!isManager && !assignedToArray.includes(currentUserName)) return;
+                if(!hasAdminRights && !assignedToArray.includes(currentUserName)) return;
                 projCounts[t.projectName] = (projCounts[t.projectName] || 0) + 1;
             });
             container.innerHTML = '';
@@ -534,20 +571,19 @@
             });
         }
 
-        // --- رسم اللوحة الأساسية ---
         function renderBoard() {
             ['pending', 'inprogress', 'completed'].forEach(s => {
                 document.getElementById(`list-${s}`).innerHTML = '';
                 document.getElementById(`count-${s}`).innerText = '0';
             });
             let counts = { pending: 0, inprogress: 0, completed: 0 };
+            const hasAdminRights = isManager || isTeamLead;
 
             Object.keys(allTasks).forEach(id => {
                 const t = allTasks[id];
                 let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
                 
-                // الفلاتر
-                if(!isManager && !assignedToArray.includes(currentUserName)) return;
+                if(!hasAdminRights && !assignedToArray.includes(currentUserName)) return;
                 if(activeProjectFilter && t.projectName !== activeProjectFilter) return;
                 if(searchTerm && !t.title.toLowerCase().includes(searchTerm) && !t.projectName.toLowerCase().includes(searchTerm)) return;
 
@@ -560,36 +596,22 @@
                     dateHtml = `<div class="due-date-chip" style="${isOverdue ? 'background: rgba(248, 113, 113, 0.2); color: #f87171;' : 'background: rgba(136, 207, 253, 0.1); color: var(--light-blue);'}">📅 ${t.dueDate}</div>`;
                 }
 
-                // حساب نسبة التقدم من الـ Checklist
                 let progressHtml = '';
-                let totalItems = 0;
-                let doneItems = 0;
-                
-                if (t.checklist) {
-                    Object.values(t.checklist).forEach(item => {
-                        totalItems++;
-                        if (item.done) doneItems++;
-                    });
-                }
+                let totalItems = 0; let doneItems = 0;
+                if (t.checklist) { Object.values(t.checklist).forEach(item => { totalItems++; if (item.done) doneItems++; }); }
                 
                 if (totalItems > 0) {
                     const progressPercent = Math.round((doneItems / totalItems) * 100);
                     const fillClass = progressPercent === 100 ? 'card-progress-fill completed' : 'card-progress-fill';
                     progressHtml = `
                         <div class="card-progress-wrap">
-                            <div class="card-progress-header">
-                                <span>☑ المهام (${doneItems}/${totalItems})</span>
-                                <span>${progressPercent}%</span>
-                            </div>
-                            <div class="card-progress-bg">
-                                <div class="${fillClass}" style="width: ${progressPercent}%;"></div>
-                            </div>
-                        </div>
-                    `;
+                            <div class="card-progress-header"><span>☑ (${doneItems}/${totalItems})</span><span>${progressPercent}%</span></div>
+                            <div class="card-progress-bg"><div class="${fillClass}" style="width: ${progressPercent}%;"></div></div>
+                        </div>`;
                 }
 
-                // عرض أسماء المسؤولين المتعددين
-                const assignedToText = assignedToArray.join('، ');
+                // عرض الأفاتارز للمسؤولين
+                let avatarsHtml = assignedToArray.map(name => getAvatarHTML(name)).join('');
 
                 const card = document.createElement('div');
                 card.className = 'card';
@@ -604,7 +626,7 @@
                     <div class="card-title">${t.title}</div>
                     ${progressHtml}
                     <div class="card-footer">
-                        <div class="user-info" style="font-weight: 600;">👥 ${assignedToText}</div>
+                        <div class="user-info">${avatarsHtml}</div>
                         <div class="hour-badge">${t.estHours} س</div>
                     </div>
                 `;
@@ -616,7 +638,6 @@
             document.getElementById('count-completed').innerText = counts.completed;
         }
 
-        // --- إضافة مهمة جديدة مع تحديد عدة أشخاص ---
         window.openAddModal = () => { 
             document.getElementById('pNameNew').value = activeProjectFilter || "";
             document.getElementById('tTitleNew').value = "";
@@ -631,7 +652,7 @@
             container.innerHTML = '';
             if (staffByTeam[team]) {
                 staffByTeam[team].forEach(e => {
-                    container.innerHTML += `<label><input type="checkbox" value="${e}"> ${e}</label>`;
+                    container.innerHTML += `<label><input type="checkbox" value="${e}"> ${getAvatarHTML(e)} ${e}</label>`;
                 });
             }
         };
@@ -646,7 +667,8 @@
                 assignedTo: assignees,
                 team: document.getElementById('tTypeNew').value,
                 estHours: parseFloat(document.getElementById('eHoursNew').value) || 0,
-                status: 'pending', createdAt: Date.now(),
+                status: 'pending', 
+                createdAt: Date.now(), // تاريخ إنشاء المهمة
                 description: "", dueDate: "", comments: {}, checklist: {}
             };
             if(!data.projectName || !data.title || assignees.length === 0) return alert("يرجى إكمال البيانات الأساسية واختيار مسؤول واحد على الأقل.");
@@ -654,7 +676,6 @@
             document.getElementById('addTaskModal').classList.remove('active');
         };
 
-        // --- المودال المتطور (Trello Style) ---
         window.openTaskDetailsModal = (id) => {
             const t = allTasks[id];
             document.getElementById('dt-id').value = id;
@@ -665,9 +686,15 @@
             document.getElementById('dt-status-text').innerText = statusMap[t.status];
             
             document.getElementById('dt-desc').value = t.description || "";
-            document.getElementById('dt-duedate').value = t.dueDate || "";
-            document.getElementById('dt-hours').value = t.estHours || 0;
             
+            // تعيين تاريخ افتراضي لليوم إذا لم يكن موجوداً
+            if(!t.dueDate) {
+                document.getElementById('dt-duedate').valueAsDate = new Date();
+            } else {
+                document.getElementById('dt-duedate').value = t.dueDate;
+            }
+            
+            document.getElementById('dt-hours').value = t.estHours || 0;
             document.getElementById('dt-team').value = t.team || "";
             
             let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
@@ -681,59 +708,65 @@
 
         window.closeDetailsModal = () => document.getElementById('taskDetailsModal').classList.remove('active');
 
-        // تحديث قائمة الموظفين كـ Checkboxes للمدير
         window.updateStaffListDetails = (selectedAssignees = []) => {
             const team = document.getElementById('dt-team').value;
             const container = document.getElementById('dt-assignee-container');
             container.innerHTML = '';
+            const hasAdminRights = isManager || isTeamLead;
             if (staffByTeam[team]) {
                 staffByTeam[team].forEach(e => {
                     const isChecked = selectedAssignees.includes(e) ? 'checked' : '';
-                    const disabled = !isManager ? 'disabled' : '';
-                    container.innerHTML += `<label><input type="checkbox" value="${e}" ${isChecked} ${disabled}> ${e}</label>`;
+                    const disabled = !hasAdminRights ? 'disabled' : '';
+                    container.innerHTML += `<label><input type="checkbox" value="${e}" ${isChecked} ${disabled}> ${getAvatarHTML(e)} ${e}</label>`;
                 });
             }
         };
 
         window.saveTaskDetails = () => {
             const id = document.getElementById('dt-id').value;
+            const hasAdminRights = isManager || isTeamLead;
+            
             const updates = {
                 description: document.getElementById('dt-desc').value,
                 dueDate: document.getElementById('dt-duedate').value,
                 estHours: parseFloat(document.getElementById('dt-hours').value) || 0
             };
             
-            if(isManager) {
+            if(hasAdminRights) {
                 updates.team = document.getElementById('dt-team').value;
                 const checkedBoxes = document.querySelectorAll('#dt-assignee-container input[type="checkbox"]:checked');
                 updates.assignedTo = Array.from(checkedBoxes).map(cb => cb.value);
             }
 
             update(ref(db, `tasks/${id}`), updates).then(() => {
-                const btn = document.querySelector('button[onclick="saveTaskDetails()"]');
-                const oldText = btn.innerText;
-                btn.innerText = "تم الحفظ ✅";
-                setTimeout(() => btn.innerText = oldText, 2000);
+                const btn = document.getElementById('btn-save-details');
+                btn.innerText = "تم الحفظ بنجاح ✔️";
+                btn.style.background = "#10b981"; // لون أخضر داكن للنجاح
+                setTimeout(() => {
+                    btn.innerText = "حفظ التعديلات";
+                    btn.style.background = "#34d399";
+                }, 2000);
             });
         };
 
-        // --- نظام הـ Checklist الجديد ---
         window.renderChecklist = (checklistObj) => {
             const list = document.getElementById('dt-checklist-items');
             list.innerHTML = '';
             
             if(!checklistObj) {
-                document.getElementById('dt-checklist-progress').style.width = '0%';
+                document.getElementById('dt-header-progress-fill').style.width = '0%';
+                document.getElementById('dt-header-progress-text').innerText = '0%';
                 return;
             }
             
-            let total = 0;
-            let doneCount = 0;
+            let total = 0; let doneCount = 0;
             
             Object.keys(checklistObj).forEach(k => {
                 total++;
                 const item = checklistObj[k];
                 if(item.done) doneCount++;
+                
+                const hoursHtml = item.actualHours ? `<span class="hours-badge-small">⏱ أخذت ${item.actualHours} س</span>` : '';
                 
                 list.innerHTML += `
                     <div class="checklist-item" style="border-color: ${item.done ? 'var(--soft-line)' : 'var(--border)'}; opacity: ${item.done ? '0.6' : '1'};">
@@ -741,26 +774,39 @@
                             <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleChecklistItem('${k}', ${item.done})">
                             ${item.text}
                         </label>
-                        <div style="display:flex; align-items:center; gap: 15px;">
-                            <span style="font-size: 0.65rem; color: var(--blue-grey); background: var(--deep-navy); padding: 3px 8px; border-radius: 10px;">بواسطة: ${item.addedBy}</span>
+                        <div style="display:flex; align-items:center; gap: 10px;">
+                            ${hoursHtml}
+                            <span style="display:flex; align-items:center; gap:5px; font-size: 0.65rem; color: var(--blue-grey); background: var(--deep-navy); padding: 3px 8px; border-radius: 10px;">بواسطة: ${getAvatarHTML(item.addedBy)}</span>
                             <button onclick="deleteChecklistItem('${k}')" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem;">✖</button>
                         </div>
                     </div>
                 `;
             });
             
-            const progress = total === 0 ? 0 : (doneCount / total) * 100;
-            document.getElementById('dt-checklist-progress').style.width = `${progress}%`;
+            const progress = total === 0 ? 0 : Math.round((doneCount / total) * 100);
+            const fill = document.getElementById('dt-header-progress-fill');
+            fill.style.width = `${progress}%`;
+            fill.style.background = progress === 100 ? '#34d399' : 'var(--accent)';
+            document.getElementById('dt-header-progress-text').innerText = `${progress}%`;
         };
 
         window.addChecklistItem = () => {
             const id = document.getElementById('dt-id').value;
             const input = document.getElementById('dt-new-checklist-item');
+            const hoursInput = document.getElementById('dt-new-checklist-hours');
             const text = input.value.trim();
+            const hours = parseFloat(hoursInput.value) || null;
             if(!text) return;
             
-            const newItem = { text: text, done: false, addedBy: currentUserName };
-            push(ref(db, `tasks/${id}/checklist`), newItem).then(() => input.value = '');
+            const newItem = { text: text, done: false, addedBy: currentUserName, actualHours: hours, time: Date.now() };
+            
+            // تسجيل تاريخ البدء الفعلي للمهمة إذا كان هذا أول تحديث
+            const task = allTasks[id];
+            let updates = {};
+            if(!task.startedAt) updates[`tasks/${id}/startedAt`] = Date.now();
+            
+            update(ref(db), updates); // تحديث البدء الفعلي إن وجد
+            push(ref(db, `tasks/${id}/checklist`), newItem).then(() => { input.value = ''; hoursInput.value = ''; });
         };
 
         window.toggleChecklistItem = (itemId, currentStatus) => {
@@ -773,7 +819,6 @@
             remove(ref(db, `tasks/${taskId}/checklist/${itemId}`));
         };
 
-        // --- نظام التعليقات ---
         function renderComments(commentsObj) {
             const list = document.getElementById('dt-comments-list');
             list.innerHTML = '';
@@ -781,7 +826,14 @@
             const commentsArray = Object.keys(commentsObj).map(k => commentsObj[k]).sort((a,b) => b.time - a.time);
             commentsArray.forEach(c => {
                 const date = new Date(c.time).toLocaleString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-                list.innerHTML += `<div class="comment-item"><div class="comment-meta"><b>${c.user}</b> <span>${date}</span></div><div style="color:var(--tech-white); font-size: 0.9rem;">${c.text}</div></div>`;
+                list.innerHTML += `
+                <div class="comment-item">
+                    ${getAvatarHTML(c.user)}
+                    <div class="comment-content">
+                        <div class="comment-meta"><b>${c.user}</b> <span>${date}</span></div>
+                        <div style="color:var(--tech-white); font-size: 0.9rem; margin-top:5px;">${c.text}</div>
+                    </div>
+                </div>`;
             });
         }
 
@@ -794,22 +846,28 @@
             push(ref(db, `tasks/${id}/comments`), newComment).then(() => input.value = "");
         };
 
-        window.moveTaskStatus = (newStatus) => { const id = document.getElementById('dt-id').value; update(ref(db, `tasks/${id}`), { status: newStatus }).then(() => closeDetailsModal()); };
         window.deleteTaskFromDetails = () => { if(!confirm("حذف نهائي؟")) return; const id = document.getElementById('dt-id').value; remove(ref(db, `tasks/${id}`)).then(() => closeDetailsModal()); };
 
-        // --- السحب والإفلات ---
         window.dragStart = (e, id) => { e.dataTransfer.setData("taskId", id); e.target.style.opacity = "0.4"; };
         window.dragEnd = (e) => { e.target.style.opacity = "1"; };
         window.dragOver = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
         window.dragLeave = (e) => { e.currentTarget.classList.remove('drag-over'); };
-        window.drop = (e, status) => { e.preventDefault(); e.currentTarget.classList.remove('drag-over'); const id = e.dataTransfer.getData("taskId"); if(id) update(ref(db, `tasks/${id}`), { status }); };
+        window.drop = (e, status) => { 
+            e.preventDefault(); e.currentTarget.classList.remove('drag-over'); 
+            const id = e.dataTransfer.getData("taskId"); 
+            if(id) {
+                const updates = { status: status };
+                // تسجيل التواريخ بناء على الحالة
+                if(status === 'inprogress' && !allTasks[id].startedAt) updates.startedAt = Date.now();
+                if(status === 'completed') updates.completedAt = Date.now();
+                update(ref(db, `tasks/${id}`), updates); 
+            }
+        };
         
-        // --- الملاحة والتقارير ---
         document.querySelectorAll('.nav-item').forEach(item => {
             item.onclick = () => { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); item.classList.add('active'); document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(item.dataset.target).classList.add('active'); if(item.dataset.target === 'dashboard' || item.dataset.target === 'reports') updateAdminStats(); }
         });
 
-        // --- إحصائيات المدير وتصدير البيانات ---
         let reportDataForExport = [];
 
         window.updateAdminStats = () => {
@@ -832,17 +890,51 @@
             const body = document.getElementById('report-body');
             body.innerHTML = '';
             const map = {};
+            
+            // تجميع البيانات للمشاريع (تواريخ وتعليقات)
             arr.forEach(t => {
-                if(!map[t.projectName]) map[t.projectName] = { h: 0, c: 0, s: new Set() };
-                map[t.projectName].h += (t.estHours || 0); map[t.projectName].c++; 
+                if(!map[t.projectName]) {
+                    map[t.projectName] = { h: 0, c: 0, s: new Set(), earliestStart: null, latestEnd: null, creationDate: t.createdAt, allComments: [] };
+                }
+                map[t.projectName].h += (t.estHours || 0); 
+                map[t.projectName].c++; 
+                
                 let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
                 assignedToArray.forEach(u => map[t.projectName].s.add(u));
+
+                // التواريخ
+                if(t.createdAt < map[t.projectName].creationDate) map[t.projectName].creationDate = t.createdAt;
+                if(t.startedAt && (!map[t.projectName].earliestStart || t.startedAt < map[t.projectName].earliestStart)) map[t.projectName].earliestStart = t.startedAt;
+                if(t.completedAt && (!map[t.projectName].latestEnd || t.completedAt > map[t.projectName].latestEnd)) map[t.projectName].latestEnd = t.completedAt;
+
+                // تجميع التعليقات للـ Excel
+                if(t.comments) {
+                    Object.values(t.comments).forEach(c => {
+                        const d = new Date(c.time).toLocaleDateString('ar-EG');
+                        map[t.projectName].allComments.push(`[${d}] ${c.user}: ${c.text}`);
+                    });
+                }
             });
+            
             reportDataForExport = [];
             Object.keys(map).forEach(p => {
                 const teamStr = Array.from(map[p].s).join('، ');
-                body.innerHTML += `<tr><td><span class="project-chip"># ${p}</span></td><td>${teamStr}</td><td>${map[p].c}</td><td style="color:var(--accent); font-weight:700;">${map[p].h} س</td></tr>`;
-                reportDataForExport.push({ "اسم المشروع": p, "الفريق العامل": teamStr, "عدد المهام": map[p].c, "إجمالي الساعات": map[p].h });
+                const createDateStr = new Date(map[p].creationDate).toLocaleDateString('ar-EG');
+                const startDateStr = map[p].earliestStart ? new Date(map[p].earliestStart).toLocaleDateString('ar-EG') : 'لم يبدأ فعلياً';
+                const endDateStr = map[p].latestEnd ? new Date(map[p].latestEnd).toLocaleDateString('ar-EG') : 'غير مكتمل';
+                const commentsStr = map[p].allComments.join('\n');
+
+                body.innerHTML += `<tr><td><span class="project-chip"># ${p}</span><div style="font-size:0.7rem; color:var(--blue-grey)">أنشئ: ${createDateStr}</div></td><td>${teamStr}</td><td>${map[p].c}</td><td style="color:var(--accent); font-weight:700;">${map[p].h} س</td></tr>`;
+                
+                reportDataForExport.push({ 
+                    "اسم المشروع": p, 
+                    "الفريق": teamStr, 
+                    "تاريخ التسجيل": createDateStr,
+                    "تاريخ بدء العمل (أول تاسك)": startDateStr,
+                    "تاريخ الإنجاز (آخر تاسك)": endDateStr,
+                    "الساعات التقديرية": map[p].h,
+                    "سجل التقارير والتعليقات الميدانية": commentsStr
+                });
             });
         }
 
@@ -850,15 +942,8 @@
             if(reportDataForExport.length === 0) return alert("لا يوجد بيانات للتصدير");
             const ws = XLSX.utils.json_to_sheet(reportDataForExport);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Reports");
-            XLSX.writeFile(wb, "Blue_Studio_Report.xlsx");
-        };
-
-        window.exportPDF = () => {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'pt', 'a4');
-            doc.text("Blue Design Studio - Projects Report", 40, 40);
-            doc.autoTable({ html: '#reportsTable', startY: 60, theme: 'grid', styles: { font: 'helvetica', halign: 'right' }, headStyles: { fillColor: [59, 164, 254] } });
-            doc.save('Blue_Studio_Report.pdf');
+            XLSX.utils.book_append_sheet(wb, ws, "Detailed_Reports");
+            XLSX.writeFile(wb, "Blue_Studio_Detailed_Report.xlsx");
         };
 
     }, 1500);
