@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blue Design Studio — إدارة المهام والوقت</title>
+  <title>Blue Design Studio — إدارة المهام والتقدير</title>
   
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -67,12 +67,7 @@
     .project-tag { display: inline-block; padding: 2px 10px; background: var(--accent); color: white; font-size: 0.7rem; border-radius: 20px; font-weight: 600; margin-bottom: 8px; }
     .card .title { font-weight: 500; margin: 8px 0; font-size: 0.95rem; }
     
-    .timer-display { font-family: monospace; font-size: 1rem; color: var(--green); margin: 5px 0; display: block; background: rgba(16, 185, 129, 0.05); padding: 5px; border-radius: 6px; text-align: center; }
-    .est-badge { font-size: 0.75rem; color: var(--amber); background: rgba(245, 158, 11, 0.1); padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 5px; }
-
-    .timer-btn { width: 100%; padding: 8px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.8rem; margin-top: 10px; transition: 0.2s; }
-    .timer-btn.start { background: var(--green); color: #000; }
-    .timer-btn.stop { background: var(--red); color: #fff; }
+    .est-badge { font-size: 0.85rem; color: var(--amber); background: rgba(245, 158, 11, 0.1); padding: 5px 12px; border-radius: 8px; display: block; margin-top: 10px; text-align: center; border: 1px solid rgba(245, 158, 11, 0.2); }
 
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
     .stat-card { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid var(--border); text-align: center; }
@@ -98,6 +93,9 @@
     .card-actions { position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; }
     .btn-icon { background: none; border: none; cursor: pointer; font-size: 0.9rem; opacity: 0.5; transition: 0.2s; }
     .btn-icon:hover { opacity: 1; transform: scale(1.1); }
+
+    .btn-status { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: var(--text); cursor: pointer; font-size: 0.75rem; transition: 0.2s; margin-top: 10px; }
+    .btn-status:hover { background: var(--accent); border-color: var(--accent); }
   </style>
 </head>
 
@@ -112,22 +110,22 @@
   <main class="main">
     <section id="kanban" class="section active">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h1>لوحة تحكم المكتب الهندسي</h1>
+        <h1>إدارة مهام مكتب Blue Design</h1>
         <button onclick="openAddModal()" class="btn-primary" style="width: auto; padding: 10px 25px;">+ مهمة جديدة</button>
       </div>
       <div class="board">
-        <div class="column" data-status="pending"><h3>⏳ انتظار</h3><div class="list" id="list-pending"></div></div>
-        <div class="column" data-status="inprogress"><h3>🔄 تنفيذ</h3><div class="list" id="list-inprogress"></div></div>
-        <div class="column" data-status="completed"><h3>✅ مكتمل</h3><div class="list" id="list-completed"></div></div>
+        <div class="column" data-status="pending"><h3>⏳ بانتظار البدء</h3><div class="list" id="list-pending"></div></div>
+        <div class="column" data-status="inprogress"><h3>🔄 قيد التنفيذ</h3><div class="list" id="list-inprogress"></div></div>
+        <div class="column" data-status="completed"><h3>✅ منتهية</h3><div class="list" id="list-completed"></div></div>
       </div>
     </section>
 
     <section id="dashboard" class="section">
-      <h1>📊 إحصائيات الأداء</h1>
+      <h1>📊 ملخص الأداء الهندسي</h1>
       <div class="stats-grid">
         <div class="stat-card"><h2 id="stat-total-tasks">0</h2><p>إجمالي المهام</p></div>
-        <div class="stat-card"><h2 id="stat-total-hours" style="color: var(--green)">0</h2><p>الساعات المنجزة</p></div>
-        <div class="stat-card"><h2 id="stat-active-projects" style="color: var(--amber)">0</h2><p>مشاريع نشطة</p></div>
+        <div class="stat-card"><h2 id="stat-total-hours" style="color: var(--amber)">0</h2><p>إجمالي الساعات المتوقعة</p></div>
+        <div class="stat-card"><h2 id="stat-active-projects" style="color: var(--accent)">0</h2><p>مشاريع نشطة</p></div>
       </div>
       <div class="charts-container">
         <div class="chart-box"><canvas id="statusChart"></canvas></div>
@@ -136,16 +134,15 @@
     </section>
 
     <section id="reports" class="section">
-      <h1>📄 تفاصيل استهلاك الوقت حسب المشروع</h1>
+      <h1>📄 تقارير الجهد حسب المشروع</h1>
       <div class="chart-box" style="height: auto; margin-top: 20px;">
         <table>
           <thead>
             <tr>
               <th>المشروع</th>
               <th>المصممين</th>
-              <th>الساعات المقدرة</th>
-              <th>الساعات الفعلية</th>
-              <th>نسبة الإنجاز</th>
+              <th>عدد المهام</th>
+              <th>إجمالي الساعات المتوقعة</th>
             </tr>
           </thead>
           <tbody id="project-report-body"></tbody>
@@ -161,10 +158,10 @@
       <input type="hidden" id="editTaskId">
       
       <label>اسم المشروع</label>
-      <input type="text" id="projName" placeholder="مثلاً: فيلا دبي">
+      <input type="text" id="projName" placeholder="مثلاً: فيلا عمان">
       
       <label>عنوان المهمة</label>
-      <input type="text" id="taskTitle" placeholder="مثلاً: تصميم الواجهة">
+      <input type="text" id="taskTitle" placeholder="مثلاً: تصميم المخططات">
       
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div>
@@ -184,10 +181,10 @@
         </div>
       </div>
 
-      <label>الساعات المطلوبة لإنجاز المهمة (تقديري)</label>
-      <input type="number" id="estHours" placeholder="مثلاً: 5" min="1">
+      <label>الساعات المتوقعة لإنجاز التاسك</label>
+      <input type="number" id="estHours" placeholder="مثلاً: 4" min="1">
       
-      <button class="btn-primary" id="saveTaskBtn" onclick="saveTask()">حفظ في السحابة 🚀</button>
+      <button class="btn-primary" id="saveTaskBtn" onclick="saveTask()">حفظ التعديلات 🚀</button>
       <button onclick="document.getElementById('taskModal').classList.remove('active')" style="background:transparent; color:#999; border:none; width:100%; margin-top:10px; cursor:pointer;">إلغاء</button>
     </div>
   </div>
@@ -245,7 +242,6 @@
                 const t = allTasks[id];
                 const card = document.createElement('div');
                 card.className = 'card';
-                const isRunning = t.timerRunning || false;
                 
                 card.innerHTML = `
                     <div class="card-actions">
@@ -254,16 +250,13 @@
                     </div>
                     <div class="project-tag" style="margin-top: 5px;"># ${t.projectName}</div>
                     <div class="title">${t.title}</div>
-                    <div class="badge-user">👤 ${t.assignedTo}</div>
-                    <div class="est-badge">🎯 المستهدف: ${t.estHours || 0} ساعة</div>
-                    <div class="timer-display" id="timer-${id}">⏱ الفعلي: ${formatTime(t.totalSeconds || 0)}</div>
-                    <div style="display:flex; gap:10px;">
-                        <button class="timer-btn ${isRunning ? 'stop' : 'start'}" onclick="toggleTimer('${id}')">
-                            ${isRunning ? '⏹ إيقاف' : '▶ بدء العمل'}
-                        </button>
-                    </div>
-                    <div style="margin-top:15px; display:flex; gap:8px; border-top:1px solid var(--border); padding-top:10px;">
-                        <button onclick="updateStatus('${id}', 'completed')" style="font-size:0.65rem; cursor:pointer; background:none; border:1px solid #444; color:#999; padding:4px 8px; border-radius:5px;">تم الإنجاز</button>
+                    <div class="badge-user">👤 المصمم: ${t.assignedTo}</div>
+                    <div class="est-badge">🎯 المتوقع: ${t.estHours || 0} ساعة</div>
+                    
+                    <div style="margin-top:15px; border-top:1px solid var(--border); padding-top:10px;">
+                        ${t.status === 'pending' ? `<button class="btn-status" onclick="updateStatus('${id}', 'inprogress')">نقل للتنفيذ 🔄</button>` : ''}
+                        ${t.status === 'inprogress' ? `<button class="btn-status" onclick="updateStatus('${id}', 'completed')">تم الإنجاز ✅</button>` : ''}
+                        ${t.status === 'completed' ? `<button class="btn-status" onclick="updateStatus('${id}', 'pending')">إعادة للانتظار ⏳</button>` : ''}
                     </div>
                 `;
                 document.getElementById(`list-${t.status}`).appendChild(card);
@@ -283,7 +276,7 @@
 
         window.openEditModal = (id) => {
             const t = allTasks[id];
-            document.getElementById('modalHeader').innerText = "تعديل المهمة";
+            document.getElementById('modalHeader').innerText = "تعديل بيانات التاسك";
             document.getElementById('editTaskId').value = id;
             document.getElementById('projName').value = t.projectName;
             document.getElementById('taskTitle').value = t.title;
@@ -302,7 +295,7 @@
             const team = document.getElementById('teamType').value;
             const est = document.getElementById('estHours').value;
 
-            if(!p || !t || !staff || !est) return alert("يرجى إكمال جميع الحقول");
+            if(!p || !t || !staff || !est) return alert("يرجى إكمال جميع حقول المهمة");
 
             const taskData = {
                 projectName: p,
@@ -313,60 +306,25 @@
             };
 
             if (id) {
-                // تحديث المهمة الحالية
                 update(ref(db, `tasks/${id}`), taskData);
             } else {
-                // إضافة مهمة جديدة
                 push(ref(db, 'tasks'), {
                     ...taskData,
                     status: 'pending',
-                    totalSeconds: 0,
-                    timerRunning: false,
                     createdAt: Date.now()
                 });
             }
-
             document.getElementById('taskModal').classList.remove('active');
         };
 
-        window.toggleTimer = (id) => {
-            const t = allTasks[id];
-            const now = Date.now();
-            if(!t.timerRunning) {
-                update(ref(db, `tasks/${id}`), { timerRunning: true, lastStartTime: now, status: 'inprogress' });
-            } else {
-                const elapsed = Math.floor((now - t.lastStartTime) / 1000);
-                const newTotal = (t.totalSeconds || 0) + elapsed;
-                update(ref(db, `tasks/${id}`), { timerRunning: false, totalSeconds: newTotal });
-            }
-        };
-
-        setInterval(() => {
-            Object.keys(allTasks).forEach(id => {
-                const t = allTasks[id];
-                if(t.timerRunning) {
-                    const elapsed = Math.floor((Date.now() - t.lastStartTime) / 1000);
-                    const total = (t.totalSeconds || 0) + elapsed;
-                    const el = document.getElementById(`timer-${id}`);
-                    if(el) el.innerText = "⏱ الفعلي: " + formatTime(total);
-                }
-            });
-        }, 1000);
-
-        function formatTime(s) {
-            const h = Math.floor(s / 3600);
-            const m = Math.floor((s % 3600) / 60);
-            return `${h} س و ${m} د`;
-        }
-
-        window.updateStatus = (id, status) => update(ref(db, `tasks/${id}`), { status, timerRunning: false });
-        window.deleteTask = (id) => confirm("هل أنت متأكد من الحذف النهائي؟") && remove(ref(db, `tasks/${id}`));
+        window.updateStatus = (id, status) => update(ref(db, `tasks/${id}`), { status });
+        window.deleteTask = (id) => confirm("هل تود حذف هذا التاسك نهائياً؟") && remove(ref(db, `tasks/${id}`));
 
         function updateGlobalStats() {
             const tasksArr = Object.values(allTasks);
-            const totalSecs = tasksArr.reduce((acc, t) => acc + (t.totalSeconds || 0), 0);
+            const totalEst = tasksArr.reduce((acc, t) => acc + (t.estHours || 0), 0);
             document.getElementById('stat-total-tasks').innerText = tasksArr.length;
-            document.getElementById('stat-total-hours').innerText = (totalSecs / 3600).toFixed(1) + " س";
+            document.getElementById('stat-total-hours').innerText = totalEst + " س";
             const projects = [...new Set(tasksArr.map(t => t.projectName))];
             document.getElementById('stat-active-projects').innerText = projects.length;
         }
@@ -381,7 +339,7 @@
             if(statusChart) statusChart.destroy();
             statusChart = new Chart(document.getElementById('statusChart'), {
                 type: 'doughnut',
-                data: { labels: ['انتظار', 'تنفيذ', 'مكتمل'], datasets: [{ data: statusData, backgroundColor: ['#f59e0b', '#6366f1', '#10b981'], borderWidth: 0 }] },
+                data: { labels: ['انتظار', 'تنفيذ', 'منتهية'], datasets: [{ data: statusData, backgroundColor: ['#f59e0b', '#6366f1', '#10b981'], borderWidth: 0 }] },
                 options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } } }
             });
 
@@ -390,7 +348,7 @@
             if(teamChart) teamChart.destroy();
             teamChart = new Chart(document.getElementById('teamChart'), {
                 type: 'bar',
-                data: { labels: teams, datasets: [{ label: 'المهام حسب الفريق', data: teamData, backgroundColor: '#6366f1' }] },
+                data: { labels: teams, datasets: [{ label: 'عدد المهام لكل فريق', data: teamData, backgroundColor: '#6366f1' }] },
                 options: { maintainAspectRatio: false, scales: { y: { ticks: { color: '#999' } }, x: { ticks: { color: '#999' } } } }
             });
         }
@@ -400,28 +358,18 @@
             reportBody.innerHTML = '';
             const projectsMap = {};
             Object.values(allTasks).forEach(t => {
-                if(!projectsMap[t.projectName]) projectsMap[t.projectName] = { est: 0, act: 0, staff: new Set() };
+                if(!projectsMap[t.projectName]) projectsMap[t.projectName] = { est: 0, count: 0, staff: new Set() };
                 projectsMap[t.projectName].est += (t.estHours || 0);
-                projectsMap[t.projectName].act += (t.totalSeconds || 0);
+                projectsMap[t.projectName].count++;
                 projectsMap[t.projectName].staff.add(t.assignedTo);
             });
 
             Object.keys(projectsMap).forEach(p => {
-                const actHrs = (projectsMap[p].act / 3600).toFixed(1);
-                const estHrs = projectsMap[p].est;
-                const progress = estHrs > 0 ? Math.min(Math.round((actHrs / estHrs) * 100), 100) : 0;
-                
                 reportBody.innerHTML += `<tr>
                     <td><span class="project-tag"># ${p}</span></td>
                     <td style="font-size: 0.8rem; opacity: 0.8;">${Array.from(projectsMap[p].staff).join('، ')}</td>
-                    <td>${estHrs} ساعة</td>
-                    <td style="color:var(--green)">${actHrs} ساعة</td>
-                    <td>
-                        <div style="background:#222; height:8px; border-radius:10px; width:100px;">
-                            <div style="background:var(--accent); height:100%; width:${progress}%; border-radius:10px;"></div>
-                        </div>
-                        <span style="font-size:0.7rem; opacity:0.6">${progress}% من الوقت المقدر</span>
-                    </td>
+                    <td>${projectsMap[p].count} مهام</td>
+                    <td style="color:var(--amber)">${projectsMap[p].est} ساعة</td>
                 </tr>`;
             });
         }
