@@ -100,6 +100,14 @@
     .project-chip { display: inline-block; padding: 4px 10px; background: rgba(59, 164, 254, 0.1); color: var(--accent); font-size: 0.7rem; border-radius: 6px; font-weight: 700; margin-bottom: 10px; border: 1px solid rgba(59, 164, 254, 0.15); }
     .due-date-chip { display: inline-block; padding: 4px 10px; background: rgba(248, 113, 113, 0.1); color: #f87171; font-size: 0.7rem; border-radius: 6px; margin-bottom: 10px; margin-right: 5px; }
     .card-title { font-weight: 600; margin-bottom: 12px; font-size: 0.95rem; color: var(--tech-white); line-height: 1.4; }
+    
+    /* شريط التقدم داخل البطاقة */
+    .card-progress-wrap { margin-top: 12px; margin-bottom: 5px; }
+    .card-progress-header { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--blue-grey); margin-bottom: 6px; font-weight: 500; }
+    .card-progress-bg { width: 100%; background: rgba(0,0,0,0.4); border-radius: 4px; height: 6px; overflow: hidden; }
+    .card-progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; border-radius: 4px; }
+    .card-progress-fill.completed { background: #34d399; }
+    
     .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; }
     .user-info { font-size: 0.8rem; color: var(--blue-grey); }
     .hour-badge { font-size: 1.1rem; color: var(--amber); font-weight: 700; background: rgba(251, 191, 36, 0.12); padding: 4px 10px; border-radius: 8px; }
@@ -552,6 +560,34 @@
                     dateHtml = `<div class="due-date-chip" style="${isOverdue ? 'background: rgba(248, 113, 113, 0.2); color: #f87171;' : 'background: rgba(136, 207, 253, 0.1); color: var(--light-blue);'}">📅 ${t.dueDate}</div>`;
                 }
 
+                // حساب نسبة التقدم من الـ Checklist
+                let progressHtml = '';
+                let totalItems = 0;
+                let doneItems = 0;
+                
+                if (t.checklist) {
+                    Object.values(t.checklist).forEach(item => {
+                        totalItems++;
+                        if (item.done) doneItems++;
+                    });
+                }
+                
+                if (totalItems > 0) {
+                    const progressPercent = Math.round((doneItems / totalItems) * 100);
+                    const fillClass = progressPercent === 100 ? 'card-progress-fill completed' : 'card-progress-fill';
+                    progressHtml = `
+                        <div class="card-progress-wrap">
+                            <div class="card-progress-header">
+                                <span>☑ المهام (${doneItems}/${totalItems})</span>
+                                <span>${progressPercent}%</span>
+                            </div>
+                            <div class="card-progress-bg">
+                                <div class="${fillClass}" style="width: ${progressPercent}%;"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 // عرض أسماء المسؤولين المتعددين
                 const assignedToText = assignedToArray.join('، ');
 
@@ -566,6 +602,7 @@
                     <div class="project-chip"># ${t.projectName}</div>
                     ${dateHtml}
                     <div class="card-title">${t.title}</div>
+                    ${progressHtml}
                     <div class="card-footer">
                         <div class="user-info" style="font-weight: 600;">👥 ${assignedToText}</div>
                         <div class="hour-badge">${t.estHours} س</div>
