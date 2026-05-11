@@ -205,11 +205,11 @@
     .stat-val { font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; line-height: 1; }
     .stat-lbl { font-size: 0.85rem; color: var(--blue-grey); }
 
-    /* قائمة نسبة إنجاز المشاريع */
-    .comp-list-container { flex: 1; overflow-y: auto; padding-right: 5px; display: flex; flex-direction: column; gap: 18px; margin-top: 15px; }
-    .comp-item { display: flex; flex-direction: column; gap: 8px; }
-    .comp-header { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--tech-white); font-weight: 500; }
-    .comp-track { width: 100%; height: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden; }
+    /* قائمة نسبة إنجاز المشاريع (تم التعديل لتناسب التصميم المطلوب) */
+    .comp-list-container { flex: 1; overflow-y: auto; padding-right: 5px; padding-left: 10px; display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
+    .comp-item { display: flex; flex-direction: column; gap: 6px; }
+    .comp-header { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--tech-white); font-weight: 500; }
+    .comp-track { width: 100%; height: 6px; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden; }
     .comp-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease-out; }
 
     /* قسم التقارير */
@@ -369,7 +369,7 @@
                 <canvas id="chartStatus"></canvas>
             </div>
             <div class="chart-wrapper">
-                <h3>نسبة إنجاز المشاريع الفعّالة</h3>
+                <h3>نسبة إنجاز المشاريع الفعّالة (Checklist)</h3>
                 <div id="projectCompletionList" class="comp-list-container"></div>
             </div>
             <div class="chart-wrapper">
@@ -1022,13 +1022,20 @@
             }
         };
 
-        // دالة جديدة لرسم نسبة إنجاز المشاريع كأشرطة أفقية
+        // دالة جديدة لرسم نسبة إنجاز المشاريع كأشرطة أفقية (مرتبطة بالـ Checklist)
         function renderProjectCompletion(arr) {
             let projStats = {};
+            
             arr.forEach(t => {
-                if(!projStats[t.projectName]) projStats[t.projectName] = { total: 0, completed: 0 };
-                projStats[t.projectName].total++;
-                if(t.status === 'completed') projStats[t.projectName].completed++;
+                if(!projStats[t.projectName]) projStats[t.projectName] = { totalChecklistItems: 0, completedChecklistItems: 0 };
+                
+                // حساب التقدم بناءً على عدد المهام الفرعية (Checklist Items) في المشروع كاملاً
+                if (t.checklist) {
+                    Object.values(t.checklist).forEach(item => {
+                        projStats[t.projectName].totalChecklistItems++;
+                        if(item.done) projStats[t.projectName].completedChecklistItems++;
+                    });
+                }
             });
 
             const compContainer = document.getElementById('projectCompletionList');
@@ -1044,7 +1051,8 @@
 
             sortedProjs.forEach(pName => {
                 const stats = projStats[pName];
-                const pct = Math.round((stats.completed / stats.total) * 100) || 0;
+                // إذا لم يكن هناك أي Checklist في المشروع، نعتبر النسبة 0
+                const pct = stats.totalChecklistItems > 0 ? Math.round((stats.completedChecklistItems / stats.totalChecklistItems) * 100) : 0;
                 const color = colors[colorIdx % colors.length];
                 colorIdx++;
 
