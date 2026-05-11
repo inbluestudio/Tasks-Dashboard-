@@ -12,7 +12,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove, update, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyD1qYudjPjPLGSEclPzW_wjHiXnoKHmj0c",
@@ -28,7 +28,7 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
-    window.firebaseTools = { ref, push, onValue, remove, update, set, db, auth, signInWithEmailAndPassword, signOut, onAuthStateChanged };
+    window.firebaseTools = { ref, push, onValue, remove, update, set, db, auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged };
   </script>
 
   <style>
@@ -47,10 +47,16 @@
 
     /* شاشة الدخول */
     #login-page { position: fixed; inset: 0; background: var(--ink-black); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-    .login-card { background: var(--deep-navy); padding: 40px; border-radius: 24px; width: 400px; border: 1px solid var(--border); text-align: center; }
+    .login-card { background: var(--deep-navy); padding: 40px; border-radius: 24px; width: 420px; border: 1px solid var(--border); text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
     
     input, select { width: 100%; padding: 15px; margin-bottom: 20px; background: var(--ink-black); border: 1px solid var(--border); border-radius: 12px; color: white; outline: none; font-family: inherit; }
     input:focus { border-color: var(--accent); }
+
+    .btn-main { background: var(--accent); color: var(--ink-black); border: none; padding: 16px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; font-size: 1rem; transition: 0.3s; }
+    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 164, 254, 0.4); }
+
+    .auth-toggle { margin-top: 20px; color: var(--blue-grey); font-size: 0.85rem; }
+    .auth-toggle span { color: var(--accent); cursor: pointer; font-weight: 600; text-decoration: underline; }
 
     /* النظام بعد الدخول */
     #app-ui { display: none; width: 100%; height: 100%; }
@@ -80,10 +86,8 @@
 
     /* التحكم بالمدير */
     .admin-only { display: none; }
-    .btn-main { background: var(--accent); color: var(--ink-black); border: none; padding: 16px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 700; font-size: 1rem; transition: 0.3s; }
-    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 164, 254, 0.4); }
 
-    /* الهاشتاقات في المودال */
+    /* الهاشتاقات */
     .tag-suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
     .project-hashtag { background: var(--soft-line); color: var(--light-blue); padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 500; }
     .project-hashtag:hover { background: var(--intel-blue); color: white; }
@@ -104,15 +108,22 @@
 
 <body>
 
-  <!-- شاشة تسجيل الدخول -->
+  <!-- شاشة تسجيل الدخول / إنشاء الحساب -->
   <div id="login-page">
     <div class="login-card">
-        <h2 style="color: var(--accent); margin-bottom: 10px;">Blue Design Studio</h2>
-        <p style="color: var(--blue-grey); margin-bottom: 30px;">نظام إدارة المشاريع السحابي</p>
+        <h2 id="auth-title" style="color: var(--accent); margin-bottom: 10px;">تسجيل الدخول</h2>
+        <p style="color: var(--blue-grey); margin-bottom: 30px;">Blue Design Studio Cloud</p>
+        
         <input type="email" id="login-email" placeholder="البريد الإلكتروني للهوية">
-        <input type="password" id="login-pass" placeholder="كلمة المرور">
-        <button class="btn-main" onclick="handleLogin()">دخول للنظام</button>
-        <p id="login-error" style="color: #f87171; margin-top: 15px; font-size: 0.8rem; display: none;">خطأ في بيانات الدخول، يرجى المحاولة مرة أخرى</p>
+        <input type="password" id="login-pass" placeholder="كلمة المرور (6 خانات فأكثر)">
+        
+        <button id="auth-btn" class="btn-main" onclick="handleAuthAction()">دخول للنظام</button>
+        
+        <div class="auth-toggle" id="auth-toggle-container">
+            ليس لديك حساب؟ <span onclick="toggleAuthMode(false)">أنشئ حساباً جديداً</span>
+        </div>
+        
+        <p id="login-error" style="color: #f87171; margin-top: 15px; font-size: 0.8rem; display: none;"></p>
     </div>
   </div>
 
@@ -135,7 +146,6 @@
     </aside>
 
     <main class="main-content">
-      <!-- اللوحة -->
       <section id="kanban" class="section active">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px;">
           <h1 id="page-title">إدارة العمل</h1>
@@ -218,9 +228,9 @@
     let currentUser = null;
     let isManager = false;
     let currentUserName = "";
+    let isLoginMode = true;
     let chartS, chartT;
 
-    // قائمة الإيميلات المصرح لها بالدخول فقط (Whitelist)
     const staffMap = {
         "safwan.krasneh@bluedesignstudio.com": { name: "صفوان القراسنة", role: "manager" },
         "hussam.banat@bluedesignstudio.com": { name: "حسام بنات", role: "manager" },
@@ -237,18 +247,14 @@
     const employees = { "3D": ["نور", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "AI & Code": ["عبود", "صفوان"] };
 
     setTimeout(() => {
-        const { auth, onAuthStateChanged, signInWithEmailAndPassword, signOut, onValue, ref, db, update, push, remove } = window.firebaseTools;
+        const { auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onValue, ref, db, update, push, remove } = window.firebaseTools;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // الفحص الأمني: هل الإيميل موجود في القائمة البيضاء؟
                 const userData = staffMap[user.email];
-                
                 if (!userData) {
-                    // إذا لم يكن موجوداً، قم بتسجيل خروجه فوراً وأظهر رسالة خطأ
                     signOut(auth);
-                    document.getElementById('login-error').innerText = "عذراً، هذا الحساب غير مصرح له بدخول النظام.";
-                    document.getElementById('login-error').style.display = 'block';
+                    showError("هذا الإيميل غير مصرح له بدخول نظام Blue Design Studio.");
                     return;
                 }
 
@@ -276,14 +282,46 @@
             }
         });
 
-        window.handleLogin = () => {
-            const e = document.getElementById('login-email').value;
-            const p = document.getElementById('login-pass').value;
-            signInWithEmailAndPassword(auth, e, p).catch(() => {
-                document.getElementById('login-error').innerText = "خطأ في بيانات الدخول، يرجى المحاولة مرة أخرى";
-                document.getElementById('login-error').style.display = 'block';
-            });
+        window.toggleAuthMode = (login) => {
+            isLoginMode = login;
+            document.getElementById('auth-title').innerText = login ? "تسجيل الدخول" : "إنشاء حساب جديد";
+            document.getElementById('auth-btn').innerText = login ? "دخول للنظام" : "تفعيل الحساب";
+            document.getElementById('auth-toggle-container').innerHTML = login ? 
+                `ليس لديك حساب؟ <span onclick="toggleAuthMode(false)">أنشئ حساباً جديداً</span>` :
+                `لديك حساب بالفعل؟ <span onclick="toggleAuthMode(true)">سجل دخولك هنا</span>`;
+            document.getElementById('login-error').style.display = 'none';
         };
+
+        window.handleAuthAction = () => {
+            const email = document.getElementById('login-email').value.trim();
+            const pass = document.getElementById('login-pass').value;
+
+            if(!email || !pass) return showError("يرجى إدخال البريد وكلمة المرور.");
+            if (!staffMap[email]) return showError("هذا البريد غير مدرج في قائمة موظفي المكتب المعتمدة.");
+
+            if (isLoginMode) {
+                signInWithEmailAndPassword(auth, email, pass).catch(err => {
+                    console.error(err);
+                    showError("خطأ في تسجيل الدخول. تأكد من البيانات أو تفعيل الحساب أولاً.");
+                });
+            } else {
+                if(pass.length < 6) return showError("قاعدة أمان: يجب أن تكون كلمة المرور 6 رموز أو أكثر.");
+                createUserWithEmailAndPassword(auth, email, pass).then(() => {
+                    alert("تم تفعيل حسابك بنجاح! يمكنك الآن تسجيل الدخول.");
+                    toggleAuthMode(true);
+                }).catch(err => {
+                    if(err.code === 'auth/email-already-in-use') showError("هذا الحساب مفعل مسبقاً. جرب تسجيل الدخول.");
+                    else showError("حدث خطأ أثناء التفعيل. يرجى المحاولة لاحقاً.");
+                });
+            }
+        };
+
+        function showError(msg) {
+            const err = document.getElementById('login-error');
+            err.innerText = msg;
+            err.style.display = 'block';
+        }
+
         window.handleLogout = () => signOut(auth);
 
         function renderBoard() {
@@ -299,7 +337,7 @@
                 
                 card.innerHTML = `
                     ${isManager ? `<div style="position:absolute; top:15px; left:15px; display:flex; gap:8px;">
-                        <button onclick="openEditModal('${id}')" style="background:none; border:none; cursor:pointer;">✏️</button>
+                        <button onclick="openEditModal('${id}')" style="background:none; border:none; color:var(--blue-grey); cursor:pointer;">✏️</button>
                         <button onclick="deleteTask('${id}')" style="background:none; border:none; color:#f87171; cursor:pointer;">🗑️</button>
                     </div>` : ''}
                     <div class="project-chip"># ${t.projectName}</div>
@@ -324,7 +362,6 @@
             document.getElementById('st-total').innerText = arr.length;
             document.getElementById('st-hours').innerText = arr.reduce((a, b) => a + (b.estHours || 0), 0) + " س";
             document.getElementById('st-projects').innerText = [...new Set(arr.map(x => x.projectName))].length;
-            
             if(document.getElementById('dashboard').classList.contains('active')) drawCharts(arr);
             if(document.getElementById('reports').classList.contains('active')) drawReportTable(arr);
         };
@@ -385,8 +422,7 @@
                 item.classList.add('active');
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 document.getElementById(item.dataset.target).classList.add('active');
-                if(item.dataset.target === 'dashboard') updateAdminDashboard();
-                if(item.dataset.target === 'reports') updateAdminDashboard();
+                if(item.dataset.target === 'dashboard' || item.dataset.target === 'reports') updateAdminDashboard();
             }
         });
 
