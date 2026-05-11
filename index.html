@@ -295,7 +295,12 @@
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
         <div>
           <label style="font-size: 0.8rem; color: var(--blue-grey);">الفريق المختص</label>
-          <select id="tType" onchange="updateStaffList()"><option value="">-- اختر --</option><option value="3D">3D</option><option value="unreal engine">unreal engine</option><option value="AI & Code">AI & Code</option></select>
+          <select id="tType" onchange="updateStaffList()">
+            <option value="">-- اختر --</option>
+            <option value="3D">3D</option>
+            <option value="unreal engine">unreal engine</option>
+            <option value="Code">Code</option>
+          </select>
         </div>
         <div>
           <label style="font-size: 0.8rem; color: var(--blue-grey);">المسؤول</label>
@@ -318,20 +323,33 @@
     let isLoginMode = true;
     let chartS, chartT;
 
+    // --- القائمة البيضاء (الإيميلات المسموح لها بالدخول) ---
     const whitelist = {
+      // قسم المدراء (Managers)
       "safwan.krasneh@bluedesignstudio.com": { name: "صفوان القراسنة", role: "manager" },
       "hussam.banat@bluedesignstudio.com": { name: "حسام بنات", role: "manager" },
-      "nour@bluedesignstudio.com": { name: "نور", role: "3D" },
-      "tamer@bluedesignstudio.com": { name: "تامر", role: "3D" },
-      "moataz@bluedesignstudio.com": { name: "معتز", role: "3D" },
-      "laith@bluedesignstudio.com": { name: "ليث", role: "unreal engine" },
-      "dana@bluedesignstudio.com": { name: "دانا", role: "unreal engine" },
-      "bakr@bluedesignstudio.com": { name: "بكر", role: "unreal engine" },
-      "abboud@bluedesignstudio.com": { name: "عبود", role: "AI & Code" },
-      "safwan@bluedesignstudio.com": { name: "صفوان", role: "AI & Code" }
+      "yazan.reyal@bluedesignstudio.com": { name: "يزن", role: "manager" },
+      
+      // قسم 3D
+      "nooradeen.awad@bluedesignstudio.com": { name: "نور الدين", role: "3D" },
+      "tamer.shishani@bluedesignstudio.com": { name: "تامر", role: "3D" },
+      "motaz.hawari@bluedesignstudio.com": { name: "معتز", role: "3D" },
+      
+      // قسم Unreal Engine
+      "laith.jebril@bluedesignstudio.com": { name: "ليث", role: "unreal engine" },
+      "dana.bojoq@bluedesignstudio.com": { name: "دانا", role: "unreal engine" },
+      "baker.hasan@bluedesignstudio.com": { name: "بكر", role: "unreal engine" },
+      
+      // قسم Code
+      "abdullah.tekreeti@bluedesignstudio.com": { name: "عبدالله", role: "Code" }
     };
 
-    const staffByTeam = { "3D": ["نور", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "AI & Code": ["عبود", "صفوان"] };
+    // --- الأسماء التي تظهر في القائمة المنسدلة عند تعيين المهام ---
+    const staffByTeam = { 
+      "3D": ["نور الدين", "تامر", "معتز"], 
+      "unreal engine": ["ليث", "دانا", "بكر"], 
+      "Code": ["عبدالله"] 
+    };
 
     setTimeout(() => {
         const { auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onValue, ref, db, update, push, remove } = window.firebaseTools;
@@ -424,6 +442,7 @@
                 card.className = 'card';
                 card.draggable = true;
                 card.setAttribute('ondragstart', `dragStart(event, '${id}')`);
+                card.setAttribute('ondragend', `dragEnd(event)`);
                 
                 card.innerHTML = `
                     ${isManager ? `<div class="card-actions">
@@ -500,12 +519,32 @@
             document.getElementById('taskModal').classList.remove('active');
         };
 
+        // --- إصلاح وتعريف دوال السحب والإفلات ---
         window.deleteTask = (id) => confirm("حذف نهائي؟") && remove(ref(db, `tasks/${id}`));
-        window.dragStart = (e, id) => e.dataTransfer.setData("taskId", id);
-        window.dragOver = (e) => e.preventDefault();
+        
+        window.dragStart = (e, id) => {
+            e.dataTransfer.setData("taskId", id);
+            e.target.style.opacity = "0.4"; // يخفف لون البطاقة عند سحبها
+        };
+        
+        window.dragEnd = (e) => {
+            e.target.style.opacity = "1"; // يعيد اللون لطبيعته بعد الإفلات
+        };
+        
+        window.dragOver = (e) => {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over'); // يُظهر تأثير التحديد على العمود
+        };
+        
+        window.dragLeave = (e) => {
+            e.currentTarget.classList.remove('drag-over'); // يزيل تأثير التحديد عند خروج الفأرة
+        };
+        
         window.drop = (e, status) => {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
             const id = e.dataTransfer.getData("taskId");
-            if(id) update(ref(db, `tasks/${id}`), { status });
+            if(id) update(ref(db, `tasks/${id}`), { status }); // يقوم بتحديث الحالة في قاعدة البيانات
         };
         
         document.querySelectorAll('.nav-item').forEach(item => {
