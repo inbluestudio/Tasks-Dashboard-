@@ -14,6 +14,7 @@
     import { getDatabase, ref, push, onValue, remove, update, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+    // إعدادات Firebase الخاصة بـ Blue Design Studio
     const firebaseConfig = {
       apiKey: "AIzaSyD1qYudjPjPLGSEclPzW_wjHiXnoKHmj0c",
       authDomain: "task-dashboard-68e99.firebaseapp.com",
@@ -28,6 +29,7 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
+    // تصدير الأدوات للنافذة العالمية للاستخدام في السكربتات
     window.firebaseTools = { ref, push, onValue, remove, update, set, db, auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged };
   </script>
 
@@ -103,6 +105,9 @@
     .modal { position: fixed; inset: 0; background: rgba(2, 6, 16, 0.85); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(8px); }
     .modal.active { display: flex; }
     .modal-content { background: var(--deep-navy); padding: 40px; border-radius: 24px; width: 480px; border: 1px solid var(--border); }
+    
+    /* تنبيهات الخطأ المحسنة */
+    .error-box { background: rgba(248, 113, 113, 0.1); border: 1px solid #f87171; color: #f87171; padding: 12px; border-radius: 10px; margin-top: 15px; font-size: 0.85rem; display: none; text-align: right; line-height: 1.5; }
   </style>
 </head>
 
@@ -123,7 +128,7 @@
             ليس لديك حساب؟ <span onclick="toggleAuthMode(false)">أنشئ حساباً جديداً</span>
         </div>
         
-        <p id="login-error" style="color: #f87171; margin-top: 15px; font-size: 0.8rem; display: none;"></p>
+        <div id="login-error" class="error-box"></div>
     </div>
   </div>
 
@@ -284,8 +289,8 @@
 
         window.toggleAuthMode = (login) => {
             isLoginMode = login;
-            document.getElementById('auth-title').innerText = login ? "تسجيل الدخول" : "إنشاء حساب جديد";
-            document.getElementById('auth-btn').innerText = login ? "دخول للنظام" : "تفعيل الحساب";
+            document.getElementById('auth-title').innerText = login ? "تسجيل الدخول" : "تفعيل حساب موظف";
+            document.getElementById('auth-btn').innerText = login ? "دخول للنظام" : "إنشاء كلمة مرور";
             document.getElementById('auth-toggle-container').innerHTML = login ? 
                 `ليس لديك حساب؟ <span onclick="toggleAuthMode(false)">أنشئ حساباً جديداً</span>` :
                 `لديك حساب بالفعل؟ <span onclick="toggleAuthMode(true)">سجل دخولك هنا</span>`;
@@ -297,21 +302,33 @@
             const pass = document.getElementById('login-pass').value;
 
             if(!email || !pass) return showError("يرجى إدخال البريد وكلمة المرور.");
-            if (!staffMap[email]) return showError("هذا البريد غير مدرج في قائمة موظفي المكتب المعتمدة.");
+            if (!staffMap[email]) return showError("هذا البريد غير مدرج في القائمة المعتمدة للمكتب.");
 
             if (isLoginMode) {
                 signInWithEmailAndPassword(auth, email, pass).catch(err => {
-                    console.error(err);
-                    showError("خطأ في تسجيل الدخول. تأكد من البيانات أو تفعيل الحساب أولاً.");
+                    if (err.code === 'auth/configuration-not-found') {
+                        showError("خطأ: خدمة تسجيل الدخول معطلة في Firebase Console. يرجى تفعيل Email/Password Sign-in Method.");
+                    } else if (err.code === 'auth/user-not-found') {
+                        showError("لم يتم العثور على هذا الحساب. يرجى إنشاء حساب جديد أولاً.");
+                    } else if (err.code === 'auth/wrong-password') {
+                        showError("كلمة المرور غير صحيحة.");
+                    } else {
+                        showError("خطأ في تسجيل الدخول: " + err.message);
+                    }
                 });
             } else {
-                if(pass.length < 6) return showError("قاعدة أمان: يجب أن تكون كلمة المرور 6 رموز أو أكثر.");
+                if(pass.length < 6) return showError("يجب أن تكون كلمة المرور 6 رموز أو أكثر.");
                 createUserWithEmailAndPassword(auth, email, pass).then(() => {
-                    alert("تم تفعيل حسابك بنجاح! يمكنك الآن تسجيل الدخول.");
+                    alert("تم إنشاء حسابك بنجاح! يمكنك الآن الدخول.");
                     toggleAuthMode(true);
                 }).catch(err => {
-                    if(err.code === 'auth/email-already-in-use') showError("هذا الحساب مفعل مسبقاً. جرب تسجيل الدخول.");
-                    else showError("حدث خطأ أثناء التفعيل. يرجى المحاولة لاحقاً.");
+                    if (err.code === 'auth/configuration-not-found') {
+                        showError("خطأ: خدمة تسجيل الدخول معطلة. يرجى تفعيل Email/Password في إعدادات Firebase.");
+                    } else if (err.code === 'auth/email-already-in-use') {
+                        showError("هذا الحساب موجود مسبقاً، جرب تسجيل الدخول.");
+                    } else {
+                        showError("فشل إنشاء الحساب: " + err.message);
+                    }
                 });
             }
         };
@@ -353,15 +370,21 @@
 
         window.renderProjectHashtags = () => {
             const container = document.getElementById('hashtagContainer');
+            if(!container) return;
             const projs = [...new Set(Object.values(allTasks).map(t => t.projectName))];
             container.innerHTML = projs.map(p => `<span class="project-hashtag" onclick="document.getElementById('pName').value='${p}'"># ${p}</span>`).join('');
         };
 
         window.updateAdminDashboard = () => {
             const arr = Object.values(allTasks);
-            document.getElementById('st-total').innerText = arr.length;
-            document.getElementById('st-hours').innerText = arr.reduce((a, b) => a + (b.estHours || 0), 0) + " س";
-            document.getElementById('st-projects').innerText = [...new Set(arr.map(x => x.projectName))].length;
+            const totalTasksEl = document.getElementById('st-total');
+            const totalHoursEl = document.getElementById('st-hours');
+            const totalProjectsEl = document.getElementById('st-projects');
+            
+            if(totalTasksEl) totalTasksEl.innerText = arr.length;
+            if(totalHoursEl) totalHoursEl.innerText = arr.reduce((a, b) => a + (b.estHours || 0), 0) + " س";
+            if(totalProjectsEl) totalProjectsEl.innerText = [...new Set(arr.map(x => x.projectName))].length;
+            
             if(document.getElementById('dashboard').classList.contains('active')) drawCharts(arr);
             if(document.getElementById('reports').classList.contains('active')) drawReportTable(arr);
         };
@@ -369,14 +392,18 @@
         function drawCharts(arr) {
             const sData = [arr.filter(t => t.status === 'pending').length, arr.filter(t => t.status === 'inprogress').length, arr.filter(t => t.status === 'completed').length];
             if(chartS) chartS.destroy();
-            chartS = new Chart(document.getElementById('chartStatus'), {
-                type: 'doughnut', data: { labels: ['انتظار', 'تنفيذ', 'منتهية'], datasets: [{ data: sData, backgroundColor: ['#fbbf24', '#3BA4FE', '#34d399'], borderWidth: 0 }] },
-                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#8FA3BC' } } } }
-            });
+            const ctxS = document.getElementById('chartStatus');
+            if(ctxS) {
+                chartS = new Chart(ctxS, {
+                    type: 'doughnut', data: { labels: ['انتظار', 'تنفيذ', 'منتهية'], datasets: [{ data: sData, backgroundColor: ['#fbbf24', '#3BA4FE', '#34d399'], borderWidth: 0 }] },
+                    options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#8FA3BC' } } } }
+                });
+            }
         }
 
         function drawReportTable(arr) {
             const body = document.getElementById('report-body');
+            if(!body) return;
             body.innerHTML = '';
             const map = {};
             arr.forEach(t => {
@@ -402,7 +429,7 @@
             const data = {
                 projectName: document.getElementById('pName').value, title: document.getElementById('tTitle').value,
                 assignedTo: document.getElementById('sName').value, team: document.getElementById('tType').value,
-                estHours: parseFloat(document.getElementById('eHours').value), status: 'pending', createdAt: Date.now()
+                estHours: parseFloat(document.getElementById('eHours').value) || 0, status: 'pending', createdAt: Date.now()
             };
             if(id) update(ref(db, `tasks/${id}`), data); else push(ref(db, 'tasks'), data);
             document.getElementById('taskModal').classList.remove('active');
