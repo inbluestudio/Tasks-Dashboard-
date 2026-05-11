@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blue Design Studio — إدارة المهام والوقت (المرحلة 2)</title>
+  <title>Blue Design Studio — إدارة المهام والوقت</title>
   
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -14,7 +14,6 @@
     import { getDatabase, ref, push, onValue, remove, update, set } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // إعدادات الربط السحابي لـ Blue Design Studio
     const firebaseConfig = {
       apiKey: "AIzaSyD1qYudjPjPLGSEclPzW_wjHiXnoKHmj0c",
       authDomain: "task-dashboard-68e99.firebaseapp.com",
@@ -41,6 +40,7 @@
       --green: #10b981;
       --red: #ef4444;
       --amber: #f59e0b;
+      --radius: 12px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -57,19 +57,20 @@
     .section { display: none; }
     .section.active { display: block; }
     
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-    
     .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
     .column { background: rgba(255,255,255,0.02); border-radius: 15px; padding: 15px; min-height: 70vh; border: 1px solid var(--border); }
     .column h3 { font-size: 0.95rem; margin-bottom: 20px; opacity: 0.7; }
 
     .card { background: var(--card-bg); border: 1px solid var(--border); padding: 15px; border-radius: 12px; margin-bottom: 15px; position: relative; transition: 0.2s; }
     .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-    .card .project-name { font-size: 0.7rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .project-tag { display: inline-block; padding: 2px 10px; background: var(--accent); color: white; font-size: 0.7rem; border-radius: 20px; font-weight: 600; margin-bottom: 8px; }
     .card .title { font-weight: 500; margin: 8px 0; font-size: 0.95rem; }
     
-    .timer-display { font-family: monospace; font-size: 1.1rem; color: var(--green); margin: 10px 0; display: block; background: rgba(16, 185, 129, 0.1); padding: 8px; border-radius: 8px; text-align: center; border: 1px dashed rgba(16, 185, 129, 0.3); }
-    .timer-btn { width: 100%; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
+    .timer-display { font-family: monospace; font-size: 1rem; color: var(--green); margin: 5px 0; display: block; background: rgba(16, 185, 129, 0.05); padding: 5px; border-radius: 6px; text-align: center; }
+    .est-badge { font-size: 0.75rem; color: var(--amber); background: rgba(245, 158, 11, 0.1); padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 5px; }
+
+    .timer-btn { width: 100%; padding: 8px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.8rem; margin-top: 10px; transition: 0.2s; }
     .timer-btn.start { background: var(--green); color: #000; }
     .timer-btn.stop { background: var(--red); color: #fff; }
 
@@ -78,22 +79,21 @@
     .stat-card h2 { font-size: 2.2rem; color: var(--accent); margin-bottom: 5px; }
 
     .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-    .chart-box { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid var(--border); height: 380px; }
+    .chart-box { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid var(--border); min-height: 380px; }
 
     .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(8px); }
     .modal.active { display: flex; }
     .modal-content { background: var(--card-bg); padding: 30px; border-radius: 20px; width: 450px; border: 1px solid var(--border); }
     
-    input, select { width: 100%; padding: 12px; margin-bottom: 15px; background: #0a0a0c; border: 1px solid var(--border); border-radius: 10px; color: white; outline: none; }
-    input:focus { border-color: var(--accent); }
+    label { font-size: 0.8rem; opacity: 0.6; margin-bottom: 5px; display: block; }
+    input, select { width: 100%; padding: 12px; margin-bottom: 15px; background: #0a0a0c; border: 1px solid var(--border); border-radius: 10px; color: white; outline: none; font-family: inherit; }
     .btn-primary { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; cursor: pointer; font-weight: 600; font-size: 1rem; }
     
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { padding: 15px; text-align: right; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
     th { color: var(--accent); font-weight: 600; background: rgba(255,255,255,0.02); }
-    tr:hover { background: rgba(255,255,255,0.01); }
 
-    .badge-user { font-size: 0.75rem; color: var(--green); display: flex; align-items: center; gap: 5px; opacity: 0.8; }
+    .badge-user { font-size: 0.75rem; color: var(--green); display: flex; align-items: center; gap: 5px; font-weight: 500; }
   </style>
 </head>
 
@@ -106,10 +106,9 @@
   </aside>
 
   <main class="main">
-    <!-- قسم المهام -->
     <section id="kanban" class="section active">
-      <div class="header">
-        <h1>المهام والوقت المباشر</h1>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1>لوحة تحكم المكتب الهندسي</h1>
         <button onclick="document.getElementById('taskModal').classList.add('active')" class="btn-primary" style="width: auto; padding: 10px 25px;">+ مهمة جديدة</button>
       </div>
       <div class="board">
@@ -119,12 +118,11 @@
       </div>
     </section>
 
-    <!-- قسم الإحصائيات -->
     <section id="dashboard" class="section">
-      <h1>📊 لوحة المعلومات والتحليلات</h1>
+      <h1>📊 إحصائيات الأداء</h1>
       <div class="stats-grid">
         <div class="stat-card"><h2 id="stat-total-tasks">0</h2><p>إجمالي المهام</p></div>
-        <div class="stat-card"><h2 id="stat-total-hours" style="color: var(--green)">0</h2><p>ساعات العمل الكلية</p></div>
+        <div class="stat-card"><h2 id="stat-total-hours" style="color: var(--green)">0</h2><p>الساعات المنجزة</p></div>
         <div class="stat-card"><h2 id="stat-active-projects" style="color: var(--amber)">0</h2><p>مشاريع نشطة</p></div>
       </div>
       <div class="charts-container">
@@ -133,17 +131,17 @@
       </div>
     </section>
 
-    <!-- قسم تقارير المشاريع -->
     <section id="reports" class="section">
-      <h1>📄 تقارير ساعات العمل لكل مشروع</h1>
+      <h1>📄 تفاصيل استهلاك الوقت حسب المشروع</h1>
       <div class="chart-box" style="height: auto; margin-top: 20px;">
         <table>
           <thead>
             <tr>
-              <th>المشروع الهندسي</th>
-              <th>المهام</th>
-              <th>إجمالي الوقت</th>
-              <th>الحالة</th>
+              <th>المشروع</th>
+              <th>المصممين</th>
+              <th>الساعات المقدرة</th>
+              <th>الساعات الفعلية</th>
+              <th>نسبة الإنجاز</th>
             </tr>
           </thead>
           <tbody id="project-report-body"></tbody>
@@ -152,19 +150,38 @@
     </section>
   </main>
 
-  <!-- نافذة إضافة مهمة -->
   <div class="modal" id="taskModal">
     <div class="modal-content">
-      <h2>إضافة مهمة جديدة للمكتب</h2>
-      <input type="text" id="projName" placeholder="اسم المشروع (مثلاً: فيلا دبي)">
-      <input type="text" id="taskTitle" placeholder="عنوان المهمة (مثلاً: ريندر المطبخ)">
-      <input type="text" id="staffName" placeholder="المصمم المسؤول">
-      <select id="teamType">
-        <option value="3D Design">تصميم 3D</option>
-        <option value="Interior">تصميم داخلي</option>
-        <option value="Unreal Engine">ريندر Unreal</option>
-      </select>
-      <button class="btn-primary" onclick="createNewTask()">إضافة للمشروع 🚀</button>
+      <h2>إضافة مهمة جديدة</h2>
+      
+      <label>اسم المشروع</label>
+      <input type="text" id="projName" placeholder="مثلاً: فيلا دبي">
+      
+      <label>عنوان المهمة</label>
+      <input type="text" id="taskTitle" placeholder="مثلاً: تصميم الواجهة">
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+          <label>الفريق</label>
+          <select id="teamType" onchange="updateStaffList()">
+            <option value="">-- اختر --</option>
+            <option value="3D Design">تيم الثري دي</option>
+            <option value="Unreal Engine">تيم الانريل</option>
+            <option value="Programming AI">تيم البرمجة والـ AI</option>
+          </select>
+        </div>
+        <div>
+          <label>المصمم</label>
+          <select id="staffName">
+            <option value="">-- اختر الفريق أولاً --</option>
+          </select>
+        </div>
+      </div>
+
+      <label>الساعات المطلوبة لإنجاز المهمة (تقديري)</label>
+      <input type="number" id="estHours" placeholder="مثلاً: 5" min="1">
+      
+      <button class="btn-primary" onclick="createNewTask()">حفظ في السحابة 🚀</button>
       <button onclick="document.getElementById('taskModal').classList.remove('active')" style="background:transparent; color:#999; border:none; width:100%; margin-top:10px; cursor:pointer;">إلغاء</button>
     </div>
   </div>
@@ -173,10 +190,27 @@
     let allTasks = {};
     let statusChart, teamChart;
 
+    const staffData = {
+        "3D Design": ["نور", "تامر", "معتز"],
+        "Unreal Engine": ["ليث", "دانا", "بكر"],
+        "Programming AI": ["عبود", "صفوان"]
+    };
+
+    window.updateStaffList = () => {
+        const team = document.getElementById('teamType').value;
+        const staffSelect = document.getElementById('staffName');
+        staffSelect.innerHTML = '<option value="">-- اختر --</option>';
+        if (staffData[team]) {
+            staffData[team].forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p; opt.innerText = p; staffSelect.appendChild(opt);
+            });
+        }
+    };
+
     setTimeout(() => {
         const { ref, push, onValue, remove, update, db } = window.dbRefs;
 
-        // --- 1. الملاحة السلسة ---
         document.querySelectorAll('.nav-item').forEach(item => {
             item.onclick = () => {
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -189,12 +223,10 @@
             }
         });
 
-        // --- 2. جلب البيانات اللحظي ---
         onValue(ref(db, 'tasks'), (snapshot) => {
             allTasks = snapshot.val() || {};
             renderBoard();
             updateGlobalStats();
-            // تحديث الإحصائيات إذا كان القسم مفتوحاً
             if(document.getElementById('dashboard').classList.contains('active')) renderCharts();
             if(document.getElementById('reports').classList.contains('active')) renderProjectReports();
         });
@@ -208,20 +240,18 @@
                 const isRunning = t.timerRunning || false;
                 
                 card.innerHTML = `
-                    <div class="project-name">${t.projectName}</div>
+                    <div class="project-tag"># ${t.projectName}</div>
                     <div class="title">${t.title}</div>
-                    <div class="timer-display" id="timer-${id}">${formatTime(t.totalSeconds || 0)}</div>
-                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <div class="badge-user">👤 ${t.assignedTo}</div>
+                    <div class="est-badge">🎯 المستهدف: ${t.estHours || 0} ساعة</div>
+                    <div class="timer-display" id="timer-${id}">⏱ الفعلي: ${formatTime(t.totalSeconds || 0)}</div>
+                    <div style="display:flex; gap:10px;">
                         <button class="timer-btn ${isRunning ? 'stop' : 'start'}" onclick="toggleTimer('${id}')">
-                            ${isRunning ? '⏹ إيقاف المؤقت' : '▶ بدء العمل'}
+                            ${isRunning ? '⏹ إيقاف' : '▶ بدء العمل'}
                         </button>
                     </div>
-                    <div class="footer">
-                        <span class="badge-user">👤 ${t.assignedTo}</span>
-                        <span style="opacity:0.5">${t.team}</span>
-                    </div>
                     <div style="margin-top:15px; display:flex; gap:8px; border-top:1px solid var(--border); padding-top:10px;">
-                        <button onclick="updateStatus('${id}', 'completed')" style="font-size:0.65rem; cursor:pointer; background:none; border:1px solid #444; color:#999; padding:4px 8px; border-radius:5px;">إنهاء</button>
+                        <button onclick="updateStatus('${id}', 'completed')" style="font-size:0.65rem; cursor:pointer; background:none; border:1px solid #444; color:#999; padding:4px 8px; border-radius:5px;">تم الإنجاز</button>
                         <button onclick="deleteTask('${id}')" style="font-size:0.65rem; cursor:pointer; background:none; border:none; color:var(--red);">حذف</button>
                     </div>
                 `;
@@ -229,35 +259,26 @@
             });
         }
 
-        // --- 3. محرك تتبع الوقت ---
         window.toggleTimer = (id) => {
             const t = allTasks[id];
             const now = Date.now();
             if(!t.timerRunning) {
-                update(ref(db, `tasks/${id}`), {
-                    timerRunning: true,
-                    lastStartTime: now,
-                    status: 'inprogress'
-                });
+                update(ref(db, `tasks/${id}`), { timerRunning: true, lastStartTime: now, status: 'inprogress' });
             } else {
-                const elapsedSinceLastStart = Math.floor((now - t.lastStartTime) / 1000);
-                const newTotal = (t.totalSeconds || 0) + elapsedSinceLastStart;
-                update(ref(db, `tasks/${id}`), {
-                    timerRunning: false,
-                    totalSeconds: newTotal
-                });
+                const elapsed = Math.floor((now - t.lastStartTime) / 1000);
+                const newTotal = (t.totalSeconds || 0) + elapsed;
+                update(ref(db, `tasks/${id}`), { timerRunning: false, totalSeconds: newTotal });
             }
         };
 
-        // تحديث الواجهة كل ثانية (Local Refresh)
         setInterval(() => {
             Object.keys(allTasks).forEach(id => {
                 const t = allTasks[id];
                 if(t.timerRunning) {
-                    const currentElapsed = Math.floor((Date.now() - t.lastStartTime) / 1000);
-                    const displayTotal = (t.totalSeconds || 0) + currentElapsed;
+                    const elapsed = Math.floor((Date.now() - t.lastStartTime) / 1000);
+                    const total = (t.totalSeconds || 0) + elapsed;
                     const el = document.getElementById(`timer-${id}`);
-                    if(el) el.innerText = formatTime(displayTotal);
+                    if(el) el.innerText = "⏱ الفعلي: " + formatTime(total);
                 }
             });
         }, 1000);
@@ -265,37 +286,33 @@
         function formatTime(s) {
             const h = Math.floor(s / 3600);
             const m = Math.floor((s % 3600) / 60);
-            const sec = s % 60;
-            return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+            return `${h} س و ${m} د`;
         }
 
-        // --- 4. العمليات الإدارية ---
         window.createNewTask = () => {
             const p = document.getElementById('projName').value;
             const t = document.getElementById('taskTitle').value;
-            if(!p || !t) return alert("يرجى إدخال اسم المشروع وعنوان المهمة");
+            const staff = document.getElementById('staffName').value;
+            const est = document.getElementById('estHours').value;
+
+            if(!p || !t || !staff || !est) return alert("يرجى تحديد المشروع والموظف وساعات العمل المطلوبة");
+            
             push(ref(db, 'tasks'), {
-                projectName: p,
-                title: t,
-                assignedTo: document.getElementById('staffName').value || "غير محدد",
-                team: document.getElementById('teamType').value,
-                status: 'pending',
-                totalSeconds: 0,
-                timerRunning: false,
-                createdAt: Date.now()
+                projectName: p, title: t, assignedTo: staff, team: document.getElementById('teamType').value,
+                status: 'pending', totalSeconds: 0, estHours: parseFloat(est), timerRunning: false, createdAt: Date.now()
             });
             document.getElementById('taskModal').classList.remove('active');
-            document.querySelectorAll('#taskModal input').forEach(i => i.value = '');
+            document.querySelectorAll('#taskModal input, #taskModal select').forEach(i => i.value = '');
         };
 
         window.updateStatus = (id, status) => update(ref(db, `tasks/${id}`), { status, timerRunning: false });
-        window.deleteTask = (id) => confirm("هل أنت متأكد من الحذف النهائي؟") && remove(ref(db, `tasks/${id}`));
+        window.deleteTask = (id) => confirm("حذف نهائي؟") && remove(ref(db, `tasks/${id}`));
 
         function updateGlobalStats() {
             const tasksArr = Object.values(allTasks);
             const totalSecs = tasksArr.reduce((acc, t) => acc + (t.totalSeconds || 0), 0);
             document.getElementById('stat-total-tasks').innerText = tasksArr.length;
-            document.getElementById('stat-total-hours').innerText = (totalSecs / 3600).toFixed(1);
+            document.getElementById('stat-total-hours').innerText = (totalSecs / 3600).toFixed(1) + " س";
             const projects = [...new Set(tasksArr.map(t => t.projectName))];
             document.getElementById('stat-active-projects').innerText = projects.length;
         }
@@ -307,27 +324,19 @@
                 tasksArr.filter(t => t.status === 'inprogress').length,
                 tasksArr.filter(t => t.status === 'completed').length
             ];
-
             if(statusChart) statusChart.destroy();
             statusChart = new Chart(document.getElementById('statusChart'), {
                 type: 'doughnut',
-                data: {
-                    labels: ['انتظار', 'تنفيذ', 'مكتمل'],
-                    datasets: [{ data: statusData, backgroundColor: ['#f59e0b', '#6366f1', '#10b981'], borderWidth: 0 }]
-                },
-                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#fff', font: { family: 'IBM Plex Sans Arabic' } } } } }
+                data: { labels: ['انتظار', 'تنفيذ', 'مكتمل'], datasets: [{ data: statusData, backgroundColor: ['#f59e0b', '#6366f1', '#10b981'], borderWidth: 0 }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } } }
             });
 
-            const teams = ["3D Design", "Interior", "Unreal Engine"];
+            const teams = ["3D Design", "Unreal Engine", "Programming AI"];
             const teamData = teams.map(team => tasksArr.filter(t => t.team === team).length);
-
             if(teamChart) teamChart.destroy();
             teamChart = new Chart(document.getElementById('teamChart'), {
                 type: 'bar',
-                data: {
-                    labels: teams,
-                    datasets: [{ label: 'المهام حسب الفريق', data: teamData, backgroundColor: '#6366f1', borderRadius: 5 }]
-                },
+                data: { labels: teams, datasets: [{ label: 'المهام حسب الفريق', data: teamData, backgroundColor: '#6366f1' }] },
                 options: { maintainAspectRatio: false, scales: { y: { ticks: { color: '#999' } }, x: { ticks: { color: '#999' } } } }
             });
         }
@@ -337,23 +346,32 @@
             reportBody.innerHTML = '';
             const projectsMap = {};
             Object.values(allTasks).forEach(t => {
-                if(!projectsMap[t.projectName]) projectsMap[t.projectName] = { count: 0, seconds: 0 };
-                projectsMap[t.projectName].count++;
-                projectsMap[t.projectName].seconds += (t.totalSeconds || 0);
+                if(!projectsMap[t.projectName]) projectsMap[t.projectName] = { est: 0, act: 0, staff: new Set() };
+                projectsMap[t.projectName].est += (t.estHours || 0);
+                projectsMap[t.projectName].act += (t.totalSeconds || 0);
+                projectsMap[t.projectName].staff.add(t.assignedTo);
             });
 
             Object.keys(projectsMap).forEach(p => {
-                const row = `<tr>
-                    <td>${p}</td>
-                    <td>${projectsMap[p].count}</td>
-                    <td style="color:var(--green); font-family:monospace;">${formatTime(projectsMap[p].seconds)}</td>
-                    <td>${projectsMap[p].seconds > 72000 ? '🔴 مجهود مكثف' : '🟢 سير طبيعي'}</td>
+                const actHrs = (projectsMap[p].act / 3600).toFixed(1);
+                const estHrs = projectsMap[p].est;
+                const progress = estHrs > 0 ? Math.min(Math.round((actHrs / estHrs) * 100), 100) : 0;
+                
+                reportBody.innerHTML += `<tr>
+                    <td><span class="project-tag"># ${p}</span></td>
+                    <td style="font-size: 0.8rem; opacity: 0.8;">${Array.from(projectsMap[p].staff).join('، ')}</td>
+                    <td>${estHrs} ساعة</td>
+                    <td style="color:var(--green)">${actHrs} ساعة</td>
+                    <td>
+                        <div style="background:#222; height:8px; border-radius:10px; width:100px;">
+                            <div style="background:var(--accent); height:100%; width:${progress}%; border-radius:10px;"></div>
+                        </div>
+                        <span style="font-size:0.7rem; opacity:0.6">${progress}% من الوقت المقدر</span>
+                    </td>
                 </tr>`;
-                reportBody.innerHTML += row;
             });
         }
-
-    }, 2000);
+    }, 1500);
   </script>
 </body>
 </html>
