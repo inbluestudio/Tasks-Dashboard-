@@ -94,6 +94,10 @@
     th { color: var(--accent); font-weight: 600; background: rgba(255,255,255,0.02); }
 
     .badge-user { font-size: 0.75rem; color: var(--green); display: flex; align-items: center; gap: 5px; font-weight: 500; }
+    
+    .card-actions { position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; }
+    .btn-icon { background: none; border: none; cursor: pointer; font-size: 0.9rem; opacity: 0.5; transition: 0.2s; }
+    .btn-icon:hover { opacity: 1; transform: scale(1.1); }
   </style>
 </head>
 
@@ -109,7 +113,7 @@
     <section id="kanban" class="section active">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h1>لوحة تحكم المكتب الهندسي</h1>
-        <button onclick="document.getElementById('taskModal').classList.add('active')" class="btn-primary" style="width: auto; padding: 10px 25px;">+ مهمة جديدة</button>
+        <button onclick="openAddModal()" class="btn-primary" style="width: auto; padding: 10px 25px;">+ مهمة جديدة</button>
       </div>
       <div class="board">
         <div class="column" data-status="pending"><h3>⏳ انتظار</h3><div class="list" id="list-pending"></div></div>
@@ -150,9 +154,11 @@
     </section>
   </main>
 
+  <!-- نافذة إضافة وتعديل المهمة -->
   <div class="modal" id="taskModal">
     <div class="modal-content">
-      <h2>إضافة مهمة جديدة</h2>
+      <h2 id="modalHeader">إضافة مهمة جديدة</h2>
+      <input type="hidden" id="editTaskId">
       
       <label>اسم المشروع</label>
       <input type="text" id="projName" placeholder="مثلاً: فيلا دبي">
@@ -165,9 +171,9 @@
           <label>الفريق</label>
           <select id="teamType" onchange="updateStaffList()">
             <option value="">-- اختر --</option>
-            <option value="3D Design">تيم الثري دي</option>
-            <option value="Unreal Engine">تيم الانريل</option>
-            <option value="Programming AI">تيم البرمجة والـ AI</option>
+            <option value="3D">3D</option>
+            <option value="unreal engine">unreal engine</option>
+            <option value="AI & Code">AI & Code</option>
           </select>
         </div>
         <div>
@@ -181,7 +187,7 @@
       <label>الساعات المطلوبة لإنجاز المهمة (تقديري)</label>
       <input type="number" id="estHours" placeholder="مثلاً: 5" min="1">
       
-      <button class="btn-primary" onclick="createNewTask()">حفظ في السحابة 🚀</button>
+      <button class="btn-primary" id="saveTaskBtn" onclick="saveTask()">حفظ في السحابة 🚀</button>
       <button onclick="document.getElementById('taskModal').classList.remove('active')" style="background:transparent; color:#999; border:none; width:100%; margin-top:10px; cursor:pointer;">إلغاء</button>
     </div>
   </div>
@@ -191,14 +197,15 @@
     let statusChart, teamChart;
 
     const staffData = {
-        "3D Design": ["نور", "تامر", "معتز"],
-        "Unreal Engine": ["ليث", "دانا", "بكر"],
-        "Programming AI": ["عبود", "صفوان"]
+        "3D": ["نور", "تامر", "معتز"],
+        "unreal engine": ["ليث", "دانا", "بكر"],
+        "AI & Code": ["عبود", "صفوان"]
     };
 
     window.updateStaffList = () => {
         const team = document.getElementById('teamType').value;
         const staffSelect = document.getElementById('staffName');
+        const currentStaff = staffSelect.value;
         staffSelect.innerHTML = '<option value="">-- اختر --</option>';
         if (staffData[team]) {
             staffData[team].forEach(p => {
@@ -206,6 +213,7 @@
                 opt.value = p; opt.innerText = p; staffSelect.appendChild(opt);
             });
         }
+        staffSelect.value = currentStaff;
     };
 
     setTimeout(() => {
@@ -240,7 +248,11 @@
                 const isRunning = t.timerRunning || false;
                 
                 card.innerHTML = `
-                    <div class="project-tag"># ${t.projectName}</div>
+                    <div class="card-actions">
+                        <button class="btn-icon" onclick="openEditModal('${id}')">✏️</button>
+                        <button class="btn-icon" onclick="deleteTask('${id}')">🗑️</button>
+                    </div>
+                    <div class="project-tag" style="margin-top: 5px;"># ${t.projectName}</div>
                     <div class="title">${t.title}</div>
                     <div class="badge-user">👤 ${t.assignedTo}</div>
                     <div class="est-badge">🎯 المستهدف: ${t.estHours || 0} ساعة</div>
@@ -252,12 +264,70 @@
                     </div>
                     <div style="margin-top:15px; display:flex; gap:8px; border-top:1px solid var(--border); padding-top:10px;">
                         <button onclick="updateStatus('${id}', 'completed')" style="font-size:0.65rem; cursor:pointer; background:none; border:1px solid #444; color:#999; padding:4px 8px; border-radius:5px;">تم الإنجاز</button>
-                        <button onclick="deleteTask('${id}')" style="font-size:0.65rem; cursor:pointer; background:none; border:none; color:var(--red);">حذف</button>
                     </div>
                 `;
                 document.getElementById(`list-${t.status}`).appendChild(card);
             });
         }
+
+        window.openAddModal = () => {
+            document.getElementById('modalHeader').innerText = "إضافة مهمة جديدة";
+            document.getElementById('editTaskId').value = "";
+            document.getElementById('projName').value = "";
+            document.getElementById('taskTitle').value = "";
+            document.getElementById('teamType').value = "";
+            document.getElementById('staffName').innerHTML = '<option value="">-- اختر الفريق أولاً --</option>';
+            document.getElementById('estHours').value = "";
+            document.getElementById('taskModal').classList.add('active');
+        };
+
+        window.openEditModal = (id) => {
+            const t = allTasks[id];
+            document.getElementById('modalHeader').innerText = "تعديل المهمة";
+            document.getElementById('editTaskId').value = id;
+            document.getElementById('projName').value = t.projectName;
+            document.getElementById('taskTitle').value = t.title;
+            document.getElementById('teamType').value = t.team;
+            window.updateStaffList();
+            document.getElementById('staffName').value = t.assignedTo;
+            document.getElementById('estHours').value = t.estHours;
+            document.getElementById('taskModal').classList.add('active');
+        };
+
+        window.saveTask = () => {
+            const id = document.getElementById('editTaskId').value;
+            const p = document.getElementById('projName').value;
+            const t = document.getElementById('taskTitle').value;
+            const staff = document.getElementById('staffName').value;
+            const team = document.getElementById('teamType').value;
+            const est = document.getElementById('estHours').value;
+
+            if(!p || !t || !staff || !est) return alert("يرجى إكمال جميع الحقول");
+
+            const taskData = {
+                projectName: p,
+                title: t,
+                assignedTo: staff,
+                team: team,
+                estHours: parseFloat(est)
+            };
+
+            if (id) {
+                // تحديث المهمة الحالية
+                update(ref(db, `tasks/${id}`), taskData);
+            } else {
+                // إضافة مهمة جديدة
+                push(ref(db, 'tasks'), {
+                    ...taskData,
+                    status: 'pending',
+                    totalSeconds: 0,
+                    timerRunning: false,
+                    createdAt: Date.now()
+                });
+            }
+
+            document.getElementById('taskModal').classList.remove('active');
+        };
 
         window.toggleTimer = (id) => {
             const t = allTasks[id];
@@ -289,24 +359,8 @@
             return `${h} س و ${m} د`;
         }
 
-        window.createNewTask = () => {
-            const p = document.getElementById('projName').value;
-            const t = document.getElementById('taskTitle').value;
-            const staff = document.getElementById('staffName').value;
-            const est = document.getElementById('estHours').value;
-
-            if(!p || !t || !staff || !est) return alert("يرجى تحديد المشروع والموظف وساعات العمل المطلوبة");
-            
-            push(ref(db, 'tasks'), {
-                projectName: p, title: t, assignedTo: staff, team: document.getElementById('teamType').value,
-                status: 'pending', totalSeconds: 0, estHours: parseFloat(est), timerRunning: false, createdAt: Date.now()
-            });
-            document.getElementById('taskModal').classList.remove('active');
-            document.querySelectorAll('#taskModal input, #taskModal select').forEach(i => i.value = '');
-        };
-
         window.updateStatus = (id, status) => update(ref(db, `tasks/${id}`), { status, timerRunning: false });
-        window.deleteTask = (id) => confirm("حذف نهائي؟") && remove(ref(db, `tasks/${id}`));
+        window.deleteTask = (id) => confirm("هل أنت متأكد من الحذف النهائي؟") && remove(ref(db, `tasks/${id}`));
 
         function updateGlobalStats() {
             const tasksArr = Object.values(allTasks);
@@ -331,7 +385,7 @@
                 options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } } }
             });
 
-            const teams = ["3D Design", "Unreal Engine", "Programming AI"];
+            const teams = ["3D", "unreal engine", "AI & Code"];
             const teamData = teams.map(team => tasksArr.filter(t => t.team === team).length);
             if(teamChart) teamChart.destroy();
             teamChart = new Chart(document.getElementById('teamChart'), {
