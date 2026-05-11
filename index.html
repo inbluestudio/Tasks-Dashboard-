@@ -65,67 +65,67 @@
     .nav-item:hover { background: rgba(59, 164, 254, 0.08); color: var(--light-blue); }
     .nav-item.active { background: var(--accent); color: var(--ink-black); font-weight: 600; box-shadow: 0 4px 15px rgba(59, 164, 254, 0.2); }
 
-    /* المنطقة الرئيسية */
-    .main-content { flex: 1; padding: 25px 30px; overflow-y: auto; background-image: radial-gradient(circle at 0% 0%, #0A1628 0%, #020610 100%); display: flex; flex-direction: column; }
-    .section { display: none; flex: 1; }
-    .section.active { display: flex; flex-direction: column; animation: contentFade 0.4s ease-out; }
+    /* المنطقة الرئيسية - تم التعديل لتعبئة الشاشة بالكامل */
+    .main-content { flex: 1; padding: 20px 25px; background-image: radial-gradient(circle at 0% 0%, #0A1628 0%, #020610 100%); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    .section { display: none; flex: 1; flex-direction: column; height: 100%; overflow: hidden; }
+    .section.active { display: flex; animation: contentFade 0.4s ease-out; }
     @keyframes contentFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-shrink: 0; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0; }
     
     /* فلاتر البحث */
-    .filters-bar { display: flex; gap: 15px; margin-bottom: 20px; flex-shrink: 0; }
-    .search-input { flex: 1; padding: 12px 18px; border-radius: var(--radius); background: var(--card-bg); border: 1px solid var(--border); color: var(--tech-white); outline: none; }
+    .filters-bar { display: flex; gap: 15px; margin-bottom: 15px; flex-shrink: 0; }
+    .search-input { flex: 1; padding: 10px 18px; border-radius: var(--radius); background: var(--card-bg); border: 1px solid var(--border); color: var(--tech-white); outline: none; font-family: inherit; }
     .search-input:focus { border-color: var(--accent); }
-    .btn-clear { background: var(--soft-line); color: var(--tech-white); border: none; padding: 12px 20px; border-radius: var(--radius); cursor: pointer; transition: 0.2s; }
+    .btn-clear { background: var(--soft-line); color: var(--tech-white); border: none; padding: 10px 20px; border-radius: var(--radius); cursor: pointer; transition: 0.2s; font-family: inherit; }
     .btn-clear:hover { background: var(--muted-blue); }
 
-    /* تخطيط الكانبان مع قائمة المشاريع */
-    .kanban-layout { display: flex; gap: 25px; flex: 1; overflow: hidden; }
+    /* تخطيط الكانبان - تعبئة الارتفاع بالكامل */
+    .kanban-layout { display: flex; gap: 20px; flex: 1; overflow: hidden; height: 100%; }
     
     .projects-sidebar { width: 220px; background: rgba(15, 34, 54, 0.3); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
-    .projects-sidebar h3 { font-size: 0.9rem; color: var(--blue-grey); margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .projects-sidebar h3 { font-size: 0.9rem; color: var(--blue-grey); margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
     .project-filter-item { padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--tech-white); transition: 0.2s; display: flex; justify-content: space-between; align-items: center; border: 1px solid transparent; }
     .project-filter-item:hover { background: rgba(59, 164, 254, 0.1); border-color: rgba(59, 164, 254, 0.2); }
     .project-filter-item.active { background: var(--accent); color: var(--ink-black); font-weight: 600; border-color: var(--accent); }
     .project-filter-item .count { background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; }
     .project-filter-item.active .count { background: rgba(0,0,0,0.1); }
 
-    /* لوحة المهام */
-    .board { display: grid; grid-template-columns: repeat(3, minmax(280px, 1fr)); gap: 20px; flex: 1; overflow-x: auto; padding-bottom: 10px; }
-    .column { background: rgba(15, 34, 54, 0.4); border-radius: var(--radius); padding: 15px; display: flex; flex-direction: column; border: 1px solid var(--border); }
+    /* لوحة المهام - 1fr لتتمدد وتعبئ الشاشة بشكل متساوي */
+    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; flex: 1; overflow: hidden; height: 100%; }
+    .column { background: rgba(15, 34, 54, 0.4); border-radius: var(--radius); padding: 15px; display: flex; flex-direction: column; border: 1px solid var(--border); height: 100%; overflow: hidden; }
     .column.drag-over { border-color: var(--accent); background: rgba(59, 164, 254, 0.05); }
-    .column h3 { font-size: 0.85rem; margin-bottom: 20px; color: var(--muted-blue); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    .list { flex: 1; overflow-y: auto; padding-right: 5px; }
+    .column h3 { font-size: 0.85rem; margin-bottom: 15px; color: var(--muted-blue); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .list { flex: 1; overflow-y: auto; padding-right: 5px; display: flex; flex-direction: column; gap: 15px; }
 
     /* بطاقة المهمة */
-    .card { background: var(--card-bg); border: 1px solid var(--border); padding: 18px; border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; position: relative; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); padding: 15px; border-radius: 12px; cursor: pointer; transition: 0.2s; position: relative; flex-shrink: 0; }
     .card:hover { border-color: var(--accent); box-shadow: 0 5px 15px rgba(0,0,0,0.3); transform: translateY(-2px); }
     
     .project-chip { display: inline-block; padding: 4px 10px; background: rgba(59, 164, 254, 0.1); color: var(--accent); font-size: 0.7rem; border-radius: 6px; font-weight: 700; margin-bottom: 10px; border: 1px solid rgba(59, 164, 254, 0.15); }
     .due-date-chip { display: inline-block; padding: 4px 10px; background: rgba(248, 113, 113, 0.1); color: #f87171; font-size: 0.7rem; border-radius: 6px; margin-bottom: 10px; margin-right: 5px; }
-    .card-title { font-weight: 600; margin-bottom: 12px; font-size: 0.95rem; color: var(--tech-white); line-height: 1.4; }
+    .card-title { font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; color: var(--tech-white); line-height: 1.4; }
     
     /* شريط التقدم داخل البطاقة المربّعة */
-    .card-progress-wrap { margin-top: 12px; margin-bottom: 5px; }
+    .card-progress-wrap { margin-top: 10px; margin-bottom: 5px; }
     .card-progress-header { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--blue-grey); margin-bottom: 6px; font-weight: 500; }
     .card-progress-bg { width: 100%; background: rgba(0,0,0,0.4); border-radius: 4px; height: 6px; overflow: hidden; }
     .card-progress-fill { height: 100%; background: var(--amber); transition: width 0.3s ease; border-radius: 4px; }
     .card-progress-fill.completed { background: #34d399; }
     
-    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1px solid var(--border); padding-top: 12px; }
     .user-info { font-size: 0.8rem; color: var(--blue-grey); display: flex; align-items: center; gap: -5px; }
     .user-info .avatar { margin-left: -8px; border: 2px solid var(--card-bg); }
-    .hour-badge { font-size: 1.1rem; color: var(--amber); font-weight: 700; background: rgba(251, 191, 36, 0.12); padding: 4px 10px; border-radius: 8px; }
+    .hour-badge { font-size: 1rem; color: var(--amber); font-weight: 700; background: rgba(251, 191, 36, 0.12); padding: 4px 10px; border-radius: 8px; }
 
     /* الأزرار العامة */
-    .btn-main { background: var(--accent); color: var(--ink-black); border: none; padding: 14px 20px; border-radius: var(--radius); cursor: pointer; font-weight: 700; font-size: 0.95rem; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
+    .btn-main { background: var(--accent); color: var(--ink-black); border: none; padding: 12px 20px; border-radius: var(--radius); cursor: pointer; font-weight: 700; font-size: 0.95rem; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; justify-content: center; font-family: inherit; }
     .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 164, 254, 0.3); }
-    .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 14px 20px; border-radius: var(--radius); cursor: pointer; font-weight: 600; transition: 0.3s; }
+    .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 12px 20px; border-radius: var(--radius); cursor: pointer; font-weight: 600; transition: 0.3s; font-family: inherit; }
     .btn-outline:hover { background: rgba(59, 164, 254, 0.1); }
     
     /* الزر الأخضر الكبير للحفظ */
-    .btn-save-big { background: #34d399; color: var(--ink-black); font-size: 1.1rem; font-weight: 700; padding: 12px 35px; border-radius: 12px; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(52, 211, 153, 0.3); }
+    .btn-save-big { background: #34d399; color: var(--ink-black); font-size: 1.1rem; font-weight: 700; padding: 12px 35px; border-radius: 12px; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(52, 211, 153, 0.3); font-family: inherit; }
     .btn-save-big:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(52, 211, 153, 0.5); }
 
     /* شاشة الدخول */
@@ -194,9 +194,13 @@
     /* الإحصائيات والتقارير */
     .stat-box { background: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--border); text-align: center; }
     .stat-val { font-size: 3.5rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; line-height: 1; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; text-align: right; }
-    th { padding: 18px; color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--border); background: rgba(255,255,255,0.02); }
-    td { padding: 18px; border-bottom: 1px solid var(--border); color: var(--tech-white); font-size: 0.95rem; }
+    
+    /* قسم التقارير ليملأ الشاشة */
+    #reports { overflow-y: auto; }
+    .table-container { flex: 1; background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid var(--border); overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: right; }
+    th { padding: 15px; color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--border); background: rgba(255,255,255,0.02); position: sticky; top: 0; z-index: 10; }
+    td { padding: 15px; border-bottom: 1px solid var(--border); color: var(--tech-white); font-size: 0.95rem; }
 
     .admin-only { display: none; }
     .manager-lock { position: relative; }
@@ -215,7 +219,7 @@
         <div id="auth-form-container">
             <input type="email" id="login-email" placeholder="البريد الإلكتروني المعتمد">
             <input type="password" id="login-pass" placeholder="كلمة المرور">
-            <button class="btn-main" onclick="handleAuth()">دخول للنظام</button>
+            <button class="btn-main" onclick="handleAuth()" style="width: 100%;">دخول للنظام</button>
             <div style="margin-top: 20px; font-size: 0.8rem;">
                 <span style="color: var(--blue-grey);">ليس لديك حساب؟</span> 
                 <span style="color: var(--accent); cursor: pointer; text-decoration: underline;" onclick="toggleAuthMode()">إنشاء حساب</span>
@@ -228,7 +232,7 @@
         <div id="reset-form-container" style="display: none;">
             <p style="color: var(--blue-grey); margin-bottom: 20px; font-size: 0.85rem;">أدخل بريدك لإرسال رابط الاستعادة.</p>
             <input type="email" id="reset-email" placeholder="البريد الإلكتروني">
-            <button class="btn-main" onclick="handleResetPassword()">إرسال الرابط</button>
+            <button class="btn-main" onclick="handleResetPassword()" style="width: 100%;">إرسال الرابط</button>
             <div style="margin-top: 20px; font-size: 0.8rem;">
                 <span style="color: var(--accent); cursor: pointer; text-decoration: underline;" onclick="toggleResetView(false)">العودة للدخول</span>
             </div>
@@ -257,7 +261,7 @@
       <div class="nav-item admin-only" data-target="reports">📄 التقارير والتصدير</div>
       
       <div style="margin-top: auto;">
-          <button onclick="handleLogout()" style="background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171; width: 100%; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600;">تسجيل خروج</button>
+          <button onclick="handleLogout()" style="background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); color: #f87171; width: 100%; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; font-family: inherit;">تسجيل خروج</button>
       </div>
     </aside>
 
@@ -282,6 +286,13 @@
             <!-- قائمة المشاريع الجانبية -->
             <div class="projects-sidebar">
                 <h3>📁 تصفية بالمشروع</h3>
+                
+                <!-- فلتر الشهر للمدراء -->
+                <div class="admin-only" style="margin-bottom: 15px;">
+                    <label style="font-size: 0.75rem; color: var(--blue-grey); margin-bottom: 5px; display: block;">سجل الأرشيف (تاريخ الإنشاء):</label>
+                    <input type="month" id="monthFilter" class="search-input" style="width: 100%; padding: 8px; margin-bottom: 10px;" onchange="handleMonthFilterChange()">
+                </div>
+
                 <div id="project-filters-list">
                     <!-- تُولد ديناميكياً -->
                 </div>
@@ -308,14 +319,14 @@
       <!-- التحليلات -->
       <section id="dashboard" class="section">
         <h1 style="margin-bottom: 25px;">التحليل الاستراتيجي</h1>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 30px;">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 30px; flex-shrink: 0;">
             <div class="stat-box"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">المهام الكلية</div></div>
             <div class="stat-box"><div class="stat-val" id="st-hours" style="color: var(--amber)">0</div><div class="stat-lbl">إجمالي الساعات</div></div>
             <div class="stat-box"><div class="stat-val" id="st-projects" style="color: var(--light-blue)">0</div><div class="stat-lbl">مشاريع نشطة</div></div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
-            <div class="stat-box" style="height: 400px;"><canvas id="chartStatus"></canvas></div>
-            <div class="stat-box" style="height: 400px;"><canvas id="chartTeams"></canvas></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; flex: 1; min-height: 0;">
+            <div class="stat-box" style="height: 100%; display: flex; align-items: center; justify-content: center;"><canvas id="chartStatus"></canvas></div>
+            <div class="stat-box" style="height: 100%; display: flex; align-items: center; justify-content: center;"><canvas id="chartTeams"></canvas></div>
         </div>
       </section>
 
@@ -327,7 +338,7 @@
                 <button class="btn-outline" onclick="exportExcel()">⬇ تصدير Excel (بالتواريخ والتعليقات)</button>
             </div>
         </div>
-        <div class="stat-box" style="margin-top: 10px; padding: 20px;">
+        <div class="table-container">
             <table id="reportsTable">
                 <thead><tr><th>المشروع</th><th>الفريق العامل</th><th>المهام</th><th>الساعات المخططة</th></tr></thead>
                 <tbody id="report-body"></tbody>
@@ -354,8 +365,8 @@
       </div>
 
       <input type="number" id="eHoursNew" placeholder="ساعات العمل المتوقعة" min="1">
-      <button class="btn-main" onclick="saveNewTask()">إنشاء المهمة</button>
-      <button onclick="document.getElementById('addTaskModal').classList.remove('active')" style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:10px; cursor:pointer;">إلغاء</button>
+      <button class="btn-main" onclick="saveNewTask()" style="width: 100%;">إنشاء المهمة</button>
+      <button onclick="document.getElementById('addTaskModal').classList.remove('active')" style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:10px; cursor:pointer; font-family: inherit;">إلغاء</button>
     </div>
   </div>
 
@@ -454,8 +465,8 @@
                 <input type="number" id="dt-hours" min="0">
 
                 <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
-                    <button class="action-btn-block admin-only" onclick="deleteTaskFromDetails()" style="background: rgba(248, 113, 113, 0.1); color: #f87171; border-color: #f87171;">
-                        <span>حذف المهمة نهائياً</span> <span>🗑️</span>
+                    <button class="action-btn-block admin-only" onclick="deleteTaskFromDetails()" style="background: rgba(248, 113, 113, 0.1); color: #f87171; border-color: #f87171; justify-content: center;">
+                        <span style="font-weight: 600;">حذف المهمة نهائياً 🗑️</span>
                     </button>
                 </div>
             </div>
@@ -472,6 +483,10 @@
     
     let activeProjectFilter = null;
     let searchTerm = "";
+    
+    // إعداد الفلتر الزمني (افتراضياً الشهر الحالي)
+    const now = new Date();
+    let activeMonthFilter = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
     // القائمة البيضاء + تحديد الـ Team Leads
     const whitelist = {
@@ -487,7 +502,7 @@
       "dana.bojoq@bluedesignstudio.com": { name: "دانا", role: "unreal engine" },
       "baker.hasan@bluedesignstudio.com": { name: "بكر", role: "unreal engine" },
       
-      "abdullah.tekreeti@bluedesignstudio.com": { name: "عبدالله", role: "Code" } // فريق الكود بدون Lead حاليا
+      "abdullah.tekreeti@bluedesignstudio.com": { name: "عبدالله", role: "Code" } 
     };
 
     const staffByTeam = { 
@@ -504,9 +519,21 @@
         const color = colors[char.charCodeAt(0) % colors.length];
         return `<span class="avatar" style="background-color: ${color};">${char}</span>`;
     }
+    
+    // التحقق مما إذا كانت المهمة في الشهر المحدد للفلتر
+    function taskMatchesMonthFilter(task) {
+        if(!activeMonthFilter) return true; // إذا تم مسح الفلتر، عرض كل شيء
+        const date = new Date(task.createdAt);
+        const taskMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        return taskMonth === activeMonthFilter;
+    }
 
     setTimeout(() => {
         const { auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onValue, ref, db, update, push, remove, sendPasswordResetEmail } = window.firebaseTools;
+
+        // تهيئة حقل الشهر
+        const monthInput = document.getElementById('monthFilter');
+        if(monthInput) monthInput.value = activeMonthFilter;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -522,11 +549,12 @@
                 
                 document.getElementById('user-name').innerText = userData.name;
                 document.getElementById('user-role').innerText = isManager ? "الإدارة العليا" : (isTeamLead ? `Team Lead (${userData.role})` : `فريق ${userData.role}`);
-                document.getElementById('user-avatar-main').innerText = userData.name.substring(0,2);
+                document.getElementById('user-avatar-main').outerHTML = getAvatarHTML(userData.name).replace('class="avatar"', 'id="user-avatar-main" class="avatar avatar-lg"');
                 
                 // إظهار أزرار المدير لمن يملك صلاحية (المدير + التيم ليد)
                 const hasAdminRights = isManager || isTeamLead;
                 document.querySelectorAll('.admin-only').forEach(el => el.style.display = hasAdminRights ? 'flex' : 'none');
+                document.querySelectorAll('.admin-only.block-element').forEach(el => el.style.display = hasAdminRights ? 'block' : 'none');
                 
                 // حظر تغيير المسؤول لغير الإدارة أو التيم ليد
                 document.getElementById('dt-team').disabled = !hasAdminRights;
@@ -561,18 +589,37 @@
 
         window.handleSearch = () => { searchTerm = document.getElementById('searchInput').value.toLowerCase(); renderBoard(); };
         window.setProjectFilter = (projName) => { activeProjectFilter = projName === activeProjectFilter ? null : projName; renderProjectsSidebar(); renderBoard(); };
-        window.clearFilters = () => { activeProjectFilter = null; searchTerm = ""; document.getElementById('searchInput').value = ""; renderProjectsSidebar(); renderBoard(); };
+        window.handleMonthFilterChange = () => { activeMonthFilter = document.getElementById('monthFilter').value; renderProjectsSidebar(); renderBoard(); };
+        
+        window.clearFilters = () => { 
+            activeProjectFilter = null; 
+            searchTerm = ""; 
+            document.getElementById('searchInput').value = ""; 
+            
+            // إعادة تعيين فلتر الشهر للمدراء
+            activeMonthFilter = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            if(document.getElementById('monthFilter')) document.getElementById('monthFilter').value = activeMonthFilter;
+            
+            renderProjectsSidebar(); 
+            renderBoard(); 
+        };
 
         function renderProjectsSidebar() {
             const container = document.getElementById('project-filters-list');
             if(!container) return;
             const projCounts = {};
             const hasAdminRights = isManager || isTeamLead;
+            
             Object.values(allTasks).forEach(t => {
                 let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
                 if(!hasAdminRights && !assignedToArray.includes(currentUserName)) return;
+                
+                // تطبيق فلتر الشهر على قائمة المشاريع (للمدراء فقط)
+                if(hasAdminRights && !taskMatchesMonthFilter(t)) return;
+
                 projCounts[t.projectName] = (projCounts[t.projectName] || 0) + 1;
             });
+            
             container.innerHTML = '';
             Object.keys(projCounts).forEach(p => {
                 const isActive = p === activeProjectFilter ? 'active' : '';
@@ -592,7 +639,9 @@
                 const t = allTasks[id];
                 let assignedToArray = Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo];
                 
+                // الفلاتر
                 if(!hasAdminRights && !assignedToArray.includes(currentUserName)) return;
+                if(hasAdminRights && !taskMatchesMonthFilter(t)) return; // فلتر الشهر
                 if(activeProjectFilter && t.projectName !== activeProjectFilter) return;
                 if(searchTerm && !t.title.toLowerCase().includes(searchTerm) && !t.projectName.toLowerCase().includes(searchTerm)) return;
 
@@ -711,6 +760,7 @@
             document.getElementById('dt-desc').value = t.description || "";
             
             if(!t.dueDate) {
+                // ديفولت تاريخ اليوم
                 document.getElementById('dt-duedate').valueAsDate = new Date();
             } else {
                 document.getElementById('dt-duedate').value = t.dueDate;
