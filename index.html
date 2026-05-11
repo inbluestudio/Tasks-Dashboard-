@@ -95,7 +95,7 @@
     .project-filter-item.active .count { background: rgba(0,0,0,0.1); }
 
     /* لوحة المهام */
-    .board { display: grid; grid-template-columns: repeat(3, minmax(320px, 1fr)); gap: 20px; flex: 1; overflow-x: auto; overflow-y: hidden; height: 100%; padding-bottom: 15px; }
+    .board { display: grid; grid-template-columns: repeat(3, minmax(380px, 1fr)); gap: 25px; flex: 1; overflow-x: auto; overflow-y: hidden; height: 100%; padding-bottom: 15px; }
     .column { background: rgba(15, 34, 54, 0.4); border-radius: var(--radius); padding: 15px; display: flex; flex-direction: column; border: 1px solid var(--border); height: 100%; overflow: hidden; }
     .column.drag-over { border-color: var(--accent); background: rgba(59, 164, 254, 0.05); }
     .column h3 { font-size: 0.85rem; margin-bottom: 15px; color: var(--muted-blue); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -193,12 +193,11 @@
     .suggestion-item:last-child { border-bottom: none; }
     .suggestion-item:hover { background: rgba(59, 164, 254, 0.1); color: var(--light-blue); }
 
-    /* الداشبورد والتحليلات (Responsive) */
-    #dashboard { overflow-y: auto; padding-bottom: 20px; } 
+    /* الداشبورد والتحليلات (منع الاستطالة) */
+    #dashboard.active { display: block !important; overflow-y: auto; padding-bottom: 30px; } 
     .stats-grid-top { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; flex-shrink: 0; margin-bottom: 20px; }
-    .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; min-height: 400px; margin-bottom: 20px; }
-    .dashboard-grid-full { grid-template-columns: 1fr; min-height: 300px; }
-    .chart-wrapper { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; position: relative; min-height: 300px; }
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .chart-wrapper { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; position: relative; height: 340px; }
     .chart-wrapper h3 { font-size: 0.95rem; color: var(--tech-white); margin-bottom: 15px; text-align: center; font-weight: 600; border-bottom: 1px solid var(--soft-line); padding-bottom: 10px; flex-shrink: 0;}
     .chart-wrapper canvas { flex: 1; min-height: 0; width: 100% !important; height: 100% !important; }
     
@@ -206,14 +205,14 @@
     .stat-val { font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; line-height: 1; }
     .stat-lbl { font-size: 0.85rem; color: var(--blue-grey); }
 
-    /* قائمة نسبة إنجاز المشاريع (بديل الرسم البياني العمودي) */
+    /* قائمة نسبة إنجاز المشاريع */
     .comp-list-container { flex: 1; overflow-y: auto; padding-right: 5px; display: flex; flex-direction: column; gap: 18px; margin-top: 15px; }
     .comp-item { display: flex; flex-direction: column; gap: 8px; }
     .comp-header { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--tech-white); font-weight: 500; }
     .comp-track { width: 100%; height: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden; }
     .comp-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease-out; }
 
-    /* قسم التقارير (الجداول جنباً إلى جنب) */
+    /* قسم التقارير */
     #reports { overflow-y: auto; padding-bottom: 20px; }
     .reports-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: start; }
     .report-section-title { color: var(--tech-white); font-size: 1.1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
@@ -230,7 +229,7 @@
     .manager-lock { position: relative; }
     .manager-lock::after { content: '🔒 مدير أو Team Lead'; position: absolute; left: 10px; top: -5px; font-size: 0.6rem; color: #f87171; opacity: 0.8; }
 
-    /* Media Queries لضبط الاستجابة على الشاشات الأصغر */
+    /* Media Queries */
     @media (max-width: 1024px) {
         .reports-grid { grid-template-columns: 1fr; }
         .dashboard-grid { grid-template-columns: 1fr; }
@@ -351,7 +350,7 @@
         </div>
       </section>
 
-      <!-- التحليلات الداشبورد -->
+      <!-- التحليلات الداشبورد (تم إصلاح الاستطالة وإضافة حركة المشاريع) -->
       <section id="dashboard" class="section">
         <div class="page-header">
             <h1 style="margin-bottom: 0;">لوحة المعلومات والتحليلات الاستراتيجية</h1>
@@ -363,23 +362,23 @@
             <div class="stat-box"><div class="stat-val" id="st-projects" style="color: var(--light-blue)">0</div><div class="stat-lbl">مشاريع نشطة</div></div>
         </div>
         
+        <!-- تخطيط المربعات بنظام Grid الثابت -->
         <div class="dashboard-grid">
             <div class="chart-wrapper">
                 <h3>حالة المهام الكلية</h3>
                 <canvas id="chartStatus"></canvas>
             </div>
             <div class="chart-wrapper">
-                <!-- الرسم الجديد: أشرطة تقدم لنسبة إنجاز المشاريع -->
                 <h3>نسبة إنجاز المشاريع الفعّالة</h3>
-                <div id="projectCompletionList" class="comp-list-container">
-                    <!-- تُولد ديناميكياً -->
-                </div>
+                <div id="projectCompletionList" class="comp-list-container"></div>
             </div>
-        </div>
-        <div class="dashboard-grid dashboard-grid-full">
             <div class="chart-wrapper">
                 <h3>حجم المشاريع (أكثر المشاريع نشاطاً)</h3>
                 <canvas id="chartTopProjects"></canvas>
+            </div>
+            <div class="chart-wrapper">
+                <h3>حركة المشاريع خلال السنة الحالية</h3>
+                <canvas id="chartYearly"></canvas>
             </div>
         </div>
       </section>
@@ -557,7 +556,7 @@
     let searchTerm = "";
     
     // متغيرات التشارتس للداشبورد الجديد
-    let chartStatus, chartTopProjects;
+    let chartStatus, chartTopProjects, chartYearly;
     
     const now = new Date();
     let activeMonthFilter = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -1098,6 +1097,29 @@
             chartTopProjects = new Chart(document.getElementById('chartTopProjects'), { 
                 type: 'bar', 
                 data: { labels: sortedProjs, datasets: [{ label: 'عدد المهام', data: projCountsData, backgroundColor: '#88CFFD', borderRadius: 4 }] }, 
+                options: { 
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: '#1F3550' }, ticks: { color: '#8FA3BC', stepSize: 1 } }, 
+                        x: { grid: { display: false }, ticks: { color: '#E8EEF5' } } 
+                    }, 
+                    plugins: { legend: { display: false }, datalabels: { display: false } } 
+                } 
+            });
+
+            // 3. حركة المشاريع خلال السنة (Line)
+            let currentYear = new Date().getFullYear();
+            let monthlyProjects = Array(12).fill().map(() => new Set());
+            arr.forEach(t => {
+                let d = new Date(t.createdAt);
+                if(d.getFullYear() === currentYear) monthlyProjects[d.getMonth()].add(t.projectName);
+            });
+            const monthLabels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            const monthData = monthlyProjects.map(set => set.size);
+            if(chartYearly) chartYearly.destroy();
+            chartYearly = new Chart(document.getElementById('chartYearly'), { 
+                type: 'line', 
+                data: { labels: monthLabels, datasets: [{ label: 'مشاريع جديدة', data: monthData, borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4 }] }, 
                 options: { 
                     maintainAspectRatio: false, 
                     scales: { 
