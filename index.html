@@ -206,12 +206,19 @@
     .stat-val { font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; line-height: 1; }
     .stat-lbl { font-size: 0.85rem; color: var(--blue-grey); }
 
+    /* قائمة نسبة إنجاز المشاريع (بديل الرسم البياني العمودي) */
+    .comp-list-container { flex: 1; overflow-y: auto; padding-right: 5px; display: flex; flex-direction: column; gap: 18px; margin-top: 15px; }
+    .comp-item { display: flex; flex-direction: column; gap: 8px; }
+    .comp-header { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--tech-white); font-weight: 500; }
+    .comp-track { width: 100%; height: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden; }
+    .comp-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease-out; }
+
     /* قسم التقارير (الجداول جنباً إلى جنب) */
     #reports { overflow-y: auto; padding-bottom: 20px; }
     .reports-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: start; }
     .report-section-title { color: var(--tech-white); font-size: 1.1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
     .table-container { background: var(--card-bg); padding: 0; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    table { width: 100%; min-width: 500px; border-collapse: collapse; text-align: right; } /* تم تقليل الحد الأدنى ليناسب العرض الجانبي */
+    table { width: 100%; min-width: 500px; border-collapse: collapse; text-align: right; }
     th { padding: 16px 20px; color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--border); background: var(--deep-navy); position: sticky; top: 0; z-index: 10; cursor: pointer; transition: 0.2s; white-space: nowrap; user-select: none; }
     th:hover { background: rgba(59, 164, 254, 0.1); }
     th.sort-asc::after { content: ' ▲'; font-size: 0.7rem; color: var(--light-blue); }
@@ -225,7 +232,7 @@
 
     /* Media Queries لضبط الاستجابة على الشاشات الأصغر */
     @media (max-width: 1024px) {
-        .reports-grid { grid-template-columns: 1fr; } /* جداول التقارير ترجع تحت بعض في الشاشات الصغيرة */
+        .reports-grid { grid-template-columns: 1fr; }
         .dashboard-grid { grid-template-columns: 1fr; }
         .board { grid-template-columns: 1fr; overflow-y: auto; overflow-x: hidden; height: auto; }
         .kanban-layout { flex-direction: column; overflow-y: auto;}
@@ -362,15 +369,17 @@
                 <canvas id="chartStatus"></canvas>
             </div>
             <div class="chart-wrapper">
-                <!-- الرسم الجديد: أكبر المشاريع حسب عدد المهام -->
-                <h3>حجم المشاريع (أكثر المشاريع نشاطاً)</h3>
-                <canvas id="chartTopProjects"></canvas>
+                <!-- الرسم الجديد: أشرطة تقدم لنسبة إنجاز المشاريع -->
+                <h3>نسبة إنجاز المشاريع الفعّالة</h3>
+                <div id="projectCompletionList" class="comp-list-container">
+                    <!-- تُولد ديناميكياً -->
+                </div>
             </div>
         </div>
         <div class="dashboard-grid dashboard-grid-full">
             <div class="chart-wrapper">
-                <h3>حركة المشاريع خلال السنة الحالية</h3>
-                <canvas id="chartYearly"></canvas>
+                <h3>حجم المشاريع (أكثر المشاريع نشاطاً)</h3>
+                <canvas id="chartTopProjects"></canvas>
             </div>
         </div>
       </section>
@@ -548,7 +557,7 @@
     let searchTerm = "";
     
     // متغيرات التشارتس للداشبورد الجديد
-    let chartStatus, chartTopProjects, chartYearly;
+    let chartStatus, chartTopProjects;
     
     const now = new Date();
     let activeMonthFilter = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -729,6 +738,7 @@
             document.getElementById('count-completed').innerText = counts.completed;
         }
 
+        // إظهار أحدث 4 مشاريع كـ هاشتاقات سريعة
         window.renderNewTaskHashtags = () => {
             const container = document.getElementById('hashtagContainerNew');
             const projMap = {};
@@ -740,6 +750,7 @@
             container.innerHTML = top4.map(p => `<span class="project-hashtag" onclick="document.getElementById('pNameNew').value='${p}'; document.getElementById('projectSuggestions').style.display='none';"># ${p}</span>`).join('');
         };
         
+        // ميزة البحث التلقائي عن المشاريع (Autocomplete)
         window.handleProjectInput = () => {
             const input = document.getElementById('pNameNew');
             const val = input.value.toLowerCase();
@@ -1005,8 +1016,52 @@
             document.getElementById('st-total').innerText = arr.length;
             document.getElementById('st-hours').innerText = arr.reduce((a, b) => a + (b.estHours || 0), 0) + " س";
             document.getElementById('st-projects').innerText = [...new Set(arr.map(x => x.projectName))].length;
-            if(document.getElementById('dashboard').classList.contains('active')) drawCharts(arr);
+            
+            if(document.getElementById('dashboard').classList.contains('active')) {
+                drawCharts(arr);
+                renderProjectCompletion(arr); // رسم قائمة الإنجاز بدلا من الأعمدة
+            }
         };
+
+        // دالة جديدة لرسم نسبة إنجاز المشاريع كأشرطة أفقية
+        function renderProjectCompletion(arr) {
+            let projStats = {};
+            arr.forEach(t => {
+                if(!projStats[t.projectName]) projStats[t.projectName] = { total: 0, completed: 0 };
+                projStats[t.projectName].total++;
+                if(t.status === 'completed') projStats[t.projectName].completed++;
+            });
+
+            const compContainer = document.getElementById('projectCompletionList');
+            if(!compContainer) return;
+            compContainer.innerHTML = '';
+            
+            // ألوان الهوية لتلوين الأشرطة
+            const colors = ['#34d399', '#fbbf24', '#f97316', '#3BA4FE', '#a78bfa', '#f87171']; 
+            let colorIdx = 0;
+
+            // الترتيب الأبجدي للمشاريع
+            const sortedProjs = Object.keys(projStats).sort((a,b) => a.localeCompare(b, 'ar'));
+
+            sortedProjs.forEach(pName => {
+                const stats = projStats[pName];
+                const pct = Math.round((stats.completed / stats.total) * 100) || 0;
+                const color = colors[colorIdx % colors.length];
+                colorIdx++;
+
+                compContainer.innerHTML += `
+                    <div class="comp-item">
+                        <div class="comp-header">
+                            <span>${pName}</span>
+                            <span style="font-weight:700;">${pct}%</span>
+                        </div>
+                        <div class="comp-track">
+                            <div class="comp-fill" style="width: ${pct}%; background: ${color};"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
 
         function drawCharts(arr) {
             // 1. حالة المهام (Doughnut) مع إضافة الأرقام على الدائرة
@@ -1023,20 +1078,19 @@
                     plugins: { 
                         legend: { position: 'bottom', labels: { color: '#E8EEF5' } },
                         datalabels: {
-                            color: '#020610', // أسود داكن ليظهر على الألوان الفاتحة
+                            color: '#020610', 
                             font: { weight: 'bold', size: 16 },
-                            formatter: (value) => { return value > 0 ? value : ''; } // إخفاء الصفر
+                            formatter: (value) => { return value > 0 ? value : ''; } 
                         }
                     } 
                 } 
             });
 
-            // 2. أكبر المشاريع حسب عدد المهام (Bar) - بديل أداء الموظفين
+            // 2. أكبر المشاريع حسب عدد المهام (Bar)
             let projTaskCounts = {};
             arr.forEach(t => {
                 projTaskCounts[t.projectName] = (projTaskCounts[t.projectName] || 0) + 1;
             });
-            // جلب أعلى 7 مشاريع
             const sortedProjs = Object.keys(projTaskCounts).sort((a, b) => projTaskCounts[b] - projTaskCounts[a]).slice(0, 7);
             const projCountsData = sortedProjs.map(p => projTaskCounts[p]);
             
@@ -1044,29 +1098,6 @@
             chartTopProjects = new Chart(document.getElementById('chartTopProjects'), { 
                 type: 'bar', 
                 data: { labels: sortedProjs, datasets: [{ label: 'عدد المهام', data: projCountsData, backgroundColor: '#88CFFD', borderRadius: 4 }] }, 
-                options: { 
-                    maintainAspectRatio: false, 
-                    scales: { 
-                        y: { beginAtZero: true, grid: { color: '#1F3550' }, ticks: { color: '#8FA3BC', stepSize: 1 } }, 
-                        x: { grid: { display: false }, ticks: { color: '#E8EEF5' } } 
-                    }, 
-                    plugins: { legend: { display: false }, datalabels: { display: false } } 
-                } 
-            });
-
-            // 3. مسار المشاريع خلال السنة (Line)
-            let currentYear = new Date().getFullYear();
-            let monthlyProjects = Array(12).fill().map(() => new Set());
-            arr.forEach(t => {
-                let d = new Date(t.createdAt);
-                if(d.getFullYear() === currentYear) monthlyProjects[d.getMonth()].add(t.projectName);
-            });
-            const monthLabels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-            const monthData = monthlyProjects.map(set => set.size);
-            if(chartYearly) chartYearly.destroy();
-            chartYearly = new Chart(document.getElementById('chartYearly'), { 
-                type: 'line', 
-                data: { labels: monthLabels, datasets: [{ label: 'مشاريع جديدة', data: monthData, borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4 }] }, 
                 options: { 
                     maintainAspectRatio: false, 
                     scales: { 
