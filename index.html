@@ -8,11 +8,15 @@
 
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <!-- Chart.js DataLabels Plugin -->
     <script
         src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+    <!-- Frappe Gantt Chart -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.6.1/frappe-gantt.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.6.1/frappe-gantt.min.js"></script>
 
     <!-- مكتبات تصدير PDF و Excel و تحويل المحرر لصور -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -501,7 +505,7 @@
             color: #fff;
         }
 
-        /* لوحة المهام (أصبحت مرنة للأعمدة الديناميكية) */
+        /* لوحة المهام */
         .board-container {
             flex: 1;
             overflow-x: auto;
@@ -1195,12 +1199,17 @@
             background: var(--card-bg);
             border: 1px solid var(--accent);
             border-radius: 10px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
             z-index: 9999;
             overflow: hidden;
             display: none;
         }
-        .mention-dropdown.show { display: block; animation: contentFade 0.15s ease-out; }
+
+        .mention-dropdown.show {
+            display: block;
+            animation: contentFade 0.15s ease-out;
+        }
+
         .mention-item {
             display: flex;
             align-items: center;
@@ -1212,10 +1221,25 @@
             transition: 0.15s;
             border-bottom: 1px solid var(--border);
         }
-        .mention-item:last-child { border-bottom: none; }
-        .mention-item:hover, .mention-item.active { background: rgba(59, 164, 254, 0.12); color: var(--accent); }
-        .mention-item .mention-name { font-weight: 600; }
-        .mention-item .mention-role { font-size: 0.75rem; color: var(--blue-grey); }
+
+        .mention-item:last-child {
+            border-bottom: none;
+        }
+
+        .mention-item:hover,
+        .mention-item.active {
+            background: rgba(59, 164, 254, 0.12);
+            color: var(--accent);
+        }
+
+        .mention-item .mention-name {
+            font-weight: 600;
+        }
+
+        .mention-item .mention-role {
+            font-size: 0.75rem;
+            color: var(--blue-grey);
+        }
 
 
         .trello-sidebar {
@@ -1281,7 +1305,7 @@
             accent-color: var(--accent);
         }
 
-        /* الداشبورد والتحليلات (التصميم الجديد لنسب الإنجاز) */
+        /* الداشبورد والتحليلات */
         #dashboard.active {
             display: block !important;
             overflow-y: auto;
@@ -1356,7 +1380,6 @@
             color: var(--blue-grey);
         }
 
-        /* تصميم الـ Project Completion Widget الجديد */
         .widget-progress-header {
             display: flex;
             align-items: center;
@@ -1483,7 +1506,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
 
-        /* قسم التقارير الشاملة */
+        /* قسم التقارير */
         #reports {
             overflow-y: auto;
             padding-bottom: 20px;
@@ -1564,7 +1587,7 @@
             background: var(--bg);
         }
 
-        /* --- محرر التقارير ونافذة العرض (Embed Viewer) --- */
+        /* نافذة العرض (Embed Viewer) */
         .report-modal {
             background: var(--card-bg);
             width: 100%;
@@ -1709,6 +1732,57 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* قسم الجانت شارت */
+        #gantt.active {
+            display: flex !important;
+            overflow-y: auto;
+            padding-bottom: 30px;
+        }
+
+        .gantt .grid-header {
+            fill: var(--card-bg);
+            stroke: var(--border);
+        }
+
+        .gantt .grid-row {
+            fill: var(--bg);
+            stroke: var(--border);
+        }
+
+        .gantt .grid-row:nth-child(even) {
+            fill: var(--card-bg);
+        }
+
+        .gantt .tick text {
+            fill: var(--blue-grey);
+            font-family: inherit;
+        }
+
+        .gantt .bar-label {
+            fill: #fff;
+            font-weight: bold;
+            font-family: inherit;
+        }
+
+        .gantt .bar-progress {
+            fill: var(--accent);
+        }
+
+        .gantt .bar-wrapper:hover .bar {
+            fill: var(--light-blue);
+        }
+
+        .gantt .lower-text {
+            font-size: 11px;
+            fill: var(--text);
+        }
+
+        .gantt .upper-text {
+            font-size: 13px;
+            font-weight: bold;
+            fill: var(--text);
         }
 
         .admin-only {
@@ -1876,6 +1950,10 @@
             <div class="nav-item admin-only" data-target="reports">
                 <div class="nav-item-content"><span>📄</span> <span data-i18n="navReports">التقارير</span></div>
             </div>
+            <!-- صفحة جانت شارت -->
+            <div class="nav-item admin-only" data-target="gantt">
+                <div class="nav-item-content"><span>📅</span> <span data-i18n="navGantt">مخطط المشاريع</span></div>
+            </div>
 
             <div class="settings-toggles">
                 <button class="toggle-btn" onclick="toggleNotifications(event)" title="Notifications">
@@ -1933,6 +2011,17 @@
                             <!-- سيتم رسم الأعمدة برمجياً هنا -->
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- مخطط جانت -->
+            <section id="gantt" class="section">
+                <div class="page-header">
+                    <h1 style="margin-bottom: 0;" data-i18n="ganttTitle">مخطط جانت الزمني للمشاريع</h1>
+                </div>
+                <div class="table-container"
+                    style="padding: 20px; overflow-x: auto; background: var(--card-bg); height: 100%;">
+                    <div class="gantt-target" id="gantt-target" style="width: 100%;"></div>
                 </div>
             </section>
 
@@ -2059,23 +2148,14 @@
 
             <input type="text" id="tTitleNew" data-i18n-placeholder="addTaskTitlePlh" placeholder="عنوان المهمة">
 
-            <select id="tTypeNew" onchange="updateStaffListNew()">
+            <select id="tTypeNew">
                 <option value="" data-i18n="selTeamPlh">-- القسم --</option>
                 <option value="3D">3D</option>
                 <option value="unreal engine">Unreal Engine</option>
                 <option value="Code">Code</option>
             </select>
 
-            <div style="margin-bottom: 15px;">
-                <label style="font-size: 0.8rem; color: var(--blue-grey); margin-bottom: 8px; display: block;"
-                    data-i18n="chooseAssignees">اختيار المسؤولين</label>
-                <div id="sNameNewContainer" class="checkbox-group">
-                    <div style="color: var(--muted-blue); font-size: 0.8rem; padding: 5px;" data-i18n="chooseTeamFirst">
-                        يرجى اختيار القسم أولاً...</div>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; margin-top: 15px;">
                 <input type="number" id="eHoursNew" data-i18n-placeholder="estHrsPlh" placeholder="ساعات العمل المتوقعة"
                     min="1" style="flex: 1; margin-bottom: 0;">
                 <select id="tPriorityNew" style="flex: 1; margin-bottom: 0;">
@@ -2174,7 +2254,8 @@
                         placeholder="عنوان المهمة">
                     <div style="font-size: 0.85rem; color: var(--blue-grey); margin-top:5px; padding-inline-start:5px;">
                         <span data-i18n="currStatusLbl">الحالة الحالية:</span> <span id="dt-status-text"
-                            style="color: var(--light-blue); font-weight:600;">الانتظار</span></div>
+                            style="color: var(--light-blue); font-weight:600;">الانتظار</span>
+                    </div>
                 </div>
             </div>
 
@@ -2296,7 +2377,7 @@
 
         window.activeProjectFilter = null;
         window.searchTerm = "";
-        window.activeMonthFilter = ""; // إزالة الفلتر الافتراضي لإظهار كل البيانات
+        window.activeMonthFilter = "";
 
         window.chartStatus = null;
         window.chartTopProjects = null;
@@ -2333,7 +2414,7 @@
                 login: "تسجيل الدخول", loginSub: "Blue Design Studio Cloud", emailPlh: "البريد الإلكتروني", passPlh: "كلمة المرور",
                 loginBtn: "دخول للنظام", noAccount: "ليس لديك حساب؟", createAccountBtn: "إنشاء حساب", forgotPass: "نسيت كلمة المرور؟",
                 resetMsg: "أدخل بريدك لإرسال رابط الاستعادة.", sendLinkBtn: "إرسال الرابط", backToLogin: "العودة للدخول",
-                navTasks: "المهام", navAnalytics: "التحليلات", navReports: "التقارير", logoutBtn: "خروج", themeLbl: "المظهر", langLbl: "Language", notifBtn: "التنبيهات",
+                navTasks: "المهام", navAnalytics: "التحليلات", navReports: "التقارير", navGantt: "مخطط المشاريع", logoutBtn: "خروج", themeLbl: "المظهر", langLbl: "Language", notifBtn: "التنبيهات",
                 workspaceTitle: "مساحة العمل", workspaceSub: "تتبع وإدارة المشاريع الجارية", searchPlh: "🔍 ابحث عن اسم مهمة أو مشروع...",
                 clearFiltersBtn: "مسح الفلاتر ✖", filterProjTitle: "📁 تصفية بالمشروع", archiveLabel: "سجل الأرشيف (تاريخ الإنشاء):",
                 colPending: "انتظار", colInProgress: "تنفيذ", colReview: "قيد المراجعة", colCompleted: "مكتملة", addColBtn: "➕ عمود جديد",
@@ -2355,13 +2436,13 @@
                 execReportLabel: "ملفات مشروع:", lastUpdatedBy: "تاريخ الإضافة:", typeReportHere: "لم يتم إضافة ملف بعد. يرجى الضغط على الأيقونة 📄 في الأعلى لتبدأ.",
                 fullscreenBtn: "تكبير", openExtBtn: "🔗 فتح في نافذة جديدة",
                 sortDesc: "الأعلى إنجازاً ⬇️", sortAsc: "الأقل إنجازاً ⬆️",
-                noNotif: "لا توجد إشعارات جديدة", clearNotif: "تحديد كمقروء", notifTitle: "الإشعارات"
+                noNotif: "لا توجد إشعارات جديدة", clearNotif: "تحديد كمقروء", notifTitle: "الإشعارات", ganttTitle: "مخطط جانت الزمني للمشاريع"
             },
             en: {
                 login: "Login", loginSub: "Blue Design Studio Cloud", emailPlh: "Email Address", passPlh: "Password",
                 loginBtn: "Login to System", noAccount: "Don't have an account?", createAccountBtn: "Create Account", forgotPass: "Forgot Password?",
                 resetMsg: "Enter email to send reset link.", sendLinkBtn: "Send Link", backToLogin: "Back to Login",
-                navTasks: "Tasks", navAnalytics: "Analytics", navReports: "Reports", logoutBtn: "Logout", themeLbl: "Theme", langLbl: "عربي", notifBtn: "Notifications",
+                navTasks: "Tasks", navAnalytics: "Analytics", navReports: "Reports", navGantt: "Gantt Chart", logoutBtn: "Logout", themeLbl: "Theme", langLbl: "عربي", notifBtn: "Notifications",
                 workspaceTitle: "Workspace", workspaceSub: "Track and manage ongoing projects", searchPlh: "🔍 Search task or project name...",
                 clearFiltersBtn: "Clear Filters ✖", filterProjTitle: "📁 Filter by Project", archiveLabel: "Archive (Creation Date):",
                 colPending: "Pending", colInProgress: "In Progress", colReview: "Under Review", colCompleted: "Completed", addColBtn: "➕ Add Column",
@@ -2383,12 +2464,11 @@
                 execReportLabel: "Files for:", lastUpdatedBy: "Added On:", typeReportHere: "No file added yet. Please click the 📄 icon above to start.",
                 fullscreenBtn: "Fullscreen", openExtBtn: "🔗 Open in new window",
                 sortDesc: "Highest % ⬇️", sortAsc: "Lowest % ⬆️",
-                noNotif: "No new notifications", clearNotif: "Mark as read", notifTitle: "Notifications"
+                noNotif: "No new notifications", clearNotif: "Mark as read", notifTitle: "Notifications", ganttTitle: "Projects Gantt Timeline"
             }
         };
 
         window.currentLang = localStorage.getItem('blue_lang') || 'ar';
-        // الوضع الفاتح هو الافتراضي
         window.currentTheme = localStorage.getItem('blue_theme') || 'light';
 
         document.documentElement.setAttribute('data-theme', window.currentTheme);
@@ -2945,12 +3025,85 @@
             return `<span class="avatar" style="background-color: ${color};" title="${name}">${char}</span>`;
         };
 
+        window.renderGanttChart = () => {
+            if (typeof Gantt === 'undefined') return;
+            const arr = window.getFilteredTasks(true);
+            const container = document.getElementById('gantt-target');
+            if (!container) return;
+
+            if (arr.length === 0) {
+                container.innerHTML = '<h3 style="color:var(--text);text-align:center;padding:50px;">لا توجد مشاريع لعرضها</h3>';
+                return;
+            }
+
+            const projMap = {};
+            arr.forEach(t => {
+                if (!projMap[t.projectName]) {
+                    projMap[t.projectName] = {
+                        id: 'Project_' + t.projectName.replace(/\s+/g, '_'),
+                        name: t.projectName,
+                        start: t.createdAt || Date.now(),
+                        end: t.completedAt || t.dueDate ? new Date(t.dueDate).getTime() : Date.now() + (7 * 24 * 60 * 60 * 1000),
+                        totalSub: 0,
+                        doneSub: 0
+                    };
+                }
+
+                const p = projMap[t.projectName];
+                if (t.createdAt && t.createdAt < p.start) p.start = t.createdAt;
+
+                let taskEnd = t.completedAt || (t.dueDate ? new Date(t.dueDate).getTime() : Date.now());
+                if (taskEnd > p.end) p.end = taskEnd;
+
+                if (t.checklist) {
+                    Object.values(t.checklist).forEach(item => {
+                        p.totalSub++;
+                        if (item.done) p.doneSub++;
+                    });
+                }
+            });
+
+            const tasksForGantt = Object.values(projMap).map(p => {
+                const progress = p.totalSub > 0 ? Math.round((p.doneSub / p.totalSub) * 100) : 0;
+                const format = (d) => new Date(d).toISOString().split('T')[0];
+                let endDate = format(p.end);
+                let startDate = format(p.start);
+                if (startDate === endDate) {
+                    endDate = format(p.end + (24 * 60 * 60 * 1000));
+                }
+
+                return {
+                    id: p.id,
+                    name: p.name,
+                    start: startDate,
+                    end: endDate,
+                    progress: progress,
+                    custom_class: 'blue-gantt-bar'
+                };
+            });
+
+            container.innerHTML = '';
+            new Gantt("#gantt-target", tasksForGantt, {
+                header_height: 50,
+                column_width: 30,
+                step: 24,
+                view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
+                bar_height: 25,
+                bar_corner_radius: 6,
+                arrow_curve: 5,
+                padding: 18,
+                view_mode: 'Day',
+                language: window.currentLang === 'ar' ? 'ar' : 'en',
+            });
+        };
+
         window.refreshAllViews = () => {
             window.renderProjectsSidebar();
             window.renderBoard();
             if (window.isManager || window.isTeamLead) {
                 setTimeout(() => {
                     if (document.getElementById('dashboard').classList.contains('active')) window.updateAdminStats();
+                    if (document.getElementById('gantt').classList.contains('active')) window.renderGanttChart();
                     window.prepareReportData();
                 }, 50);
             }
@@ -3034,7 +3187,6 @@
                 let assignedToArray = task.assignedTo ? (Array.isArray(task.assignedTo) ? task.assignedTo : [task.assignedTo]) : [];
                 let avatarsHtml = assignedToArray.map(name => window.getAvatarHTML(name)).join('');
 
-                // Use _id injected directly from Firebase key — 100% reliable
                 const taskId = task._id;
 
                 const card = document.createElement('div');
@@ -3084,7 +3236,6 @@
             document.getElementById('tTitleNew').value = "";
             document.getElementById('eHoursNew').value = "";
             document.getElementById('tPriorityNew').value = "low";
-            document.getElementById('sNameNewContainer').innerHTML = `<div style="color: var(--muted-blue); font-size: 0.8rem; padding: 5px;">${t("chooseTeamFirst")}</div>`;
             document.getElementById('projectSuggestions').style.display = 'none';
 
             const container = document.getElementById('hashtagContainerNew');
@@ -3102,28 +3253,17 @@
             document.getElementById('addTaskModal').classList.add('active');
         };
 
-        window.updateStaffListNew = () => {
-            const team = document.getElementById('tTypeNew').value;
-            const container = document.getElementById('sNameNewContainer');
-            container.innerHTML = '';
-            if (window.staffByTeam[team]) {
-                window.staffByTeam[team].forEach(e => { container.innerHTML += `<label><input type="checkbox" value="${e}"> ${window.getAvatarHTML(e)} ${e}</label>`; });
-            }
-        };
-
         window.saveNewTask = () => {
-            const checkedBoxes = document.querySelectorAll('#sNameNewContainer input[type="checkbox"]:checked');
-            const assignees = Array.from(checkedBoxes).map(cb => cb.value);
             const data = {
                 projectName: document.getElementById('pNameNew').value.replace('#', '').trim(),
                 title: document.getElementById('tTitleNew').value.trim(),
-                assignedTo: assignees,
-                team: document.getElementById('tTypeNew').value,
+                assignedTo: [], // إزالة تعيين المسؤولين من الصفحة الرئيسية
+                team: "",
                 estHours: parseFloat(document.getElementById('eHoursNew').value) || 0,
                 priority: document.getElementById('tPriorityNew').value || 'low',
                 status: 'pending', createdAt: Date.now(), description: "", dueDate: "", comments: {}, checklist: {}
             };
-            if (!data.projectName || !data.title || assignees.length === 0) return alert("Required data missing.");
+            if (!data.projectName || !data.title) return alert("Required data missing.");
 
             const { ref, push, db } = window.firebaseTools;
             push(ref(db, 'tasks'), data);
@@ -3165,13 +3305,11 @@
 
             const query = textBefore.substring(atIdx + 1).toLowerCase();
 
-            // Get assignees of the currently open task
             const taskId = document.getElementById('dt-id').value;
             const task = window.allTasks[taskId];
             let candidates = [];
             if (task) {
                 let assignedToArray = task.assignedTo ? (Array.isArray(task.assignedTo) ? task.assignedTo : [task.assignedTo]) : [];
-                // Start with assignees, then add all staff if needed
                 const allStaff = Object.values(window.whitelist).map(u => u.name);
                 candidates = [...new Set([...assignedToArray, ...allStaff])];
             } else {
@@ -3217,7 +3355,6 @@
             }
         };
 
-        // Close mention dropdown when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.comment-input-wrap')) window.closeMentionDropdown();
         });
@@ -3238,12 +3375,12 @@
             const input = document.getElementById('pNameNew');
             const val = input.value;
             const suggestionsBox = document.getElementById('projectSuggestions');
-            
+
             if (val.includes('#') || val.length >= 1) {
                 const query = val.replace('#', '').trim().toLowerCase();
                 const projects = [...new Set(Object.values(window.allTasks).filter(t => t && t.projectName).map(t => t.projectName))];
                 const matches = projects.filter(p => p.toLowerCase().includes(query)).slice(0, 5);
-                
+
                 if (matches.length > 0) {
                     suggestionsBox.innerHTML = matches.map(p => `<div class="suggestion-item" onmousedown="document.getElementById('pNameNew').value='${p.replace(/'/g, "\\'")}';
                         document.getElementById('projectSuggestions').style.display='none';"># ${p}</div>`).join('');
@@ -3340,7 +3477,6 @@
                 const { ref, update, db } = window.firebaseTools;
                 update(ref(db, `users/${window.currentUserEmailSafe}`), { avatar: base64Str })
                     .then(() => {
-                        // The onValue listener on users will catch this and update the avatar
                         console.log("Avatar updated");
                     })
                     .catch(err => {
@@ -3363,12 +3499,15 @@
                 const isChecked = item.done ? 'checked' : '';
                 const isAssignedToMe = item.assignedToItem === window.currentUserName;
 
-                const canEdit = hasAdminRights || isAssignedToMe || !item.assignedToItem;
-                const disabled = canEdit ? '' : 'disabled';
+                const canCheck = hasAdminRights || isAssignedToMe || !item.assignedToItem;
+                const disabled = canCheck ? '' : 'disabled';
 
                 let noteHtml = item.note ? `<div class="checklist-note-display"><b>${item.noteBy}:</b> ${item.note}</div>` : '';
                 let assignedHtml = item.assignedToItem ? `<span style="font-size: 0.75rem; color: var(--blue-grey);">موجه لـ: <b>${item.assignedToItem}</b></span>` : '';
                 let hoursHtml = item.actualHours ? `<span class="hours-badge-small">${item.actualHours} ${t("hrsSymbol")}</span>` : '';
+
+                // زر الحذف محمي للمدراء وقادة الفرق فقط
+                const deleteBtn = hasAdminRights ? `<button onclick="window.deleteChecklistItem('${key}')" style="background: none; border: none; cursor: pointer; color: var(--red-danger);" title="حذف">✖</button>` : '';
 
                 container.innerHTML += `
                 <div class="checklist-item">
@@ -3382,7 +3521,7 @@
                             ${assignedHtml}
                             <span style="font-size: 0.75rem; color: var(--blue-grey);">أضيف بـ: <b>${item.addedBy}</b></span>
                             <button onclick="window.editChecklistNote('${key}', '${(item.note || '').replace(/'/g, "\\'")}')" style="background: none; border: none; cursor: pointer; color: var(--amber);" title="إضافة/تعديل ملاحظة">📝</button>
-                            <button onclick="window.deleteChecklistItem('${key}')" style="background: none; border: none; cursor: pointer; color: var(--red-danger);" title="حذف">✖</button>
+                            ${deleteBtn}
                         </div>
                     </div>
                     ${noteHtml}
@@ -3397,7 +3536,8 @@
             list.innerHTML = '';
             if (!comments) return;
 
-            const sortedKeys = Object.keys(comments).sort((a, b) => comments[a].time - comments[b].time);
+            // ترتيب من الأحدث إلى الأقدم (Newest first)
+            const sortedKeys = Object.keys(comments).sort((a, b) => comments[b].time - comments[a].time);
 
             sortedKeys.forEach(key => {
                 const c = comments[key];
@@ -3416,7 +3556,6 @@
                 </div>
             `;
             });
-            list.scrollTop = list.scrollHeight;
         };
 
         window.exportExcel = () => {
@@ -3476,7 +3615,9 @@
             const { ref, update, db } = window.firebaseTools;
             update(ref(db, `tasks/${document.getElementById('dt-id').value}/checklist/${itemId}`), { done: !currentStatus });
         };
+
         window.deleteChecklistItem = (itemId) => {
+            if (!window.isManager && !window.isTeamLead) return alert("غير مصرح لك بالحذف.");
             const { ref, remove, db } = window.firebaseTools;
             remove(ref(db, `tasks/${document.getElementById('dt-id').value}/checklist/${itemId}`));
         };
@@ -3495,6 +3636,7 @@
         };
 
         window.deleteTaskFromDetails = () => {
+            if (!window.isManager && !window.isTeamLead) return alert("غير مصرح لك بالحذف.");
             if (!confirm("Delete?")) return;
             const { ref, remove, db } = window.firebaseTools;
             remove(ref(db, `tasks/${document.getElementById('dt-id').value}`)).then(() => window.closeDetailsModal());
@@ -3582,7 +3724,17 @@
                     document.getElementById('user-role').innerText = window.isManager ? "Manager" : (window.isTeamLead ? `Team Lead (${userData.role})` : `Team ${userData.role}`);
 
                     const hasAdminRights = window.isManager || window.isTeamLead;
-                    document.querySelectorAll('.admin-only').forEach(el => el.style.display = hasAdminRights ? 'flex' : 'none');
+                    document.querySelectorAll('.admin-only').forEach(el => {
+                        if (!hasAdminRights) { el.style.display = 'none'; return; }
+                        // Restore appropriate display type based on element tag/class
+                        if (el.tagName === 'BUTTON') {
+                            el.style.display = el.classList.contains('btn-add-circle') ? 'flex' : 'inline-flex';
+                        } else if (el.tagName === 'SELECT') {
+                            el.style.display = 'block';
+                        } else {
+                            el.style.display = 'flex';
+                        }
+                    });
                     document.getElementById('dt-team').disabled = !hasAdminRights;
 
                     onValue(ref(db, 'users'), (userSnap) => {
@@ -3649,6 +3801,9 @@
 
                     if (item.dataset.target === 'dashboard') {
                         setTimeout(() => { if (window.isManager || window.isTeamLead) window.updateAdminStats(); }, 50);
+                    }
+                    if (item.dataset.target === 'gantt') {
+                        setTimeout(() => { if (window.isManager || window.isTeamLead) window.renderGanttChart(); }, 50);
                     }
                     if (item.dataset.target === 'reports') {
                         if (window.isManager || window.isTeamLead) window.prepareReportData();
