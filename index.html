@@ -12,10 +12,11 @@
   <!-- Chart.js DataLabels Plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
   
-  <!-- مكتبات تصدير PDF و Excel -->
+  <!-- مكتبات تصدير PDF و Excel و تحويل المحرر لصور -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -165,7 +166,7 @@
     /* الأزرار العامة */
     .btn-main { background: var(--accent); color: #fff; border: none; padding: 12px 20px; border-radius: var(--radius); cursor: pointer; font-weight: 700; font-size: 0.95rem; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; justify-content: center; font-family: inherit; }
     .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(59, 164, 254, 0.3); }
-    .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 12px 20px; border-radius: var(--radius); cursor: pointer; font-weight: 600; transition: 0.3s; font-family: inherit; }
+    .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 8px 15px; border-radius: var(--radius); cursor: pointer; font-weight: 600; transition: 0.3s; font-family: inherit; font-size: 0.85rem;}
     .btn-outline:hover { background: rgba(59, 164, 254, 0.1); }
     .btn-save-big { background: var(--green-success); color: #fff; font-size: 1.1rem; font-weight: 700; padding: 12px 35px; border-radius: 12px; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(52, 211, 153, 0.3); font-family: inherit; }
     .btn-save-big:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(52, 211, 153, 0.5); }
@@ -256,12 +257,12 @@
     .comp-track { width: 100%; height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; }
     .comp-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease-out; }
 
-    /* قسم التقارير */
+    /* قسم التقارير الشاملة */
     #reports { overflow-y: auto; padding-bottom: 20px; }
-    .reports-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: start; }
+    .reports-grid { display: flex; flex-direction: column; gap: 30px; align-items: stretch; width: 100%; }
     .report-section-title { color: var(--text); font-size: 1.1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-    .table-container { background: var(--card-bg); padding: 0; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    table { width: 100%; min-width: 500px; border-collapse: collapse; text-align: start; }
+    .table-container { background: var(--card-bg); padding: 0; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 100%; }
+    table { width: 100%; border-collapse: collapse; text-align: start; }
     th { padding: 16px 20px; color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 10; cursor: pointer; transition: 0.2s; white-space: nowrap; user-select: none; }
     th:hover { background: rgba(59, 164, 254, 0.05); }
     th.sort-asc::after { content: ' ▲'; font-size: 0.7rem; color: var(--light-blue); }
@@ -269,13 +270,24 @@
     td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.95rem; }
     tbody tr:hover { background: var(--bg); }
 
+    /* --- محرر التقارير التنفيذية للمشاريع --- */
+    .report-modal { background: var(--card-bg); width: 100%; max-width: 900px; height: 85vh; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+    .report-header { padding: 20px 30px; border-bottom: 1px solid var(--border); background: var(--bg); display: flex; justify-content: space-between; align-items: center;}
+    .editor-toolbar { padding: 10px 30px; background: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; gap: 10px; flex-wrap: wrap; }
+    .editor-btn { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
+    .editor-btn:hover { background: rgba(59, 164, 254, 0.1); border-color: var(--accent); color: var(--accent); }
+    .rich-editor { flex: 1; padding: 30px; overflow-y: auto; background: var(--card-bg); color: var(--text); font-family: inherit; line-height: 1.8; font-size: 1rem; outline: none; }
+    .rich-editor[contenteditable="false"] { background: var(--bg); cursor: not-allowed; }
+    .rich-editor img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; border: 1px solid var(--border); }
+    .rich-editor ul, .rich-editor ol { padding-inline-start: 20px; margin-bottom: 15px; }
+    .rich-editor h1, .rich-editor h2 { color: var(--accent); margin-top: 20px; margin-bottom: 10px; }
+
     .admin-only { display: none; }
     .manager-lock { position: relative; }
     .manager-lock::after { content: '🔒'; position: absolute; inset-inline-start: 10px; top: -5px; font-size: 0.6rem; color: var(--red-danger); opacity: 0.8; }
 
     /* Media Queries */
     @media (max-width: 1024px) {
-        .reports-grid { grid-template-columns: 1fr; }
         .dashboard-grid { grid-template-columns: 1fr; }
         .board { grid-template-columns: 1fr; overflow-y: auto; overflow-x: hidden; height: auto; }
         .kanban-layout { flex-direction: column; overflow-y: auto;}
@@ -443,6 +455,7 @@
         </div>
         
         <div class="reports-grid">
+            <!-- الجدول الأول: تقرير المشاريع -->
             <div>
                 <h3 class="report-section-title">📁 <span data-i18n="projReportTitle">تقرير سير المشاريع</span></h3>
                 <div class="table-container">
@@ -454,6 +467,7 @@
                                 <th onclick="sortProjTable('tasks')" data-i18n="thTasks">عدد المهام ↕</th>
                                 <th onclick="sortProjTable('estHours')" data-i18n="thEstHrs">ساعات مخططة ↕</th>
                                 <th onclick="sortProjTable('actHours')" data-i18n="thActHrs">ساعات فعلية ↕</th>
+                                <th data-i18n="thExecReport">التقرير التنفيذي</th>
                             </tr>
                         </thead>
                         <tbody id="report-projects-body"></tbody>
@@ -461,6 +475,7 @@
                 </div>
             </div>
 
+            <!-- الجدول الثاني: تقرير الموظفين -->
             <div>
                 <h3 class="report-section-title">👥 <span data-i18n="empReportTitle">تقرير أداء الموظفين</span></h3>
                 <div class="table-container">
@@ -516,6 +531,42 @@
     </div>
   </div>
 
+  <!-- نافذة التقرير التنفيذي للمشروع (المحرر الذكي) -->
+  <div class="modal" id="projectReportModal">
+      <div class="report-modal">
+          <div class="report-header">
+              <div>
+                  <h2 style="color: var(--text); font-size: 1.4rem; margin-bottom: 5px;">
+                      <span data-i18n="execReportLabel">التقرير التنفيذي لمشروع:</span> 
+                      <span id="pr-project-name" style="color: var(--accent);"></span>
+                  </h2>
+                  <div style="font-size: 0.85rem; color: var(--blue-grey);">
+                      <span data-i18n="lastUpdatedBy">آخر تعديل بواسطة:</span> <span id="pr-last-updated">-</span>
+                  </div>
+              </div>
+              <div style="display: flex; gap: 15px;">
+                  <button id="btn-export-pdf" class="btn-outline" onclick="exportProjectReportPDF()">📄 تصدير PDF</button>
+                  <button id="btn-save-report" class="btn-save-big admin-only" onclick="saveProjectReport()">حفظ التقرير</button>
+                  <button onclick="closeProjectReport()" style="background: none; border: none; font-size: 1.8rem; color: var(--blue-grey); cursor: pointer;">✖</button>
+              </div>
+          </div>
+          
+          <div class="editor-toolbar admin-only" id="pr-toolbar">
+              <button class="editor-btn" onclick="formatDoc('bold')" title="Bold"><b>B</b></button>
+              <button class="editor-btn" onclick="formatDoc('italic')" title="Italic"><i>I</i></button>
+              <button class="editor-btn" onclick="formatDoc('underline')" title="Underline"><u>U</u></button>
+              <button class="editor-btn" onclick="formatDoc('insertUnorderedList')" title="Bullet List">• List</button>
+              <button class="editor-btn" onclick="formatDoc('insertOrderedList')" title="Number List">1. List</button>
+              <button class="editor-btn" onclick="addReportImage()" style="color: var(--accent); border-color: var(--accent);" title="Insert Image via Link">📷 إضافة صورة (رابط)</button>
+              <div style="flex: 1;"></div>
+              <span style="font-size: 0.8rem; color: var(--blue-grey); align-self: center;">💡 ضع رابط الصورة فقط لتقليل مساحة التخزين.</span>
+          </div>
+
+          <!-- منطقة الكتابة -->
+          <div id="pr-editor" class="rich-editor" contenteditable="true" data-i18n-placeholder="typeReportHere">اكتب تقرير المشروع هنا...</div>
+      </div>
+  </div>
+
   <!-- نافذة تفاصيل المهمة -->
   <div class="modal" id="taskDetailsModal">
     <div class="trello-modal">
@@ -531,7 +582,7 @@
                     </div>
                 </div>
                 <div style="display:flex; align-items:center; gap: 15px;">
-                    <button id="btn-save-details" class="btn-save-big" onclick="saveTaskDetails()" data-i18n="saveBtn">حفظ التعديلات</button>
+                    <button id="btn-save-details" class="btn-save-big admin-only" onclick="saveTaskDetails()" data-i18n="saveBtn">حفظ التعديلات</button>
                     <button onclick="closeDetailsModal()" style="background: none; border: none; font-size: 1.8rem; color: var(--blue-grey); cursor: pointer; transition: 0.2s;">✖</button>
                 </div>
             </div>
@@ -597,17 +648,14 @@
 
   <script type="module">
     // --- Security Configuration ---
-    // ضع آي بي (IP) الشركة هنا بين علامات تنصيص. 
-    // إذا تركته فارغاً [] فلن يتم حظر أحد.
-    // مثال: const ALLOWED_IPS = ['192.168.1.1', '8.8.8.8'];
     const ALLOWED_IPS = []; 
 
-    // التسجيل الآمن لمكتبة الأرقام
     if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined') {
         Chart.register(ChartDataLabels);
     }
 
     let allTasks = {};
+    let allProjectReports = {}; // لتخزين التقارير
     let isManager = false;
     let isTeamLead = false;
     let currentUserName = "";
@@ -652,7 +700,7 @@
             dashboardTitle: "لوحة المعلومات والتحليلات الاستراتيجية", statTasks: "إجمالي المهام", statHours: "الساعات التقديرية (الكلية)", statProjects: "مشاريع نشطة",
             chartTaskStatus: "حالة المهام الكلية", chartProjComp: "نسبة إنجاز المشاريع الفعّالة", chartTopProj: "حجم المشاريع (عدد المهام)", chartYearly: "حركة المشاريع خلال السنة",
             reportsTitle: "التقارير الشاملة", exportBtn: "⬇ تصدير الجداول لـ Excel",
-            projReportTitle: "تقرير سير المشاريع", thProject: "المشروع ↕", thTeam: "القسم (Team) ↕", thTasks: "عدد المهام ↕", thEstHrs: "ساعات مخططة ↕", thActHrs: "ساعات فعلية ↕",
+            projReportTitle: "تقرير سير المشاريع", thProject: "المشروع ↕", thTeam: "القسم (Team) ↕", thTasks: "عدد المهام ↕", thEstHrs: "ساعات مخططة ↕", thActHrs: "ساعات فعلية ↕", thExecReport: "التقرير التنفيذي",
             empReportTitle: "تقرير أداء الموظفين", thEmpName: "اسم الموظف ↕", thEmpTeam: "القسم التابع له ↕", thEmpTasks: "مهام موكلة ↕",
             addTaskTitle: "إضافة مهمة سريعة", addProjPlh: "اسم المشروع (أو اكتب # للبحث)", addTaskTitlePlh: "عنوان المهمة", selTeamPlh: "-- القسم --",
             chooseAssignees: "اختيار المسؤولين", chooseTeamFirst: "يرجى اختيار القسم أولاً...", estHrsPlh: "ساعات العمل المتوقعة", createTaskBtn: "إنشاء المهمة", cancelBtn: "إلغاء",
@@ -661,7 +709,8 @@
             commentsTitle: "التقارير والتعليقات الميدانية", commentPlh: "اكتب تقريراً أو ملاحظة للمدير والزملاء...", sendBtn: "إرسال",
             assignmentSettings: "إعدادات التكليف", teamLbl: "القسم (Team)", assigneesLbl: "المسؤولون (Assignees)", dueDateLbl: "تاريخ التسليم المتوقع (Due Date)", estHrsLbl: "الساعات التقديرية (المخططة)",
             delTaskBtn: "حذف المهمة نهائياً 🗑️",
-            hrsSymbol: "س", bySymbol: "بواسطة:", toSymbol: "موجه لـ:", noteSymbol: "📝 ملاحظة من:"
+            hrsSymbol: "س", bySymbol: "بواسطة:", toSymbol: "موجه لـ:", noteSymbol: "📝 ملاحظة من:",
+            execReportLabel: "التقرير التنفيذي لمشروع:", lastUpdatedBy: "آخر تحديل بواسطة:", typeReportHere: "اكتب تقرير المشروع هنا... (متاح للمدراء والتيم ليد فقط)"
         },
         en: {
             login: "Login", loginSub: "Blue Design Studio Cloud", emailPlh: "Email Address", passPlh: "Password",
@@ -674,7 +723,7 @@
             dashboardTitle: "Strategic Analytics Dashboard", statTasks: "Total Tasks", statHours: "Total Est. Hours", statProjects: "Active Projects",
             chartTaskStatus: "Overall Tasks Status", chartProjComp: "Project Completion (%)", chartTopProj: "Project Volume (Tasks Count)", chartYearly: "Projects Flow (Current Year)",
             reportsTitle: "Comprehensive Reports", exportBtn: "⬇ Export Tables to Excel",
-            projReportTitle: "Projects Progress Report", thProject: "Project ↕", thTeam: "Team ↕", thTasks: "Tasks ↕", thEstHrs: "Est. Hours ↕", thActHrs: "Act. Hours ↕",
+            projReportTitle: "Projects Progress Report", thProject: "Project ↕", thTeam: "Team ↕", thTasks: "Tasks ↕", thEstHrs: "Est. Hours ↕", thActHrs: "Act. Hours ↕", thExecReport: "Exec. Report",
             empReportTitle: "Employees Performance Report", thEmpName: "Employee Name ↕", thEmpTeam: "Team ↕", thEmpTasks: "Assigned Tasks ↕",
             addTaskTitle: "Quick Add Task", addProjPlh: "Project Name (or type # to search)", addTaskTitlePlh: "Task Title", selTeamPlh: "-- Team --",
             chooseAssignees: "Select Assignees", chooseTeamFirst: "Please select a team first...", estHrsPlh: "Estimated Hours", createTaskBtn: "Create Task", cancelBtn: "Cancel",
@@ -683,7 +732,8 @@
             commentsTitle: "Field Reports & Comments", commentPlh: "Write a report or note for managers...", sendBtn: "Send",
             assignmentSettings: "Assignment Settings", teamLbl: "Team", assigneesLbl: "Assignees", dueDateLbl: "Due Date", estHrsLbl: "Estimated Hours",
             delTaskBtn: "Delete Task Permanently 🗑️",
-            hrsSymbol: "h", bySymbol: "By:", toSymbol: "To:", noteSymbol: "📝 Note from:"
+            hrsSymbol: "h", bySymbol: "By:", toSymbol: "To:", noteSymbol: "📝 Note from:",
+            execReportLabel: "Executive Report for:", lastUpdatedBy: "Last Updated By:", typeReportHere: "Write project report here... (Managers & Team Leads only)"
         }
     };
 
@@ -702,8 +752,8 @@
     
     const t = (key) => i18n[currentLang][key] || key;
     const sanitizeEmail = (email) => email.replace(/\./g, ',');
+    const sanitizeProjName = (name) => name.replace(/[\.\#\$\[\]]/g, '_'); // لتخزين اسم المشروع في الفايربيس
 
-    // الفلترة الشاملة
     function taskMatchesMonthFilter(task) {
         if(!activeMonthFilter) return true; 
         const date = new Date(task.createdAt || Date.now());
@@ -727,7 +777,6 @@
         });
     }
 
-    // دوال ترتيب الجداول
     function updateSortIcons(tableId, state) {
         const ths = document.querySelectorAll(`#${tableId} th`);
         ths.forEach(th => { th.classList.remove('sort-asc', 'sort-desc'); });
@@ -737,7 +786,84 @@
     }
     window.updateSortIcons = updateSortIcons;
 
-    // --- دوال التقارير ---
+    // --- دوال التقارير التنفيذية للمشاريع (Rich Text Editor) ---
+    window.formatDoc = (cmd, value=null) => { document.execCommand(cmd, false, value); };
+    
+    window.addReportImage = () => {
+        const url = prompt("يرجى إدخال الرابط المباشر للصورة (URL):");
+        if(url) formatDoc('insertImage', url);
+    };
+
+    window.openProjectReport = (projectName) => {
+        const safeKey = sanitizeProjName(projectName);
+        const reportData = allProjectReports[safeKey];
+        
+        document.getElementById('pr-project-name').innerText = projectName;
+        document.getElementById('pr-project-name').setAttribute('data-raw-name', projectName); // للحفظ لاحقاً
+        
+        const editor = document.getElementById('pr-editor');
+        const hasAdminRights = isManager || isTeamLead;
+        
+        if (reportData && reportData.content) {
+            editor.innerHTML = reportData.content;
+            const d = new Date(reportData.lastUpdatedAt).toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+            document.getElementById('pr-last-updated').innerText = `${reportData.lastUpdatedBy} (${d})`;
+        } else {
+            editor.innerHTML = '';
+            document.getElementById('pr-last-updated').innerText = '-';
+        }
+
+        if(!hasAdminRights) {
+            editor.setAttribute('contenteditable', 'false');
+        } else {
+            editor.setAttribute('contenteditable', 'true');
+        }
+
+        document.getElementById('projectReportModal').classList.add('active');
+    };
+
+    window.closeProjectReport = () => {
+        document.getElementById('projectReportModal').classList.remove('active');
+    };
+
+    window.saveProjectReport = () => {
+        const rawName = document.getElementById('pr-project-name').getAttribute('data-raw-name');
+        const safeKey = sanitizeProjName(rawName);
+        const content = document.getElementById('pr-editor').innerHTML;
+        const { ref, update, db } = window.firebaseTools;
+
+        update(ref(db, `projectReports/${safeKey}`), {
+            content: content,
+            lastUpdatedBy: currentUserName,
+            lastUpdatedAt: Date.now()
+        }).then(() => {
+            const btn = document.getElementById('btn-save-report');
+            const oldT = btn.innerText;
+            btn.innerText = "✔️";
+            btn.style.background = "var(--green-success)"; 
+            setTimeout(() => { btn.innerText = oldT; btn.style.background = "var(--green-success)"; }, 2000);
+        });
+    };
+
+    window.exportProjectReportPDF = () => {
+        const projectName = document.getElementById('pr-project-name').innerText;
+        const element = document.getElementById('pr-editor');
+        
+        html2canvas(element, { scale: 2 }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            
+            doc.text(`Executive Report: ${projectName}`, 10, 10);
+            doc.addImage(imgData, 'PNG', 0, 20, pdfWidth, pdfHeight);
+            doc.save(`Report_${projectName}.pdf`);
+        });
+    };
+
+
+    // --- دوال التقارير الإحصائية ---
     function prepareReportData() {
         try {
             const arr = getFilteredTasks();
@@ -797,12 +923,16 @@
             });
         }
         projectReportData.forEach(p => {
+            // زر التقرير التنفيذي
+            const reportBtn = `<button onclick="openProjectReport('${p.project.replace(/'/g, "\\'")}')" class="btn-outline" style="padding: 4px 10px; font-size:0.75rem;">📝 ${t("thExecReport")}</button>`;
+
             body.innerHTML += `<tr>
                 <td><span class="project-chip" style="margin:0;"># ${p.project}</span></td>
                 <td style="color: var(--blue-grey);">${p.team || '-'}</td>
                 <td>${p.tasks}</td>
                 <td>${p.estHours}</td>
                 <td style="color:var(--amber); font-weight:700;">${p.actHours}</td>
+                <td>${reportBtn}</td>
             </tr>`;
         });
         updateSortIcons('projectsTable', sortStateProj);
@@ -831,6 +961,18 @@
         updateSortIcons('employeesTable', sortStateEmp);
     }
     window.renderEmpTable = renderEmpTable;
+
+    window.sortProjTable = (key) => {
+        if(sortStateProj.key === key) sortStateProj.asc = !sortStateProj.asc;
+        else { sortStateProj.key = key; sortStateProj.asc = true; }
+        renderProjTable();
+    };
+
+    window.sortEmpTable = (key) => {
+        if(sortStateEmp.key === key) sortStateEmp.asc = !sortStateEmp.asc;
+        else { sortStateEmp.key = key; sortStateEmp.asc = true; }
+        renderEmpTable();
+    };
 
     // --- الداشبورد ---
     function renderProjectCompletion(arr) {
@@ -972,19 +1114,6 @@
     }
     window.updateAdminStats = updateAdminStats;
 
-    function getAvatarHTML(name, emailKey = null) {
-        if(!name) return '';
-        if (!emailKey) {
-            for (let e in whitelist) {
-                if (whitelist[e].name === name) { emailKey = sanitizeEmail(e); break; }
-            }
-        }
-        if (emailKey && customAvatars[emailKey]) { return `<span class="avatar" title="${name}"><img src="${customAvatars[emailKey]}" alt="${name}"></span>`; }
-        const colors = ['#3BA4FE', '#f87171', '#34d399', '#fbbf24', '#a78bfa', '#818cf8'];
-        const char = name.substring(0, 2);
-        const color = colors[char.charCodeAt(0) % colors.length];
-        return `<span class="avatar" style="background-color: ${color};" title="${name}">${char}</span>`;
-    }
 
     setTimeout(() => {
         applyI18n(); 
@@ -994,33 +1123,10 @@
         const monthInput = document.getElementById('monthFilter');
         if(monthInput) monthInput.value = activeMonthFilter;
 
-        window.toggleLang = () => { currentLang = currentLang === 'ar' ? 'en' : 'ar'; localStorage.setItem('blue_lang', currentLang); applyI18n(); refreshAllViews(); };
-        window.toggleTheme = () => { currentTheme = currentTheme === 'dark' ? 'light' : 'dark'; localStorage.setItem('blue_theme', currentTheme); document.documentElement.setAttribute('data-theme', currentTheme); refreshAllViews(); };
-
-        window.handleAvatarUpload = (event) => {
-            const file = event.target.files[0];
-            if (!file || !auth.currentUser) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = 100; canvas.height = 100;
-                    const minSize = Math.min(img.width, img.height);
-                    const startX = (img.width - minSize) / 2;
-                    const startY = (img.height - minSize) / 2;
-                    ctx.drawImage(img, startX, startY, minSize, minSize, 0, 0, 100, 100);
-                    const base64Str = canvas.toDataURL('image/jpeg', 0.8);
-                    const safeEmail = sanitizeEmail(auth.currentUser.email);
-                    set(ref(db, `users/${safeEmail}/avatar`), base64Str).then(() => {
-                        alert('تم تحديث الصورة بنجاح!');
-                    }).catch(error => { console.error("Error saving avatar:", error); });
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        };
+        // جلب تقارير المشاريع
+        onValue(ref(db, 'projectReports'), (snap) => {
+            allProjectReports = snap.val() || {};
+        });
 
         window.handleAuth = async () => { 
             const e = document.getElementById('login-email').value.trim(); 
@@ -1028,7 +1134,6 @@
             if(!e || !p) return showError("Data Required"); 
             if (!whitelist[e]) return showError("Unauthorized"); 
 
-            // IP Security Check (If configured)
             if(ALLOWED_IPS.length > 0) {
                 try {
                     const res = await fetch('https://api.ipify.org?format=json');
@@ -1483,7 +1588,6 @@
             }
         };
         
-        // التحويل بين التابات والتأكد من رسم الداشبورد
         document.querySelectorAll('.nav-item').forEach(item => {
             item.onclick = () => { 
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); 
@@ -1492,7 +1596,6 @@
                 document.getElementById(item.dataset.target).classList.add('active'); 
                 
                 if(item.dataset.target === 'dashboard') {
-                    // الانتظار قليلاً ليتم تفعيل الـ CSS (display: flex) قبل محاولة رسم الشارتس
                     setTimeout(() => { if (isManager || isTeamLead) updateAdminStats(); }, 50);
                 }
                 if(item.dataset.target === 'reports') {
