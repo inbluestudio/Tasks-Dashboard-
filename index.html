@@ -389,7 +389,7 @@
         .page-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 15px;
             flex-shrink: 0;
             flex-wrap: wrap;
@@ -400,7 +400,6 @@
         .filters-bar {
             display: flex;
             gap: 15px;
-            margin-bottom: 15px;
             flex-shrink: 0;
             flex-wrap: wrap;
         }
@@ -505,18 +504,50 @@
             color: #fff;
         }
 
+        /* السلايدر العلوي (Top Scrollbar) */
+        .top-scrollbar-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            height: 12px;
+            margin-bottom: 5px;
+            flex-shrink: 0;
+        }
+
+        .top-scrollbar-wrapper::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .top-scrollbar-wrapper::-webkit-scrollbar-track {
+            background: var(--bg);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .top-scrollbar-wrapper::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        .top-scrollbar-wrapper::-webkit-scrollbar-thumb:hover {
+            background: var(--intel-blue);
+        }
+
+        .top-scrollbar-content {
+            height: 1px;
+        }
+
         /* لوحة المهام */
         .board-container {
             flex: 1;
             overflow-x: auto;
             overflow-y: hidden;
             height: 100%;
-            padding-bottom: 20px; /* مساحة للسلايدر */
+            padding-bottom: 20px;
         }
 
-        /* تصميم السلايدر (Scrollbar) المخصص للوحة المهام */
         .board-container::-webkit-scrollbar {
-            height: 14px;
+            height: 10px;
         }
         .board-container::-webkit-scrollbar-track {
             background: var(--bg);
@@ -526,10 +557,6 @@
         .board-container::-webkit-scrollbar-thumb {
             background: var(--accent);
             border-radius: 10px;
-            border: 2px solid var(--bg);
-        }
-        .board-container::-webkit-scrollbar-thumb:hover {
-            background: var(--intel-blue);
         }
 
         .board {
@@ -537,7 +564,7 @@
             gap: 20px;
             height: 100%;
             padding-inline-end: 15px;
-            min-width: max-content; /* يضمن التمدد الأفقي لجميع الأعمدة */
+            min-width: max-content;
         }
 
         .column {
@@ -795,32 +822,6 @@
         .btn-save-big:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(52, 211, 153, 0.5);
-        }
-
-        .btn-add-circle {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            font-size: 26px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-            flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(59, 164, 254, 0.4);
-        }
-        
-        /* زر الإضافة العائم */
-        .btn-add-fab {
-            position: absolute;
-            bottom: 40px;
-            right: 40px;
-            width: 65px;
-            height: 65px;
-            font-size: 35px;
-            z-index: 99;
-            box-shadow: 0 10px 25px rgba(59, 164, 254, 0.5);
         }
 
         /* شاشة الدخول */
@@ -1410,7 +1411,7 @@
             color: var(--blue-grey);
         }
 
-        /* تصميم الـ Project Completion Widget الجديد */
+        /* تصميم الـ Project Completion Widget */
         .widget-progress-header {
             display: flex;
             align-items: center;
@@ -1633,18 +1634,6 @@
             transition: all 0.3s ease;
         }
 
-        .report-modal.fullscreen {
-            max-width: 100%;
-            height: 100vh;
-            border-radius: 0;
-            border: none;
-            margin: 0;
-        }
-
-        #projectReportModal.fullscreen-active {
-            padding: 0;
-        }
-
         .report-header {
             padding: 20px 30px;
             border-bottom: 1px solid var(--border);
@@ -1735,11 +1724,6 @@
             color: var(--accent);
         }
 
-        .editor-btn.zoom-btn {
-            padding: 8px 12px;
-            font-size: 1rem;
-        }
-
         .embed-container-body {
             flex: 1;
             padding: 20px;
@@ -1747,13 +1731,6 @@
             flex-direction: column;
             background: var(--card-bg);
             overflow: auto;
-        }
-
-        #iframe-zoom-wrapper {
-            width: 100%;
-            height: 100%;
-            transform-origin: top center;
-            transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease;
         }
 
         .iframe-container {
@@ -1770,7 +1747,7 @@
             display: flex !important;
             flex-direction: column;
             padding-bottom: 20px;
-            height: 100%; /* لكي يتمدد للنهاية */
+            height: 100%; 
         }
 
         .gantt-view-modes .btn-outline {
@@ -1977,20 +1954,25 @@
 
         <main class="main-content">
             <!-- الكانبان -->
-            <section id="kanban" class="section active" style="position: relative;">
-                <div class="page-header">
+            <section id="kanban" class="section active">
+                <div class="page-header" style="align-items: flex-start;">
                     <div>
                         <h1 id="page-title" style="margin-bottom: 5px;" data-i18n="workspaceTitle">مساحة العمل</h1>
                         <p style="font-size: 0.85rem; color: var(--blue-grey);" data-i18n="workspaceSub">تتبع وإدارة
                             المشاريع الجارية</p>
                     </div>
-                </div>
-
-                <div class="filters-bar">
-                    <input type="text" id="searchInput" class="search-input" data-i18n-placeholder="searchPlh"
-                        placeholder="🔍 ابحث عن اسم مهمة أو مشروع..." onkeyup="handleSearch()">
-                    <button class="btn-clear" onclick="clearFilters()" data-i18n="clearFiltersBtn">مسح الفلاتر
-                        ✖</button>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 15px;">
+                        <button onclick="openAddModal()" class="btn-main admin-only" style="border-radius: 8px; padding: 10px 25px; display:flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(59, 164, 254, 0.4);"
+                            title="إضافة مهمة">
+                            <span style="font-size: 1.4rem; font-weight: bold;">+</span> <span data-i18n="addTaskTitle">إضافة مهمة جديدة</span>
+                        </button>
+                        <div class="filters-bar" style="margin-bottom: 0;">
+                            <input type="text" id="searchInput" class="search-input" data-i18n-placeholder="searchPlh"
+                                placeholder="🔍 ابحث عن اسم مهمة أو مشروع..." onkeyup="handleSearch()" style="width: 300px;">
+                            <button class="btn-clear" onclick="clearFilters()" data-i18n="clearFiltersBtn">مسح الفلاتر
+                                ✖</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="kanban-layout">
@@ -2007,17 +1989,19 @@
                         <div id="project-filters-list"></div>
                     </div>
 
-                    <!-- لوحة الأعمدة الديناميكية -->
-                    <div class="board-container">
-                        <div class="board" id="main-board">
-                            <!-- سيتم رسم الأعمدة برمجياً هنا -->
+                    <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+                        <!-- السلايدر العلوي (Top Scrollbar) -->
+                        <div class="top-scrollbar-wrapper" id="topScrollWrapper">
+                            <div class="top-scrollbar-content" id="topScrollContent"></div>
+                        </div>
+                        <!-- لوحة الأعمدة الديناميكية -->
+                        <div class="board-container" id="boardContainer">
+                            <div class="board" id="main-board">
+                                <!-- سيتم رسم الأعمدة برمجياً هنا -->
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- زر الإضافة العائم أسفل يمين مساحة العمل (يظهر للمدراء فقط) -->
-                <button onclick="openAddModal()" class="btn-main btn-add-circle admin-only btn-add-fab"
-                    title="إضافة مهمة">+</button>
             </section>
 
             <!-- مخطط جانت -->
@@ -2201,6 +2185,7 @@
                             الإضافة:</span> <span id="pr-last-updated">-</span></div>
                 </div>
                 <div style="display: flex; gap: 15px; align-items: center;">
+                    <!-- تم إزالة زر التكبير من هنا بناء على طلبك -->
                     <button onclick="closeProjectReport()"
                         style="background: none; border: none; font-size: 1.8rem; color: var(--blue-grey); cursor: pointer;">✖</button>
                 </div>
@@ -2211,6 +2196,7 @@
                     <button class="btn-outline"
                         style="border-color: var(--amber); color: var(--amber); padding: 6px 12px; font-size: 0.85rem;"
                         onclick="openEmbedExternal()" data-i18n="openExtBtn">🔗 فتح في نافذة جديدة</button>
+                    <!-- أزرار التقريب والتصغير بدلاً من التكبير الكامل للشاشة -->
                     <button class="editor-btn zoom-btn" onclick="zoomIframe(-0.1)" title="تصغير">➖</button>
                     <button class="editor-btn zoom-btn" onclick="zoomIframe(0.1)" title="تكبير">➕</button>
                 </div>
@@ -2441,7 +2427,7 @@
                 reportsTitle: "التقارير الشاملة", exportBtn: "⬇ تصدير الجداول لـ Excel",
                 projReportTitle: "تقرير سير المشاريع", thProject: "المشروع ↕", thTeam: "القسم (Team) ↕", thTasks: "عدد المهام ↕", thEstHrs: "ساعات مخططة ↕", thActHrs: "ساعات فعلية ↕", thExecReport: "التقارير",
                 empReportTitle: "تقرير أداء الموظفين", thEmpName: "اسم الموظف ↕", thEmpTeam: "القسم التابع له ↕", thEmpTasks: "مهام موكلة ↕",
-                addTaskTitle: "إضافة مهمة سريعة", addProjPlh: "اسم المشروع (أو اكتب # للبحث)", addTaskTitlePlh: "عنوان المهمة", selTeamPlh: "-- القسم --",
+                addTaskTitle: "إضافة مهمة جديدة", addProjPlh: "اسم المشروع (أو اكتب # للبحث)", addTaskTitlePlh: "عنوان المهمة", selTeamPlh: "-- القسم --",
                 chooseAssignees: "اختيار المسؤولين", chooseTeamFirst: "يرجى اختيار القسم أولاً...", estHrsPlh: "ساعات العمل المتوقعة", createTaskBtn: "إنشاء المهمة", cancelBtn: "إلغاء",
                 priLow: "🔵 عادي", priMed: "🟡 متوسط", priHigh: "🟠 هام", priUrg: "🔴 عاجل جداً", priorityLbl: "أولوية المهمة",
                 saveBtn: "حفظ التعديلات", taskTitlePlh: "عنوان المهمة", currStatusLbl: "الحالة الحالية:", descTitle: "الوصف الأساسي للمهمة", descPlh: "أضف تفاصيل عامة للمهمة هنا...",
@@ -2469,7 +2455,7 @@
                 reportsTitle: "Comprehensive Reports", exportBtn: "⬇ Export Tables to Excel",
                 projReportTitle: "Projects Progress Report", thProject: "Project ↕", thTeam: "Team ↕", thTasks: "Tasks ↕", thEstHrs: "Est. Hours ↕", thActHrs: "Act. Hours ↕", thExecReport: "Reports",
                 empReportTitle: "Employees Performance Report", thEmpName: "Employee Name ↕", thEmpTeam: "Team ↕", thEmpTasks: "Assigned Tasks ↕",
-                addTaskTitle: "Quick Add Task", addProjPlh: "Project Name (or type # to search)", addTaskTitlePlh: "Task Title", selTeamPlh: "-- Team --",
+                addTaskTitle: "Add New Task", addProjPlh: "Project Name (or type # to search)", addTaskTitlePlh: "Task Title", selTeamPlh: "-- Team --",
                 chooseAssignees: "Select Assignees", chooseTeamFirst: "Please select a team first...", estHrsPlh: "Estimated Hours", createTaskBtn: "Create Task", cancelBtn: "Cancel",
                 priLow: "🔵 Low", priMed: "🟡 Medium", priHigh: "🟠 High", priUrg: "🔴 Urgent", priorityLbl: "Task Priority",
                 saveBtn: "Save Changes", taskTitlePlh: "Task Title", currStatusLbl: "Current Status:", descTitle: "Task Description", descPlh: "Add general details here...",
@@ -2676,9 +2662,9 @@
             wrapper.style.height = `${100 / window.currentZoom}%`;
         };
 
+        // -- تمت إزالة زر Fullscreen بناء على طلب المستخدم --
+        // ولكن تم الإبقاء على الدالة احتياطياً إذا تم استخدامها مستقبلاً
         window.toggleReportFullscreen = () => {
-            // This function is kept for potential future use or to avoid console errors if referenced.
-            // As requested, the toggle fullscreen button has been removed from the UI.
             console.log("Fullscreen is disabled in this view.");
         };
 
@@ -2739,6 +2725,24 @@
             }).catch(err => console.log(err));
         };
 
+        // --- دوال مزامنة السلايدر العلوي للوحة المهام ---
+        window.syncScrollbars = () => {
+            const topScroll = document.getElementById('topScrollWrapper');
+            const boardContainer = document.getElementById('boardContainer');
+            const board = document.getElementById('main-board');
+            const topScrollContent = document.getElementById('topScrollContent');
+            
+            if (topScroll && boardContainer && board && topScrollContent) {
+                topScrollContent.style.width = board.scrollWidth + 'px';
+                
+                topScroll.onscroll = function() {
+                    boardContainer.scrollLeft = topScroll.scrollLeft;
+                };
+                boardContainer.onscroll = function() {
+                    topScroll.scrollLeft = boardContainer.scrollLeft;
+                };
+            }
+        };
 
         // --- دوال بناء التقارير ---
         window.prepareReportData = () => {
@@ -3138,6 +3142,7 @@
                     window.prepareReportData();
                 }, 50);
             }
+            setTimeout(window.syncScrollbars, 100);
         };
 
         window.handleSearch = () => { window.searchTerm = document.getElementById('searchInput').value.toLowerCase(); window.refreshAllViews(); };
@@ -3248,6 +3253,8 @@
                 const countEl = document.getElementById(`count-${col.id}`);
                 if (countEl) countEl.innerText = counts[col.id];
             });
+            
+            setTimeout(window.syncScrollbars, 50);
         };
 
         window.addNewColumn = () => {
@@ -3284,12 +3291,18 @@
             document.getElementById('addTaskModal').classList.add('active');
         };
 
+        window.updateStaffListNew = () => {
+            const team = document.getElementById('tTypeNew').value;
+            const container = document.getElementById('sNameNewContainer');
+            if(container) container.innerHTML = '';
+        };
+
         window.saveNewTask = () => {
             const data = {
                 projectName: document.getElementById('pNameNew').value.replace('#', '').trim(),
                 title: document.getElementById('tTitleNew').value.trim(),
                 assignedTo: [], 
-                team: "", 
+                team: document.getElementById('tTypeNew').value, 
                 estHours: parseFloat(document.getElementById('eHoursNew').value) || 0,
                 priority: document.getElementById('tPriorityNew').value || 'low',
                 status: 'pending', createdAt: Date.now(), description: "", dueDate: "", comments: {}, checklist: {}
@@ -3563,7 +3576,7 @@
             list.innerHTML = '';
             if (!comments) return;
 
-            const sortedKeys = Object.keys(comments).sort((a, b) => comments[b].time - comments[a].time);
+            const sortedKeys = Object.keys(comments).sort((a, b) => comments[a].time - comments[b].time);
 
             sortedKeys.forEach(key => {
                 const c = comments[key];
@@ -3765,7 +3778,7 @@
                         if (!hasAdminRights) { el.style.display = 'none'; return; }
                         // Restore appropriate display type based on element tag/class
                         if (el.tagName === 'BUTTON') {
-                            el.style.display = el.classList.contains('btn-add-circle') || el.classList.contains('btn-add-fab') ? 'flex' : 'inline-flex';
+                            el.style.display = 'inline-flex';
                         } else if (el.tagName === 'SELECT') {
                             el.style.display = 'block';
                         } else {
