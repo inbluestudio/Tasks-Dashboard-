@@ -12,11 +12,10 @@
   <!-- Chart.js DataLabels Plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
   
-  <!-- مكتبات تصدير PDF و Excel و تحويل المحرر لصور -->
+  <!-- مكتبات تصدير PDF و Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -270,20 +269,22 @@
     td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.95rem; }
     tbody tr:hover { background: var(--bg); }
 
-    /* --- محرر التقارير التنفيذية للمشاريع --- */
-    .report-modal { background: var(--card-bg); width: 100%; max-width: 900px; height: 85vh; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+    /* --- محرر التقارير التنفيذية للمشاريع (النسخة المحدثة لروابط الـ Embed) --- */
+    .report-modal { background: var(--card-bg); width: 100%; max-width: 900px; height: 85vh; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); transition: all 0.3s ease; }
+    .report-modal.fullscreen { max-width: 100%; height: 100vh; border-radius: 0; border: none; margin: 0; }
+    #projectReportModal.fullscreen-active { padding: 0; }
+    
     .report-header { padding: 20px 30px; border-bottom: 1px solid var(--border); background: var(--bg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:10px;}
-    .editor-toolbar { padding: 10px 30px; background: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; gap: 10px; flex-wrap: wrap; }
-    .editor-btn { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
+    .editor-toolbar { padding: 15px 30px; background: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    
+    .embed-url-input { flex: 1; padding: 10px 15px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; font-family: inherit; transition: 0.2s; min-width: 250px;}
+    .embed-url-input:focus { border-color: var(--accent); }
+    
+    .editor-btn { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; font-weight: 600;}
     .editor-btn:hover { background: rgba(59, 164, 254, 0.1); border-color: var(--accent); color: var(--accent); }
     
-    .rich-editor { flex: 1; padding: 30px; overflow-y: auto; background: var(--card-bg); color: var(--text); font-family: inherit; line-height: 1.8; font-size: 1rem; outline: none; }
-    .rich-editor[contenteditable="false"] { background: var(--bg); cursor: not-allowed; }
-    .rich-editor img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; border: 1px solid var(--border); }
-    .rich-editor iframe { width: 100%; max-width: 100%; margin: 15px 0; border-radius: 8px; border: 1px solid var(--border); background: #fff;}
-    .rich-editor ul, .rich-editor ol { padding-inline-start: 20px; margin-bottom: 15px; }
-    .rich-editor h1, .rich-editor h2 { color: var(--accent); margin-top: 20px; margin-bottom: 10px; }
-    .rich-editor a { color: var(--intel-blue); text-decoration: underline; font-weight: 600;}
+    .embed-container-body { flex: 1; padding: 20px; display: flex; flex-direction: column; background: var(--card-bg); overflow: hidden; }
+    .iframe-container { flex: 1; width: 100%; height: 100%; background: #fff; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
     .admin-only { display: none; }
     .manager-lock { position: relative; }
@@ -472,7 +473,7 @@
                                 <th onclick="sortProjTable('tasks')" data-i18n="thTasks">عدد المهام ↕</th>
                                 <th onclick="sortProjTable('estHours')" data-i18n="thEstHrs">ساعات مخططة ↕</th>
                                 <th onclick="sortProjTable('actHours')" data-i18n="thActHrs">ساعات فعلية ↕</th>
-                                <th data-i18n="thExecReport">التقرير التنفيذي</th>
+                                <th data-i18n="thExecReport">ملفات المشروع</th>
                             </tr>
                         </thead>
                         <tbody id="report-projects-body"></tbody>
@@ -535,41 +536,39 @@
     </div>
   </div>
 
-  <!-- نافذة التقرير التنفيذي للمشروع (المحرر الذكي) -->
+  <!-- نافذة ملفات المشروع المضمنة (Embed Viewer) -->
   <div class="modal" id="projectReportModal">
       <div class="report-modal">
           <div class="report-header">
               <div>
                   <h2 style="color: var(--text); font-size: 1.4rem; margin-bottom: 5px;">
-                      <span data-i18n="execReportLabel">التقرير التنفيذي لمشروع:</span> 
+                      <span data-i18n="execReportLabel">ملفات مشروع:</span> 
                       <span id="pr-project-name" style="color: var(--accent);"></span>
                   </h2>
                   <div style="font-size: 0.85rem; color: var(--blue-grey);">
-                      <span data-i18n="lastUpdatedBy">آخر تعديل بواسطة:</span> <span id="pr-last-updated">-</span>
+                      <span data-i18n="lastUpdatedBy">تاريخ الإضافة:</span> <span id="pr-last-updated">-</span>
                   </div>
               </div>
               <div style="display: flex; gap: 15px;">
-                  <button id="btn-export-pdf" class="btn-outline" onclick="exportProjectReportPDF()">📄 تصدير PDF</button>
-                  <button id="btn-save-report" class="btn-save-big admin-only" onclick="saveProjectReport()" data-i18n="saveBtn">حفظ التقرير</button>
+                  <button class="btn-outline" onclick="toggleReportFullscreen()" title="تكبير/تصغير الشاشة">🔲 تكبير</button>
+                  <button id="btn-save-report" class="btn-save-big admin-only" onclick="saveProjectReport()" data-i18n="saveBtn">حفظ التعديلات</button>
                   <button onclick="closeProjectReport()" style="background: none; border: none; font-size: 1.8rem; color: var(--blue-grey); cursor: pointer;">✖</button>
               </div>
           </div>
           
-          <div class="editor-toolbar admin-only" id="pr-toolbar">
-              <button class="editor-btn" onclick="formatDoc('bold')" title="Bold"><b>B</b></button>
-              <button class="editor-btn" onclick="formatDoc('italic')" title="Italic"><i>I</i></button>
-              <button class="editor-btn" onclick="formatDoc('underline')" title="Underline"><u>U</u></button>
-              <button class="editor-btn" onclick="formatDoc('insertUnorderedList')" title="Bullet List">• List</button>
-              <button class="editor-btn" onclick="formatDoc('insertOrderedList')" title="Number List">1. List</button>
-              
-              <!-- الأزرار الجديدة للروابط ونوافذ العرض -->
-              <button class="editor-btn" onclick="addReportLink()" style="color: var(--intel-blue); border-color: var(--intel-blue);" title="إضافة رابط لملف خارجي">🔗 إضافة رابط</button>
-              <button class="editor-btn" onclick="addReportEmbed()" style="color: var(--amber); border-color: var(--amber);" title="تضمين ملف درايف أو أوفيس للمشاهدة هنا">📄 نافذة عرض (Embed)</button>
-              <button class="editor-btn" onclick="addReportImage()" style="color: var(--accent); border-color: var(--accent);" title="إضافة صورة برابط">📷 إضافة صورة (رابط)</button>
+          <div class="editor-toolbar admin-only" id="pr-toolbar" style="align-items: center;">
+              <span style="font-size: 1.2rem; color: var(--blue-grey);">📄</span>
+              <input type="url" id="embed-url-input" class="embed-url-input" placeholder="ضع رابط (URL) ملف جوجل شيت أو درايف هنا واضغط Enter للرؤية..." onkeydown="handleEmbedEnter(event)">
+              <button class="editor-btn" onclick="openEmbedExternal()" style="color: var(--amber); border-color: var(--amber);" title="الذهاب للرابط الخارجي">🔗 فتح في نافذة جديدة</button>
           </div>
 
-          <!-- منطقة الكتابة -->
-          <div id="pr-editor" class="rich-editor" contenteditable="true" data-i18n-placeholder="typeReportHere">اكتب تقرير المشروع هنا...</div>
+          <!-- منطقة عرض الـ Iframe -->
+          <div class="embed-container-body">
+              <iframe id="pr-iframe" class="iframe-container" src="" style="display:none;"></iframe>
+              <div id="pr-empty-state" style="flex: 1; display: flex; align-items: center; justify-content: center; color: var(--blue-grey); font-size: 1.1rem;" data-i18n="typeReportHere">
+                  لم يتم إضافة ملف بعد. يرجى وضع الرابط في الأعلى.
+              </div>
+          </div>
       </div>
   </div>
 
@@ -706,7 +705,7 @@
             dashboardTitle: "لوحة المعلومات والتحليلات الاستراتيجية", statTasks: "إجمالي المهام", statHours: "الساعات التقديرية (الكلية)", statProjects: "مشاريع نشطة",
             chartTaskStatus: "حالة المهام الكلية", chartProjComp: "نسبة إنجاز المشاريع الفعّالة", chartTopProj: "حجم المشاريع (عدد المهام)", chartYearly: "حركة المشاريع خلال السنة",
             reportsTitle: "التقارير الشاملة", exportBtn: "⬇ تصدير الجداول لـ Excel",
-            projReportTitle: "تقرير سير المشاريع", thProject: "المشروع ↕", thTeam: "القسم (Team) ↕", thTasks: "عدد المهام ↕", thEstHrs: "ساعات مخططة ↕", thActHrs: "ساعات فعلية ↕", thExecReport: "التقرير التنفيذي",
+            projReportTitle: "تقرير سير المشاريع", thProject: "المشروع ↕", thTeam: "القسم (Team) ↕", thTasks: "عدد المهام ↕", thEstHrs: "ساعات مخططة ↕", thActHrs: "ساعات فعلية ↕", thExecReport: "ملفات المشروع",
             empReportTitle: "تقرير أداء الموظفين", thEmpName: "اسم الموظف ↕", thEmpTeam: "القسم التابع له ↕", thEmpTasks: "مهام موكلة ↕",
             addTaskTitle: "إضافة مهمة سريعة", addProjPlh: "اسم المشروع (أو اكتب # للبحث)", addTaskTitlePlh: "عنوان المهمة", selTeamPlh: "-- القسم --",
             chooseAssignees: "اختيار المسؤولين", chooseTeamFirst: "يرجى اختيار القسم أولاً...", estHrsPlh: "ساعات العمل المتوقعة", createTaskBtn: "إنشاء المهمة", cancelBtn: "إلغاء",
@@ -716,7 +715,7 @@
             assignmentSettings: "إعدادات التكليف", teamLbl: "القسم (Team)", assigneesLbl: "المسؤولون (Assignees)", dueDateLbl: "تاريخ التسليم المتوقع (Due Date)", estHrsLbl: "الساعات التقديرية (المخططة)",
             delTaskBtn: "حذف المهمة نهائياً 🗑️",
             hrsSymbol: "س", bySymbol: "بواسطة:", toSymbol: "موجه لـ:", noteSymbol: "📝 ملاحظة من:",
-            execReportLabel: "التقرير التنفيذي لمشروع:", lastUpdatedBy: "آخر تحديل بواسطة:", typeReportHere: "اكتب تقرير المشروع هنا... (متاح للمدراء والتيم ليد فقط)",
+            execReportLabel: "ملفات مشروع:", lastUpdatedBy: "تاريخ الإضافة:", typeReportHere: "لم يتم إضافة ملف بعد. يرجى وضع الرابط في الأعلى.",
             sortDesc: "الأعلى إنجازاً ⬇️", sortAsc: "الأقل إنجازاً ⬆️"
         },
         en: {
@@ -730,7 +729,7 @@
             dashboardTitle: "Strategic Analytics Dashboard", statTasks: "Total Tasks", statHours: "Total Est. Hours", statProjects: "Active Projects",
             chartTaskStatus: "Overall Tasks Status", chartProjComp: "Project Completion (%)", chartTopProj: "Project Volume (Tasks Count)", chartYearly: "Projects Flow (Current Year)",
             reportsTitle: "Comprehensive Reports", exportBtn: "⬇ Export Tables to Excel",
-            projReportTitle: "Projects Progress Report", thProject: "Project ↕", thTeam: "Team ↕", thTasks: "Tasks ↕", thEstHrs: "Est. Hours ↕", thActHrs: "Act. Hours ↕", thExecReport: "Exec. Report",
+            projReportTitle: "Projects Progress Report", thProject: "Project ↕", thTeam: "Team ↕", thTasks: "Tasks ↕", thEstHrs: "Est. Hours ↕", thActHrs: "Act. Hours ↕", thExecReport: "Project Files",
             empReportTitle: "Employees Performance Report", thEmpName: "Employee Name ↕", thEmpTeam: "Team ↕", thEmpTasks: "Assigned Tasks ↕",
             addTaskTitle: "Quick Add Task", addProjPlh: "Project Name (or type # to search)", addTaskTitlePlh: "Task Title", selTeamPlh: "-- Team --",
             chooseAssignees: "Select Assignees", chooseTeamFirst: "Please select a team first...", estHrsPlh: "Estimated Hours", createTaskBtn: "Create Task", cancelBtn: "Cancel",
@@ -740,7 +739,7 @@
             assignmentSettings: "Assignment Settings", teamLbl: "Team", assigneesLbl: "Assignees", dueDateLbl: "Due Date", estHrsLbl: "Estimated Hours",
             delTaskBtn: "Delete Task Permanently 🗑️",
             hrsSymbol: "h", bySymbol: "By:", toSymbol: "To:", noteSymbol: "📝 Note from:",
-            execReportLabel: "Executive Report for:", lastUpdatedBy: "Last Updated By:", typeReportHere: "Write project report here... (Managers & Team Leads only)",
+            execReportLabel: "Files for:", lastUpdatedBy: "Added On:", typeReportHere: "No file added yet. Please insert a link above.",
             sortDesc: "Highest % ⬇️", sortAsc: "Lowest % ⬆️"
         }
     };
@@ -799,33 +798,42 @@
     }
     window.updateSortIcons = updateSortIcons;
 
-    // --- دوال التقارير التنفيذية للمشاريع (Rich Text Editor) ---
-    window.formatDoc = (cmd, value=null) => { document.execCommand(cmd, false, value); };
-    
-    window.addReportLink = () => {
-        const url = prompt("يرجى إدخال الرابط (مثال: رابط ملف إكسل أو وورد):", "https://");
-        if (url && url !== "https://") {
-            const sel = window.getSelection();
-            const selectedText = sel.toString();
-            const text = selectedText ? selectedText : prompt("أدخل النص الذي سيظهر:", "عرض الملف المرفق");
-            if (text) {
-                const html = `<a href="${url}" target="_blank" style="color: #0083FF; text-decoration: underline; font-weight: 600;">${text}</a>`;
-                document.execCommand('insertHTML', false, html);
+    // --- دوال عرض الملفات (Embed Viewer) ---
+    window.handleEmbedEnter = (e) => {
+        if (e.key === 'Enter') {
+            const url = e.target.value.trim();
+            const iframe = document.getElementById('pr-iframe');
+            const emptyState = document.getElementById('pr-empty-state');
+            if(url) {
+                iframe.src = url;
+                iframe.style.display = 'block';
+                emptyState.style.display = 'none';
+            } else {
+                iframe.src = '';
+                iframe.style.display = 'none';
+                emptyState.style.display = 'flex';
             }
         }
     };
 
-    window.addReportEmbed = () => {
-        const url = prompt("يرجى إدخال رابط التضمين (Embed URL) لملف جوجل شيت أو دوكس:");
-        if (url && url !== "https://") {
-            const html = `<div style="margin: 15px 0;"><iframe src="${url}" width="100%" height="450px" style="border: 1px solid var(--border); border-radius: 8px;" allowfullscreen></iframe></div><br>`;
-            document.execCommand('insertHTML', false, html);
+    window.openEmbedExternal = () => {
+        const url = document.getElementById('embed-url-input').value.trim();
+        if(url) {
+            window.open(url, '_blank');
+        } else {
+            alert("يرجى وضع رابط أولاً لتتمكن من فتحه.");
         }
     };
 
-    window.addReportImage = () => {
-        const url = prompt("يرجى إدخال الرابط المباشر للصورة (URL):");
-        if(url) formatDoc('insertImage', url);
+    window.toggleReportFullscreen = () => {
+        const modal = document.getElementById('projectReportModal');
+        const modalBox = modal.querySelector('.report-modal');
+        modalBox.classList.toggle('fullscreen');
+        if (modalBox.classList.contains('fullscreen')) {
+            modal.classList.add('fullscreen-active');
+        } else {
+            modal.classList.remove('fullscreen-active');
+        }
     };
 
     window.openProjectReport = (projectName) => {
@@ -835,39 +843,51 @@
         document.getElementById('pr-project-name').innerText = projectName;
         document.getElementById('pr-project-name').setAttribute('data-raw-name', projectName); 
         
-        const editor = document.getElementById('pr-editor');
         const hasAdminRights = isManager || isTeamLead;
+        const urlInput = document.getElementById('embed-url-input');
+        const iframe = document.getElementById('pr-iframe');
+        const emptyState = document.getElementById('pr-empty-state');
+        const toolbar = document.getElementById('pr-toolbar');
         
-        if (reportData && reportData.content) {
-            editor.innerHTML = reportData.content;
+        if (reportData && reportData.embedUrl) {
+            urlInput.value = reportData.embedUrl;
+            iframe.src = reportData.embedUrl;
+            iframe.style.display = 'block';
+            emptyState.style.display = 'none';
+            
             const d = new Date(reportData.lastUpdatedAt).toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
             document.getElementById('pr-last-updated').innerText = `${reportData.lastUpdatedBy} (${d})`;
         } else {
-            editor.innerHTML = '';
+            urlInput.value = '';
+            iframe.src = '';
+            iframe.style.display = 'none';
+            emptyState.style.display = 'flex';
             document.getElementById('pr-last-updated').innerText = '-';
         }
 
-        if(!hasAdminRights) {
-            editor.setAttribute('contenteditable', 'false');
-        } else {
-            editor.setAttribute('contenteditable', 'true');
-        }
+        toolbar.style.display = hasAdminRights ? 'flex' : 'none';
 
         document.getElementById('projectReportModal').classList.add('active');
     };
 
     window.closeProjectReport = () => {
         document.getElementById('projectReportModal').classList.remove('active');
+        // Reset fullscreen state if closed while maxed out
+        const modal = document.getElementById('projectReportModal');
+        const modalBox = modal.querySelector('.report-modal');
+        modalBox.classList.remove('fullscreen');
+        modal.classList.remove('fullscreen-active');
+        document.getElementById('pr-iframe').src = ''; // stop any playing media
     };
 
     window.saveProjectReport = () => {
         const rawName = document.getElementById('pr-project-name').getAttribute('data-raw-name');
         const safeKey = sanitizeProjName(rawName);
-        const content = document.getElementById('pr-editor').innerHTML;
+        const embedUrl = document.getElementById('embed-url-input').value.trim();
         const { ref, update, db } = window.firebaseTools;
 
         update(ref(db, `projectReports/${safeKey}`), {
-            content: content,
+            embedUrl: embedUrl,
             lastUpdatedBy: currentUserName,
             lastUpdatedAt: Date.now()
         }).then(() => {
@@ -876,23 +896,6 @@
             btn.innerText = "✔️";
             btn.style.background = "var(--green-success)"; 
             setTimeout(() => { btn.innerText = oldT; btn.style.background = "var(--green-success)"; }, 2000);
-        });
-    };
-
-    window.exportProjectReportPDF = () => {
-        const projectName = document.getElementById('pr-project-name').innerText;
-        const element = document.getElementById('pr-editor');
-        
-        html2canvas(element, { scale: 2 }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = doc.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            
-            doc.text(`Executive Report: ${projectName}`, 10, 10);
-            doc.addImage(imgData, 'PNG', 0, 20, pdfWidth, pdfHeight);
-            doc.save(`Report_${projectName}.pdf`);
         });
     };
 
@@ -957,7 +960,7 @@
             });
         }
         projectReportData.forEach(p => {
-            const reportBtn = `<button onclick="openProjectReport('${p.project.replace(/'/g, "\\'")}')" class="btn-outline" style="padding: 4px 10px; font-size:0.75rem;">📝 ${t("thExecReport")}</button>`;
+            const reportBtn = `<button onclick="openProjectReport('${p.project.replace(/'/g, "\\'")}')" class="btn-outline" style="padding: 4px 10px; font-size:0.75rem;">📄 ${t("thExecReport")}</button>`;
 
             body.innerHTML += `<tr>
                 <td><span class="project-chip" style="margin:0;"># ${p.project}</span></td>
@@ -1143,7 +1146,6 @@
             console.error("Error drawing charts:", e);
         }
     }
-    window.drawCharts = drawCharts;
 
     function updateAdminStats() {
         try {
@@ -1650,6 +1652,7 @@
             }
         };
         
+        // التحويل بين التابات والتأكد من رسم الداشبورد
         document.querySelectorAll('.nav-item').forEach(item => {
             item.onclick = () => { 
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); 
@@ -1658,6 +1661,7 @@
                 document.getElementById(item.dataset.target).classList.add('active'); 
                 
                 if(item.dataset.target === 'dashboard') {
+                    // الانتظار قليلاً ليتم تفعيل الـ CSS (display: flex) قبل محاولة رسم الشارتس
                     setTimeout(() => { if (isManager || isTeamLead) updateAdminStats(); }, 50);
                 }
                 if(item.dataset.target === 'reports') {
