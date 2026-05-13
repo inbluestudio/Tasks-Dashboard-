@@ -41,7 +41,7 @@
   </script>
 
   <style>
-    /* التزام بـ THE BLUE PALETTE (DARK MODE DEFAULT) */
+    /* التزام بـ THE BLUE PALETTE (DARK MODE) */
     :root {
       --ink-black: #020610; 
       --deep-navy: #0A1628; 
@@ -66,7 +66,7 @@
       --radius: 12px;
     }
 
-    /* LIGHT MODE PALETTE */
+    /* LIGHT MODE PALETTE (الوضع الافتراضي الجديد) */
     [data-theme="light"] {
       --ink-black: #f0f4f8; 
       --deep-navy: #ffffff; 
@@ -272,15 +272,18 @@
 
     /* --- محرر التقارير التنفيذية للمشاريع --- */
     .report-modal { background: var(--card-bg); width: 100%; max-width: 900px; height: 85vh; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
-    .report-header { padding: 20px 30px; border-bottom: 1px solid var(--border); background: var(--bg); display: flex; justify-content: space-between; align-items: center;}
+    .report-header { padding: 20px 30px; border-bottom: 1px solid var(--border); background: var(--bg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:10px;}
     .editor-toolbar { padding: 10px 30px; background: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; gap: 10px; flex-wrap: wrap; }
     .editor-btn { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
     .editor-btn:hover { background: rgba(59, 164, 254, 0.1); border-color: var(--accent); color: var(--accent); }
+    
     .rich-editor { flex: 1; padding: 30px; overflow-y: auto; background: var(--card-bg); color: var(--text); font-family: inherit; line-height: 1.8; font-size: 1rem; outline: none; }
     .rich-editor[contenteditable="false"] { background: var(--bg); cursor: not-allowed; }
     .rich-editor img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; border: 1px solid var(--border); }
+    .rich-editor iframe { width: 100%; max-width: 100%; margin: 15px 0; border-radius: 8px; border: 1px solid var(--border); background: #fff;}
     .rich-editor ul, .rich-editor ol { padding-inline-start: 20px; margin-bottom: 15px; }
     .rich-editor h1, .rich-editor h2 { color: var(--accent); margin-top: 20px; margin-bottom: 10px; }
+    .rich-editor a { color: var(--intel-blue); text-decoration: underline; font-weight: 600;}
 
     .admin-only { display: none; }
     .manager-lock { position: relative; }
@@ -546,7 +549,7 @@
               </div>
               <div style="display: flex; gap: 15px;">
                   <button id="btn-export-pdf" class="btn-outline" onclick="exportProjectReportPDF()">📄 تصدير PDF</button>
-                  <button id="btn-save-report" class="btn-save-big admin-only" onclick="saveProjectReport()">حفظ التقرير</button>
+                  <button id="btn-save-report" class="btn-save-big admin-only" onclick="saveProjectReport()" data-i18n="saveBtn">حفظ التقرير</button>
                   <button onclick="closeProjectReport()" style="background: none; border: none; font-size: 1.8rem; color: var(--blue-grey); cursor: pointer;">✖</button>
               </div>
           </div>
@@ -557,9 +560,11 @@
               <button class="editor-btn" onclick="formatDoc('underline')" title="Underline"><u>U</u></button>
               <button class="editor-btn" onclick="formatDoc('insertUnorderedList')" title="Bullet List">• List</button>
               <button class="editor-btn" onclick="formatDoc('insertOrderedList')" title="Number List">1. List</button>
-              <button class="editor-btn" onclick="addReportImage()" style="color: var(--accent); border-color: var(--accent);" title="Insert Image via Link">📷 إضافة صورة (رابط)</button>
-              <div style="flex: 1;"></div>
-              <span style="font-size: 0.8rem; color: var(--blue-grey); align-self: center;">💡 ضع رابط الصورة فقط لتقليل مساحة التخزين.</span>
+              
+              <!-- الأزرار الجديدة للروابط ونوافذ العرض -->
+              <button class="editor-btn" onclick="addReportLink()" style="color: var(--intel-blue); border-color: var(--intel-blue);" title="إضافة رابط لملف خارجي">🔗 إضافة رابط</button>
+              <button class="editor-btn" onclick="addReportEmbed()" style="color: var(--amber); border-color: var(--amber);" title="تضمين ملف درايف أو أوفيس للمشاهدة هنا">📄 نافذة عرض (Embed)</button>
+              <button class="editor-btn" onclick="addReportImage()" style="color: var(--accent); border-color: var(--accent);" title="إضافة صورة برابط">📷 إضافة صورة (رابط)</button>
           </div>
 
           <!-- منطقة الكتابة -->
@@ -655,7 +660,7 @@
     }
 
     let allTasks = {};
-    let allProjectReports = {}; // لتخزين التقارير
+    let allProjectReports = {}; 
     let isManager = false;
     let isTeamLead = false;
     let currentUserName = "";
@@ -663,7 +668,9 @@
     
     let activeProjectFilter = null;
     let searchTerm = "";
-    let activeMonthFilter = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+    
+    // الحل الأول: إزالة الفلتر التلقائي للشهر لكي تظهر جميع البيانات المضافة
+    let activeMonthFilter = ""; 
     
     let chartStatus, chartTopProjects, chartYearly;
     let customAvatars = {};
@@ -687,7 +694,6 @@
 
     const staffByTeam = { "3D": ["نور الدين", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "Code": ["عبدالله"] };
 
-    // --- I18N DICTIONARY ---
     const i18n = {
         ar: {
             login: "تسجيل الدخول", loginSub: "Blue Design Studio Cloud", emailPlh: "البريد الإلكتروني", passPlh: "كلمة المرور",
@@ -738,7 +744,8 @@
     };
 
     let currentLang = localStorage.getItem('blue_lang') || 'ar';
-    let currentTheme = localStorage.getItem('blue_theme') || 'dark';
+    // الحل الثاني: جعل الوضع الافتراضي للثيم فاتح بدلاً من الغامق
+    let currentTheme = localStorage.getItem('blue_theme') || 'light';
 
     document.documentElement.setAttribute('data-theme', currentTheme);
     
@@ -752,7 +759,7 @@
     
     const t = (key) => i18n[currentLang][key] || key;
     const sanitizeEmail = (email) => email.replace(/\./g, ',');
-    const sanitizeProjName = (name) => name.replace(/[\.\#\$\[\]]/g, '_'); // لتخزين اسم المشروع في الفايربيس
+    const sanitizeProjName = (name) => name.replace(/[\.\#\$\[\]]/g, '_'); 
 
     function taskMatchesMonthFilter(task) {
         if(!activeMonthFilter) return true; 
@@ -789,6 +796,28 @@
     // --- دوال التقارير التنفيذية للمشاريع (Rich Text Editor) ---
     window.formatDoc = (cmd, value=null) => { document.execCommand(cmd, false, value); };
     
+    // الحل الثالث: إضافة الروابط ونوافذ العرض (Embed)
+    window.addReportLink = () => {
+        const url = prompt("يرجى إدخال الرابط (مثال: رابط ملف إكسل أو وورد):", "https://");
+        if (url && url !== "https://") {
+            const sel = window.getSelection();
+            const selectedText = sel.toString();
+            const text = selectedText ? selectedText : prompt("أدخل النص الذي سيظهر:", "عرض الملف المرفق");
+            if (text) {
+                const html = `<a href="${url}" target="_blank" style="color: #0083FF; text-decoration: underline; font-weight: 600;">${text}</a>`;
+                document.execCommand('insertHTML', false, html);
+            }
+        }
+    };
+
+    window.addReportEmbed = () => {
+        const url = prompt("يرجى إدخال رابط التضمين (Embed URL) لملف جوجل شيت أو دوكس:");
+        if (url && url !== "https://") {
+            const html = `<div style="margin: 15px 0;"><iframe src="${url}" width="100%" height="450px" style="border: 1px solid var(--border); border-radius: 8px;" allowfullscreen></iframe></div><br>`;
+            document.execCommand('insertHTML', false, html);
+        }
+    };
+
     window.addReportImage = () => {
         const url = prompt("يرجى إدخال الرابط المباشر للصورة (URL):");
         if(url) formatDoc('insertImage', url);
@@ -799,7 +828,7 @@
         const reportData = allProjectReports[safeKey];
         
         document.getElementById('pr-project-name').innerText = projectName;
-        document.getElementById('pr-project-name').setAttribute('data-raw-name', projectName); // للحفظ لاحقاً
+        document.getElementById('pr-project-name').setAttribute('data-raw-name', projectName); 
         
         const editor = document.getElementById('pr-editor');
         const hasAdminRights = isManager || isTeamLead;
@@ -923,7 +952,6 @@
             });
         }
         projectReportData.forEach(p => {
-            // زر التقرير التنفيذي
             const reportBtn = `<button onclick="openProjectReport('${p.project.replace(/'/g, "\\'")}')" class="btn-outline" style="padding: 4px 10px; font-size:0.75rem;">📝 ${t("thExecReport")}</button>`;
 
             body.innerHTML += `<tr>
@@ -1025,7 +1053,6 @@
         if (typeof Chart === 'undefined') return; 
         
         try {
-            // 1. حالة المهام 
             const sData = [arr.filter(t => t.status === 'pending').length, arr.filter(t => t.status === 'inprogress').length, arr.filter(t => t.status === 'completed').length];
             if(chartStatus) chartStatus.destroy();
             chartStatus = new Chart(document.getElementById('chartStatus'), { 
@@ -1043,7 +1070,6 @@
                 } 
             });
 
-            // 2. حجم المشاريع 
             let projTaskCounts = {};
             arr.forEach(t => { projTaskCounts[t.projectName] = (projTaskCounts[t.projectName] || 0) + 1; });
             const sortedProjs = Object.keys(projTaskCounts).sort((a, b) => projTaskCounts[b] - projTaskCounts[a]).slice(0, 7);
@@ -1063,7 +1089,6 @@
                 } 
             });
 
-            // 3. مسار المشاريع خلال السنة 
             let currentYear = new Date().getFullYear();
             let monthlyProjects = Array(12).fill().map(() => new Set());
             arrYearly.forEach(t => {
@@ -1114,6 +1139,19 @@
     }
     window.updateAdminStats = updateAdminStats;
 
+    function getAvatarHTML(name, emailKey = null) {
+        if(!name) return '';
+        if (!emailKey) {
+            for (let e in whitelist) {
+                if (whitelist[e].name === name) { emailKey = sanitizeEmail(e); break; }
+            }
+        }
+        if (emailKey && customAvatars[emailKey]) { return `<span class="avatar" title="${name}"><img src="${customAvatars[emailKey]}" alt="${name}"></span>`; }
+        const colors = ['#3BA4FE', '#f87171', '#34d399', '#fbbf24', '#a78bfa', '#818cf8'];
+        const char = name.substring(0, 2);
+        const color = colors[char.charCodeAt(0) % colors.length];
+        return `<span class="avatar" style="background-color: ${color};" title="${name}">${char}</span>`;
+    }
 
     setTimeout(() => {
         applyI18n(); 
@@ -1123,7 +1161,6 @@
         const monthInput = document.getElementById('monthFilter');
         if(monthInput) monthInput.value = activeMonthFilter;
 
-        // جلب تقارير المشاريع
         onValue(ref(db, 'projectReports'), (snap) => {
             allProjectReports = snap.val() || {};
         });
@@ -1234,7 +1271,7 @@
         
         window.clearFilters = () => { 
             activeProjectFilter = null; searchTerm = ""; document.getElementById('searchInput').value = ""; 
-            activeMonthFilter = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            activeMonthFilter = ""; 
             if(document.getElementById('monthFilter')) document.getElementById('monthFilter').value = activeMonthFilter;
             refreshAllViews();
         };
