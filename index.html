@@ -16,7 +16,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   
+  <!-- استدعاء Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove, update, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -271,6 +273,8 @@
 
     /* --- محرر التقارير ونافذة العرض (Embed Viewer) --- */
     .report-modal { background: var(--card-bg); width: 100%; max-width: 900px; height: 85vh; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); transition: all 0.3s ease; }
+    .report-modal.fullscreen { max-width: 100%; height: 100vh; border-radius: 0; border: none; margin: 0; }
+    #projectReportModal.fullscreen-active { padding: 0; }
     
     .report-header { padding: 20px 30px; border-bottom: 1px solid var(--border); background: var(--bg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:10px;}
     
@@ -306,7 +310,7 @@
         .trello-main { border-inline-end: none; border-bottom: 1px solid var(--border); }
         .trello-sidebar { width: 100%; }
         .sidebar { width: 80px; padding: 20px 10px; align-items: center; }
-        .logo-main, .logo-sub, .nav-item span, #user-name, #user-role, .settings-toggles button span { display: none; }
+        .logo-main, .logo-sub, .nav-item span:not(:first-child), #user-name, #user-role, .settings-toggles button span { display: none; }
         .nav-item { justify-content: center; padding: 15px; }
         .settings-toggles { flex-direction: column; align-items: center; border-top: none; }
         .main-content { padding: 15px; }
@@ -372,8 +376,8 @@
       <div class="nav-item admin-only" data-target="reports"><span>📄</span> <span data-i18n="navReports">التقارير</span></div>
       
       <div class="settings-toggles">
-          <button class="toggle-btn" onclick="toggleTheme()">🌓 <span data-i18n="themeLbl">المظهر</span></button>
-          <button class="toggle-btn" onclick="toggleLang()">🌐 <span data-i18n="langLbl">اللغة</span></button>
+          <button class="toggle-btn" onclick="toggleTheme()" title="تغيير المظهر">🌓 <span data-i18n="themeLbl">المظهر</span></button>
+          <button class="toggle-btn" onclick="toggleLang()" title="Change Language">🌐 <span data-i18n="langLbl">اللغة</span></button>
       </div>
 
       <div style="margin-top: auto; width: 100%;">
@@ -549,11 +553,12 @@
           <div class="report-header" style="border-bottom: none; padding-bottom: 10px;">
               <div>
                   <h2 style="color: var(--text); font-size: 1.4rem; margin-bottom: 5px;">
-                      <span data-i18n="execReportLabel">تقارير مشروع:</span> 
+                      <span data-i18n="execReportLabel">ملفات مشروع:</span> 
                       <span id="pr-project-name" style="color: var(--accent);"></span>
                   </h2>
               </div>
               <div style="display: flex; gap: 15px; align-items: center;">
+                  <button class="btn-outline" onclick="toggleReportFullscreen()" title="تكبير/تصغير الشاشة">🔲 تكبير</button>
                   <button onclick="closeProjectReport()" style="background: none; border: none; font-size: 1.8rem; color: var(--blue-grey); cursor: pointer;">✖</button>
               </div>
           </div>
@@ -664,32 +669,37 @@
   </div>
 
   <script type="module">
+    // ----------------------------------------------------
+    // 1. المتغيرات العامة والإعدادات الأساسية
+    // ----------------------------------------------------
     const ALLOWED_IPS = []; 
 
     if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined') {
         Chart.register(ChartDataLabels);
     }
 
-    let allTasks = {};
-    let allProjectReports = {}; 
-    let isManager = false;
-    let isTeamLead = false;
-    let currentUserName = "";
-    let isLoginMode = true;
+    window.allTasks = {};
+    window.allProjectReports = {}; 
+    window.isManager = false;
+    window.isTeamLead = false;
+    window.currentUserName = "";
+    window.isLoginMode = true;
     
-    let activeProjectFilter = null;
-    let searchTerm = "";
-    let activeMonthFilter = ""; 
+    window.activeProjectFilter = null;
+    window.searchTerm = "";
+    window.activeMonthFilter = ""; 
     
-    let chartStatus, chartTopProjects, chartYearly;
-    let customAvatars = {};
-    let projectReportData = [];
-    let employeeReportData = [];
-    let sortStateProj = { key: null, asc: true };
-    let sortStateEmp = { key: null, asc: true };
-    let currentZoom = 1; 
+    window.chartStatus = null;
+    window.chartTopProjects = null;
+    window.chartYearly = null;
+    window.customAvatars = {};
+    window.projectReportData = [];
+    window.employeeReportData = [];
+    window.sortStateProj = { key: null, asc: true };
+    window.sortStateEmp = { key: null, asc: true };
+    window.currentZoom = 1; 
 
-    const whitelist = {
+    window.whitelist = {
       "safwan.krasneh@bluedesignstudio.com": { name: "صفوان", role: "manager" },
       "hussam.banat@bluedesignstudio.com": { name: "حسام بنات", role: "manager" },
       "yazan.reyal@bluedesignstudio.com": { name: "يزن", role: "manager" },
@@ -702,8 +712,11 @@
       "abdullah.tekreeti@bluedesignstudio.com": { name: "عبدالله", role: "Code" } 
     };
 
-    const staffByTeam = { "3D": ["نور الدين", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "Code": ["عبدالله"] };
+    window.staffByTeam = { "3D": ["نور الدين", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "Code": ["عبدالله"] };
 
+    // ----------------------------------------------------
+    // 2. إعدادات اللغة والثيم
+    // ----------------------------------------------------
     const i18n = {
         ar: {
             login: "تسجيل الدخول", loginSub: "Blue Design Studio Cloud", emailPlh: "البريد الإلكتروني", passPlh: "كلمة المرور",
@@ -726,7 +739,7 @@
             assignmentSettings: "إعدادات التكليف", teamLbl: "القسم (Team)", assigneesLbl: "المسؤولون (Assignees)", dueDateLbl: "تاريخ التسليم المتوقع (Due Date)", estHrsLbl: "الساعات التقديرية (المخططة)",
             delTaskBtn: "حذف المهمة نهائياً 🗑️",
             hrsSymbol: "س", bySymbol: "بواسطة:", toSymbol: "موجه لـ:", noteSymbol: "📝 ملاحظة من:",
-            execReportLabel: "تقارير مشروع:", lastUpdatedBy: "تاريخ الإضافة:", typeReportHere: "لم يتم إضافة ملف بعد. يرجى الضغط على الأيقونة 📄 في الأعلى لتبدأ.",
+            execReportLabel: "ملفات مشروع:", lastUpdatedBy: "تاريخ الإضافة:", typeReportHere: "لم يتم إضافة ملف بعد. يرجى الضغط على الأيقونة 📄 في الأعلى لتبدأ.",
             sortDesc: "الأعلى إنجازاً ⬇️", sortAsc: "الأقل إنجازاً ⬆️"
         },
         en: {
@@ -740,7 +753,7 @@
             dashboardTitle: "Strategic Analytics Dashboard", statTasks: "Total Tasks", statHours: "Total Est. Hours", statProjects: "Active Projects",
             chartTaskStatus: "Overall Tasks Status", chartProjComp: "Project Completion (%)", chartTopProj: "Project Volume (Tasks Count)", chartYearly: "Projects Flow (Current Year)",
             reportsTitle: "Comprehensive Reports", exportBtn: "⬇ Export Tables to Excel",
-            projReportTitle: "Projects Progress Report", thProject: "Project ↕", thTeam: "Team ↕", thTasks: "Tasks ↕", thEstHrs: "Est. Hours ↕", thActHrs: "Act. Hours ↕", thExecReport: "Reports",
+            projReportTitle: "Projects Progress Report", thProject: "Project ↕", thTeam: "Team ↕", thTasks: "Tasks ↕", thEstHrs: "Est. Hours ↕", thActHrs: "Act. Hours ↕", thExecReport: "Project Files",
             empReportTitle: "Employees Performance Report", thEmpName: "Employee Name ↕", thEmpTeam: "Team ↕", thEmpTasks: "Assigned Tasks ↕",
             addTaskTitle: "Quick Add Task", addProjPlh: "Project Name (or type # to search)", addTaskTitlePlh: "Task Title", selTeamPlh: "-- Team --",
             chooseAssignees: "Select Assignees", chooseTeamFirst: "Please select a team first...", estHrsPlh: "Estimated Hours", createTaskBtn: "Create Task", cancelBtn: "Cancel",
@@ -750,67 +763,84 @@
             assignmentSettings: "Assignment Settings", teamLbl: "Team", assigneesLbl: "Assignees", dueDateLbl: "Due Date", estHrsLbl: "Estimated Hours",
             delTaskBtn: "Delete Task Permanently 🗑️",
             hrsSymbol: "h", bySymbol: "By:", toSymbol: "To:", noteSymbol: "📝 Note from:",
-            execReportLabel: "Reports for:", lastUpdatedBy: "Added On:", typeReportHere: "No file added yet. Please click the 📄 icon above to start.",
+            execReportLabel: "Files for:", lastUpdatedBy: "Added On:", typeReportHere: "No file added yet. Please click the 📄 icon above to start.",
             sortDesc: "Highest % ⬇️", sortAsc: "Lowest % ⬆️"
         }
     };
 
-    let currentLang = localStorage.getItem('blue_lang') || 'ar';
-    let currentTheme = localStorage.getItem('blue_theme') || 'light';
+    window.currentLang = localStorage.getItem('blue_lang') || 'ar';
+    window.currentTheme = localStorage.getItem('blue_theme') || 'light';
 
-    document.documentElement.setAttribute('data-theme', currentTheme);
+    document.documentElement.setAttribute('data-theme', window.currentTheme);
     
-    function applyI18n() {
-        document.documentElement.lang = currentLang;
-        document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    window.applyI18n = () => {
+        document.documentElement.lang = window.currentLang;
+        document.documentElement.dir = window.currentLang === 'ar' ? 'rtl' : 'ltr';
         
-        document.querySelectorAll('[data-i18n]').forEach(el => { el.innerText = i18n[currentLang][el.getAttribute('data-i18n')] || el.innerText; });
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = i18n[currentLang][el.getAttribute('data-i18n-placeholder')] || el.placeholder; });
+        document.querySelectorAll('[data-i18n]').forEach(el => { el.innerText = i18n[window.currentLang][el.getAttribute('data-i18n')] || el.innerText; });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = i18n[window.currentLang][el.getAttribute('data-i18n-placeholder')] || el.placeholder; });
         
         const sortBtn = document.getElementById('sortCompBtn');
         if(sortBtn && window.projCompSortType) {
              sortBtn.innerText = window.projCompSortType === 'desc' ? t('sortDesc') : t('sortAsc');
         }
-    }
+    };
     
-    const t = (key) => i18n[currentLang][key] || key;
+    const t = (key) => i18n[window.currentLang][key] || key;
     const sanitizeEmail = (email) => email.replace(/\./g, ',');
     const sanitizeProjName = (name) => name.replace(/[\.\#\$\[\]]/g, '_'); 
 
-    function taskMatchesMonthFilter(task) {
-        if(!activeMonthFilter) return true; 
+    // ----------------------------------------------------
+    // 3. دوال مساعدة للفلترة والجلب
+    // ----------------------------------------------------
+    window.taskMatchesMonthFilter = (task) => {
+        if(!window.activeMonthFilter) return true; 
         const date = new Date(task.createdAt || Date.now());
         const taskMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        return taskMonth === activeMonthFilter;
-    }
+        return taskMonth === window.activeMonthFilter;
+    };
 
-    function getFilteredTasks(ignoreMonthFilter = false) {
-        const hasAdminRights = isManager || isTeamLead;
-        return Object.values(allTasks).filter(t => {
+    window.getFilteredTasks = (ignoreMonthFilter = false) => {
+        const hasAdminRights = window.isManager || window.isTeamLead;
+        return Object.values(window.allTasks).filter(t => {
             if(!t || !t.projectName) return false;
             
             let assignedToArray = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
-            if(!hasAdminRights && !assignedToArray.includes(currentUserName)) return false;
+            if(!hasAdminRights && !assignedToArray.includes(window.currentUserName)) return false;
             
-            if(!ignoreMonthFilter && hasAdminRights && !taskMatchesMonthFilter(t)) return false;
-            if(activeProjectFilter && t.projectName !== activeProjectFilter) return false;
-            if(searchTerm && !t.title.toLowerCase().includes(searchTerm) && !t.projectName.toLowerCase().includes(searchTerm)) return false;
+            if(!ignoreMonthFilter && hasAdminRights && !window.taskMatchesMonthFilter(t)) return false;
+            if(window.activeProjectFilter && t.projectName !== window.activeProjectFilter) return false;
+            if(window.searchTerm && !t.title.toLowerCase().includes(window.searchTerm) && !t.projectName.toLowerCase().includes(window.searchTerm)) return false;
             
             return true;
         });
-    }
+    };
 
-    function updateSortIcons(tableId, state) {
+    // ----------------------------------------------------
+    // 4. دوال واجهة المستخدم والأحداث
+    // ----------------------------------------------------
+    window.toggleLang = () => { 
+        window.currentLang = window.currentLang === 'ar' ? 'en' : 'ar'; 
+        localStorage.setItem('blue_lang', window.currentLang); 
+        window.applyI18n(); 
+        window.refreshAllViews(); 
+    };
+
+    window.toggleTheme = () => { 
+        window.currentTheme = window.currentTheme === 'dark' ? 'light' : 'dark'; 
+        localStorage.setItem('blue_theme', window.currentTheme); 
+        document.documentElement.setAttribute('data-theme', window.currentTheme); 
+        window.refreshAllViews(); 
+    };
+
+    window.updateSortIcons = (tableId, state) => {
         const ths = document.querySelectorAll(`#${tableId} th`);
         ths.forEach(th => { th.classList.remove('sort-asc', 'sort-desc'); });
         if(!state.key) return;
         const activeTh = document.querySelector(`#${tableId} th[onclick*="'${state.key}'"]`);
         if(activeTh) activeTh.classList.add(state.asc ? 'sort-asc' : 'sort-desc');
-    }
-    window.updateSortIcons = updateSortIcons;
+    };
 
-    // --- دوال عرض الملفات (Embed Viewer المحدثة) ---
-    
     window.openLinkInput = () => {
         const wrapper = document.getElementById('urlWrapper');
         const input = document.getElementById('embed-url-input');
@@ -837,8 +867,8 @@
                 iframe.style.display = 'none';
                 emptyState.style.display = 'flex';
             }
-            closeLinkInput();
-            saveProjectReport();
+            window.closeLinkInput();
+            window.saveProjectReport();
         }
     };
 
@@ -852,19 +882,30 @@
     };
 
     window.zoomIframe = (step) => {
-        currentZoom += step;
-        if (currentZoom < 0.5) currentZoom = 0.5;
-        if (currentZoom > 3) currentZoom = 3;
+        window.currentZoom += step;
+        if (window.currentZoom < 0.5) window.currentZoom = 0.5;
+        if (window.currentZoom > 3) window.currentZoom = 3;
         
         const wrapper = document.getElementById('iframe-zoom-wrapper');
-        wrapper.style.transform = `scale(${currentZoom})`;
-        wrapper.style.width = `${100 / currentZoom}%`;
-        wrapper.style.height = `${100 / currentZoom}%`;
+        wrapper.style.transform = `scale(${window.currentZoom})`;
+        wrapper.style.width = `${100 / window.currentZoom}%`;
+        wrapper.style.height = `${100 / window.currentZoom}%`;
+    };
+
+    window.toggleReportFullscreen = () => {
+        const modal = document.getElementById('projectReportModal');
+        const modalBox = modal.querySelector('.report-modal');
+        modalBox.classList.toggle('fullscreen');
+        if (modalBox.classList.contains('fullscreen')) {
+            modal.classList.add('fullscreen-active');
+        } else {
+            modal.classList.remove('fullscreen-active');
+        }
     };
 
     window.openProjectReport = (projectName) => {
         const safeKey = sanitizeProjName(projectName);
-        const reportData = allProjectReports[safeKey];
+        const reportData = window.allProjectReports[safeKey];
         
         document.getElementById('pr-project-name').innerText = projectName;
         document.getElementById('pr-project-name').setAttribute('data-raw-name', projectName); 
@@ -874,7 +915,7 @@
         const emptyState = document.getElementById('pr-empty-state');
         const wrapper = document.getElementById('urlWrapper');
         
-        currentZoom = 1;
+        window.currentZoom = 1;
         const zoomWrapper = document.getElementById('iframe-zoom-wrapper');
         zoomWrapper.style.transform = `scale(1)`;
         zoomWrapper.style.width = `100%`;
@@ -887,43 +928,28 @@
             iframe.src = reportData.embedUrl;
             iframe.style.display = 'block';
             emptyState.style.display = 'none';
-            
-            const d = new Date(reportData.lastUpdatedAt).toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-            document.getElementById('pr-last-updated').innerText = `${d}`;
         } else {
             urlInput.value = '';
             iframe.src = '';
             iframe.style.display = 'none';
             emptyState.style.display = 'flex';
-            document.getElementById('pr-last-updated').innerText = '-';
         }
 
         document.getElementById('projectReportModal').classList.add('active');
     };
 
     window.closeProjectReport = () => {
-        document.getElementById('projectReportModal').classList.remove('active');
+        const modal = document.getElementById('projectReportModal');
+        modal.classList.remove('active');
+        const modalBox = modal.querySelector('.report-modal');
+        modalBox.classList.remove('fullscreen');
+        modal.classList.remove('fullscreen-active');
         document.getElementById('pr-iframe').src = ''; 
     };
 
-    window.saveProjectReport = () => {
-        const rawName = document.getElementById('pr-project-name').getAttribute('data-raw-name');
-        const safeKey = sanitizeProjName(rawName);
-        const embedUrl = document.getElementById('embed-url-input').value.trim();
-        const { ref, update, db } = window.firebaseTools;
-
-        update(ref(db, `projectReports/${safeKey}`), {
-            embedUrl: embedUrl,
-            lastUpdatedBy: currentUserName,
-            lastUpdatedAt: Date.now()
-        }).catch(err => console.log(err));
-    };
-
-
-    // --- دوال التقارير الإحصائية ---
-    function prepareReportData() {
+    window.prepareReportData = () => {
         try {
-            const arr = getFilteredTasks();
+            const arr = window.getFilteredTasks();
             const projMap = {};
             const empMap = {};
 
@@ -954,154 +980,155 @@
                 });
             });
 
-            projectReportData = Object.values(projMap).map(p => ({
+            window.projectReportData = Object.values(projMap).map(p => ({
                 project: p.project, team: Array.from(p.teams).join(', '), assignees: Array.from(p.assignees).join(', '),
                 tasks: p.tasks, estHours: p.estHours, actHours: p.actHours
             }));
 
-            employeeReportData = Object.values(empMap);
-            renderProjTable();
-            renderEmpTable();
+            window.employeeReportData = Object.values(empMap);
+            window.renderProjTable();
+            window.renderEmpTable();
         } catch (error) {
             console.error("Error preparing reports data:", error);
         }
-    }
-    window.prepareReportData = prepareReportData;
+    };
 
-    function renderProjTable() {
-        const body = document.getElementById('report-projects-body');
-        if(!body) return;
-        body.innerHTML = '';
-        if(sortStateProj.key) {
-            projectReportData.sort((a, b) => {
-                let valA = a[sortStateProj.key]; let valB = b[sortStateProj.key];
-                if (typeof valA === 'string') return sortStateProj.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-                return sortStateProj.asc ? valA - valB : valB - valA;
+    window.renderProjTable = () => {
+        try {
+            const body = document.getElementById('report-projects-body');
+            if(!body) return;
+            body.innerHTML = '';
+            if(window.sortStateProj.key) {
+                window.projectReportData.sort((a, b) => {
+                    let valA = a[window.sortStateProj.key]; let valB = b[window.sortStateProj.key];
+                    if (typeof valA === 'string') return window.sortStateProj.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    return window.sortStateProj.asc ? valA - valB : valB - valA;
+                });
+            }
+            window.projectReportData.forEach(p => {
+                const safeProj = p.project.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                const reportBtn = `<button onclick="openProjectReport('${safeProj}')" class="btn-outline" style="padding: 4px 10px; font-size:0.75rem;">📄 ${t("thExecReport")}</button>`;
+
+                body.innerHTML += `<tr>
+                    <td><span class="project-chip" style="margin:0;"># ${p.project}</span></td>
+                    <td style="color: var(--blue-grey);">${p.team || '-'}</td>
+                    <td>${p.tasks}</td>
+                    <td>${p.estHours}</td>
+                    <td style="color:var(--amber); font-weight:700;">${p.actHours}</td>
+                    <td>${reportBtn}</td>
+                </tr>`;
             });
-        }
-        projectReportData.forEach(p => {
-            const safeProj = p.project.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-            const reportBtn = `<button onclick="openProjectReport('${safeProj}')" class="btn-outline" style="padding: 4px 10px; font-size:0.75rem;">📄 ${t("thExecReport")}</button>`;
+            window.updateSortIcons('projectsTable', window.sortStateProj);
+        } catch(e) { console.log(e); }
+    };
 
-            body.innerHTML += `<tr>
-                <td><span class="project-chip" style="margin:0;"># ${p.project}</span></td>
-                <td style="color: var(--blue-grey);">${p.team || '-'}</td>
-                <td>${p.tasks}</td>
-                <td>${p.estHours}</td>
-                <td style="color:var(--amber); font-weight:700;">${p.actHours}</td>
-                <td>${reportBtn}</td>
-            </tr>`;
-        });
-        updateSortIcons('projectsTable', sortStateProj);
-    }
-    window.renderProjTable = renderProjTable;
-
-    function renderEmpTable() {
-        const body = document.getElementById('report-employees-body');
-        if(!body) return;
-        body.innerHTML = '';
-        if(sortStateEmp.key) {
-            employeeReportData.sort((a, b) => {
-                let valA = a[sortStateEmp.key]; let valB = b[sortStateEmp.key];
-                if (typeof valA === 'string') return sortStateEmp.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-                return sortStateEmp.asc ? valA - valB : valB - valA;
+    window.renderEmpTable = () => {
+        try {
+            const body = document.getElementById('report-employees-body');
+            if(!body) return;
+            body.innerHTML = '';
+            if(window.sortStateEmp.key) {
+                window.employeeReportData.sort((a, b) => {
+                    let valA = a[window.sortStateEmp.key]; let valB = b[window.sortStateEmp.key];
+                    if (typeof valA === 'string') return window.sortStateEmp.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    return window.sortStateEmp.asc ? valA - valB : valB - valA;
+                });
+            }
+            window.employeeReportData.forEach(e => {
+                body.innerHTML += `<tr>
+                    <td><div style="display:flex; align-items:center; gap:8px;">${window.getAvatarHTML(e.name)} <span style="font-weight:600;">${e.name}</span></div></td>
+                    <td style="color: var(--blue-grey);">${e.team || '-'}</td>
+                    <td>${e.tasks}</td>
+                    <td style="color:var(--amber); font-weight:700;">${e.hours}</td>
+                </tr>`;
             });
-        }
-        employeeReportData.forEach(e => {
-            body.innerHTML += `<tr>
-                <td><div style="display:flex; align-items:center; gap:8px;">${getAvatarHTML(e.name)} <span style="font-weight:600;">${e.name}</span></div></td>
-                <td style="color: var(--blue-grey);">${e.team || '-'}</td>
-                <td>${e.tasks}</td>
-                <td style="color:var(--amber); font-weight:700;">${e.hours}</td>
-            </tr>`;
-        });
-        updateSortIcons('employeesTable', sortStateEmp);
-    }
-    window.renderEmpTable = renderEmpTable;
+            window.updateSortIcons('employeesTable', window.sortStateEmp);
+        } catch(e) { console.log(e); }
+    };
 
     window.sortProjTable = (key) => {
-        if(sortStateProj.key === key) sortStateProj.asc = !sortStateProj.asc;
-        else { sortStateProj.key = key; sortStateProj.asc = true; }
-        renderProjTable();
+        if(window.sortStateProj.key === key) window.sortStateProj.asc = !window.sortStateProj.asc;
+        else { window.sortStateProj.key = key; window.sortStateProj.asc = true; }
+        window.renderProjTable();
     };
 
     window.sortEmpTable = (key) => {
-        if(sortStateEmp.key === key) sortStateEmp.asc = !sortStateEmp.asc;
-        else { sortStateEmp.key = key; sortStateEmp.asc = true; }
-        renderEmpTable();
+        if(window.sortStateEmp.key === key) window.sortStateEmp.asc = !window.sortStateEmp.asc;
+        else { window.sortStateEmp.key = key; window.sortStateEmp.asc = true; }
+        window.renderEmpTable();
     };
 
-    // --- الداشبورد ---
     window.projCompSortType = 'desc'; 
     window.toggleCompSort = () => {
         window.projCompSortType = window.projCompSortType === 'desc' ? 'asc' : 'desc';
         document.getElementById('sortCompBtn').innerText = window.projCompSortType === 'desc' ? t('sortDesc') : t('sortAsc');
-        const arr = getFilteredTasks();
-        renderProjectCompletion(arr);
+        const arr = window.getFilteredTasks();
+        window.renderProjectCompletion(arr);
     };
 
-    function renderProjectCompletion(arr) {
-        let projStats = {};
-        
-        arr.forEach(t => {
-            if(!projStats[t.projectName]) projStats[t.projectName] = { totalChecklistItems: 0, completedChecklistItems: 0 };
+    window.renderProjectCompletion = (arr) => {
+        try {
+            let projStats = {};
             
-            if (t.checklist) {
-                Object.values(t.checklist).forEach(item => {
-                    projStats[t.projectName].totalChecklistItems++;
-                    if(item.done) projStats[t.projectName].completedChecklistItems++;
-                });
+            arr.forEach(t => {
+                if(!projStats[t.projectName]) projStats[t.projectName] = { totalChecklistItems: 0, completedChecklistItems: 0 };
+                
+                if (t.checklist) {
+                    Object.values(t.checklist).forEach(item => {
+                        projStats[t.projectName].totalChecklistItems++;
+                        if(item.done) projStats[t.projectName].completedChecklistItems++;
+                    });
+                }
+            });
+
+            const compContainer = document.getElementById('projectCompletionList');
+            if(!compContainer) return;
+            compContainer.innerHTML = '';
+            
+            let projectsArr = Object.keys(projStats).map(pName => {
+                const stats = projStats[pName];
+                const pct = stats.totalChecklistItems > 0 ? Math.round((stats.completedChecklistItems / stats.totalChecklistItems) * 100) : 0;
+                return { name: pName, pct: pct };
+            });
+
+            if (window.projCompSortType === 'desc') {
+                projectsArr.sort((a, b) => b.pct - a.pct || a.name.localeCompare(b.name));
+            } else {
+                projectsArr.sort((a, b) => a.pct - b.pct || a.name.localeCompare(b.name));
             }
-        });
 
-        const compContainer = document.getElementById('projectCompletionList');
-        if(!compContainer) return;
-        compContainer.innerHTML = '';
-        
-        let projectsArr = Object.keys(projStats).map(pName => {
-            const stats = projStats[pName];
-            const pct = stats.totalChecklistItems > 0 ? Math.round((stats.completedChecklistItems / stats.totalChecklistItems) * 100) : 0;
-            return { name: pName, pct: pct };
-        });
+            const colors = ['#34d399', '#fbbf24', '#f97316', '#3BA4FE', '#a78bfa', '#f87171']; 
+            let colorIdx = 0;
 
-        if (window.projCompSortType === 'desc') {
-            projectsArr.sort((a, b) => b.pct - a.pct || a.name.localeCompare(b.name));
-        } else {
-            projectsArr.sort((a, b) => a.pct - b.pct || a.name.localeCompare(b.name));
-        }
+            projectsArr.forEach(p => {
+                const color = colors[colorIdx % colors.length];
+                colorIdx++;
 
-        const colors = ['#34d399', '#fbbf24', '#f97316', '#3BA4FE', '#a78bfa', '#f87171']; 
-        let colorIdx = 0;
-
-        projectsArr.forEach(p => {
-            const color = colors[colorIdx % colors.length];
-            colorIdx++;
-
-            compContainer.innerHTML += `
-                <div class="comp-item">
-                    <div class="comp-header">
-                        <span>${p.name}</span>
-                        <span style="font-weight:700;">${p.pct}%</span>
+                compContainer.innerHTML += `
+                    <div class="comp-item">
+                        <div class="comp-header">
+                            <span>${p.name}</span>
+                            <span style="font-weight:700;">${p.pct}%</span>
+                        </div>
+                        <div class="comp-track">
+                            <div class="comp-fill" style="width: ${p.pct}%; background: ${color};"></div>
+                        </div>
                     </div>
-                    <div class="comp-track">
-                        <div class="comp-fill" style="width: ${p.pct}%; background: ${color};"></div>
-                    </div>
-                </div>
-            `;
-        });
-    }
-    window.renderProjectCompletion = renderProjectCompletion;
+                `;
+            });
+        } catch(e) { console.log(e); }
+    };
 
-    const getChartTextColor = () => currentTheme === 'light' ? '#0f172a' : '#E8EEF5';
-    const getChartGridColor = () => currentTheme === 'light' ? '#e2e8f0' : '#1F3550';
+    const getChartTextColor = () => window.currentTheme === 'light' ? '#0f172a' : '#E8EEF5';
+    const getChartGridColor = () => window.currentTheme === 'light' ? '#e2e8f0' : '#1F3550';
 
-    function drawCharts(arr, arrYearly) {
+    window.drawCharts = (arr, arrYearly) => {
         if (typeof Chart === 'undefined') return; 
         
         try {
             const sData = [arr.filter(t => t.status === 'pending').length, arr.filter(t => t.status === 'inprogress').length, arr.filter(t => t.status === 'completed').length];
-            if(chartStatus) chartStatus.destroy();
-            chartStatus = new Chart(document.getElementById('chartStatus'), { 
+            if(window.chartStatus) window.chartStatus.destroy();
+            window.chartStatus = new Chart(document.getElementById('chartStatus'), { 
                 type: 'doughnut', 
                 data: { 
                     labels: [t('colPending'), t('colInProgress'), t('colCompleted')], 
@@ -1121,8 +1148,8 @@
             const sortedProjs = Object.keys(projTaskCounts).sort((a, b) => projTaskCounts[b] - projTaskCounts[a]).slice(0, 7);
             const projCountsData = sortedProjs.map(p => projTaskCounts[p]);
             
-            if(chartTopProjects) chartTopProjects.destroy();
-            chartTopProjects = new Chart(document.getElementById('chartTopProjects'), { 
+            if(window.chartTopProjects) window.chartTopProjects.destroy();
+            window.chartTopProjects = new Chart(document.getElementById('chartTopProjects'), { 
                 type: 'bar', 
                 data: { labels: sortedProjs, datasets: [{ label: t("statTasks"), data: projCountsData, backgroundColor: '#88CFFD', borderRadius: 4 }] }, 
                 options: { 
@@ -1142,14 +1169,14 @@
                 if(d.getFullYear() === currentYear) monthlyProjects[d.getMonth()].add(t.projectName);
             });
             
-            const monthLabels = currentLang === 'ar' ? 
+            const monthLabels = window.currentLang === 'ar' ? 
                 ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'] :
                 ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                 
             const monthData = monthlyProjects.map(set => set.size);
             
-            if(chartYearly) chartYearly.destroy();
-            chartYearly = new Chart(document.getElementById('chartYearly'), { 
+            if(window.chartYearly) window.chartYearly.destroy();
+            window.chartYearly = new Chart(document.getElementById('chartYearly'), { 
                 type: 'line', 
                 data: { labels: monthLabels, datasets: [{ label: 'Projects', data: monthData, borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4 }] }, 
                 options: { 
@@ -1164,296 +1191,381 @@
         } catch(e) {
             console.error("Error drawing charts:", e);
         }
-    }
+    };
 
-    function updateAdminStats() {
+    window.updateAdminStats = () => {
         try {
-            const arr = getFilteredTasks();
-            const arrYearly = getFilteredTasks(true); 
+            const arr = window.getFilteredTasks();
+            const arrYearly = window.getFilteredTasks(true); 
             
             document.getElementById('st-total').innerText = arr.length;
             document.getElementById('st-hours').innerText = arr.reduce((a, b) => a + (b.estHours || 0), 0) + " " + t("hrsSymbol");
             document.getElementById('st-projects').innerText = [...new Set(arr.map(x => x.projectName))].length;
             
             if(document.getElementById('dashboard').classList.contains('active')) {
-                drawCharts(arr, arrYearly);
-                renderProjectCompletion(arr);
+                window.drawCharts(arr, arrYearly);
+                window.renderProjectCompletion(arr);
             }
         } catch (error) {
             console.error("Dashboard error:", error);
         }
-    }
-    window.updateAdminStats = updateAdminStats;
+    };
 
-    function getAvatarHTML(name, emailKey = null) {
+    window.getAvatarHTML = (name, emailKey = null) => {
         if(!name) return '';
         if (!emailKey) {
-            for (let e in whitelist) {
-                if (whitelist[e].name === name) { emailKey = sanitizeEmail(e); break; }
+            for (let e in window.whitelist) {
+                if (window.whitelist[e].name === name) { emailKey = sanitizeEmail(e); break; }
             }
         }
-        if (emailKey && customAvatars[emailKey]) { return `<span class="avatar" title="${name}"><img src="${customAvatars[emailKey]}" alt="${name}"></span>`; }
+        if (emailKey && window.customAvatars[emailKey]) { return `<span class="avatar" title="${name}"><img src="${window.customAvatars[emailKey]}" alt="${name}"></span>`; }
         const colors = ['#3BA4FE', '#f87171', '#34d399', '#fbbf24', '#a78bfa', '#818cf8'];
         const char = name.substring(0, 2);
         const color = colors[char.charCodeAt(0) % colors.length];
         return `<span class="avatar" style="background-color: ${color};" title="${name}">${char}</span>`;
-    }
+    };
 
-    setTimeout(() => {
-        applyI18n(); 
+    window.refreshAllViews = () => {
+        window.renderProjectsSidebar(); 
+        window.renderBoard(); 
+        if(window.isManager || window.isTeamLead) {
+            setTimeout(() => {
+                if(document.getElementById('dashboard').classList.contains('active')) window.updateAdminStats();
+                window.prepareReportData();
+            }, 50);
+        }
+    };
+
+    window.handleSearch = () => { window.searchTerm = document.getElementById('searchInput').value.toLowerCase(); window.refreshAllViews(); };
+    window.setProjectFilter = (projName) => { window.activeProjectFilter = projName === window.activeProjectFilter ? null : projName; window.refreshAllViews(); };
+    window.handleMonthFilterChange = () => { window.activeMonthFilter = document.getElementById('monthFilter').value; window.refreshAllViews(); };
+    
+    window.clearFilters = () => { 
+        window.activeProjectFilter = null; window.searchTerm = ""; document.getElementById('searchInput').value = ""; 
+        window.activeMonthFilter = ""; 
+        if(document.getElementById('monthFilter')) document.getElementById('monthFilter').value = window.activeMonthFilter;
+        window.refreshAllViews();
+    };
+
+    window.renderProjectsSidebar = () => {
+        const container = document.getElementById('project-filters-list');
+        if(!container) return;
+        const projCounts = {};
+        const hasAdminRights = window.isManager || window.isTeamLead;
+        Object.values(window.allTasks).forEach(t => {
+            if(!t || !t.projectName) return;
+            let assignedToArray = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+            if(!hasAdminRights && !assignedToArray.includes(window.currentUserName)) return;
+            if(hasAdminRights && !window.taskMatchesMonthFilter(t)) return;
+            projCounts[t.projectName] = (projCounts[t.projectName] || 0) + 1;
+        });
+        container.innerHTML = '';
+        Object.keys(projCounts).forEach(p => {
+            const isActive = p === window.activeProjectFilter ? 'active' : '';
+            container.innerHTML += `<div class="project-filter-item ${isActive}" onclick="setProjectFilter('${p.replace(/'/g, "\\'")}')"><span># ${p}</span><span class="count">${projCounts[p]}</span></div>`;
+        });
+    };
+
+    window.renderBoard = () => {
+        ['pending', 'inprogress', 'completed'].forEach(s => { 
+            const list = document.getElementById(`list-${s}`);
+            if(list) list.innerHTML = ''; 
+            const count = document.getElementById(`count-${s}`);
+            if(count) count.innerText = '0'; 
+        });
+        let counts = { pending: 0, inprogress: 0, completed: 0 };
+        const arr = window.getFilteredTasks();
+
+        arr.forEach(task => {
+            counts[task.status]++;
+
+            let dateHtml = '';
+            if(task.dueDate) {
+                const today = new Date().toISOString().split('T')[0];
+                const isOverdue = task.dueDate < today && task.status !== 'completed';
+                dateHtml = `<div class="due-date-chip" style="${isOverdue ? 'background: rgba(248, 113, 113, 0.2); color: var(--red-danger);' : 'background: rgba(136, 207, 253, 0.1); color: var(--intel-blue);'}">📅 ${task.dueDate}</div>`;
+            }
+
+            let progressHtml = '';
+            let totalItems = 0; let doneItems = 0;
+            if (task.checklist) { Object.values(task.checklist).forEach(item => { totalItems++; if (item.done) doneItems++; }); }
+            if (totalItems > 0) {
+                const progressPercent = Math.round((doneItems / totalItems) * 100);
+                const fillClass = progressPercent === 100 ? 'card-progress-fill completed' : 'card-progress-fill';
+                progressHtml = `<div class="card-progress-wrap"><div class="card-progress-header"><span>☑ (${doneItems}/${totalItems})</span><span>${progressPercent}%</span></div><div class="card-progress-bg"><div class="${fillClass}" style="width: ${progressPercent}%;"></div></div></div>`;
+            }
+
+            let assignedToArray = task.assignedTo ? (Array.isArray(task.assignedTo) ? task.assignedTo : [task.assignedTo]) : [];
+            let avatarsHtml = assignedToArray.map(name => window.getAvatarHTML(name)).join('');
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.draggable = true;
+            card.setAttribute('ondragstart', `dragStart(event, '${task.id || Object.keys(window.allTasks).find(k => window.allTasks[k]===task)}')`); 
+            card.setAttribute('ondragend', `dragEnd(event)`);
+            card.onclick = () => window.openTaskDetailsModal(Object.keys(window.allTasks).find(k => window.allTasks[k]===task));
+            
+            card.innerHTML = `
+                <div class="project-chip"># ${task.projectName}</div>
+                ${dateHtml}
+                <div class="card-title">${task.title || 'Task'}</div>
+                ${progressHtml}
+                <div class="card-footer"><div class="user-info">${avatarsHtml}</div><div class="hour-badge">${task.estHours || 0} ${t("hrsSymbol")}</div></div>
+            `;
+            const colList = document.getElementById(`list-${task.status}`);
+            if(colList) colList.appendChild(card);
+        });
+
+        if(document.getElementById('count-pending')) document.getElementById('count-pending').innerText = counts.pending;
+        if(document.getElementById('count-inprogress')) document.getElementById('count-inprogress').innerText = counts.inprogress;
+        if(document.getElementById('count-completed')) document.getElementById('count-completed').innerText = counts.completed;
+        
+        const pLbl = document.querySelector('[data-status="pending"] h3 span[data-i18n]');
+        if(pLbl) pLbl.innerText = t("colPending");
+        const iLbl = document.querySelector('[data-status="inprogress"] h3 span[data-i18n]');
+        if(iLbl) iLbl.innerText = t("colInProgress");
+        const cLbl = document.querySelector('[data-status="completed"] h3 span[data-i18n]');
+        if(cLbl) cLbl.innerText = t("colCompleted");
+    };
+
+    window.renderNewTaskHashtags = () => {
+        const container = document.getElementById('hashtagContainerNew');
+        if(!container) return;
+        const projMap = {};
+        Object.values(window.allTasks).forEach(t => {
+            if(!t || !t.projectName) return;
+            if(!projMap[t.projectName] || (t.createdAt && t.createdAt > projMap[t.projectName])) projMap[t.projectName] = t.createdAt || Date.now();
+        });
+        const sortedProjs = Object.keys(projMap).sort((a,b) => projMap[b] - projMap[a]);
+        const top4 = sortedProjs.slice(0, 4);
+        container.innerHTML = top4.map(p => `<span class="project-hashtag" onclick="document.getElementById('pNameNew').value='${p.replace(/'/g, "\\'")}'; document.getElementById('projectSuggestions').style.display='none';"># ${p}</span>`).join('');
+    };
+    
+    window.handleProjectInput = () => {
+        const input = document.getElementById('pNameNew');
+        const val = input.value.toLowerCase();
+        const suggestionsBox = document.getElementById('projectSuggestions');
+        if (!val) { suggestionsBox.style.display = 'none'; return; }
+        const projs = [...new Set(Object.values(window.allTasks).filter(t=>t && t.projectName).map(task => task.projectName))];
+        let filtered = [];
+        if (val.includes('#')) {
+            const searchStr = val.substring(val.indexOf('#') + 1).trim();
+            filtered = projs.filter(p => p.toLowerCase().includes(searchStr));
+        } else {
+            filtered = projs.filter(p => p.toLowerCase().includes(val));
+        }
+        if (filtered.length > 0) {
+            suggestionsBox.innerHTML = filtered.map(p => `<div class="suggestion-item" onclick="selectProjectSuggestion('${p.replace(/'/g, "\\'")}')"># ${p}</div>`).join('');
+            suggestionsBox.style.display = 'block';
+        } else { suggestionsBox.style.display = 'none'; }
+    };
+
+    window.selectProjectSuggestion = (pName) => { document.getElementById('pNameNew').value = pName; document.getElementById('projectSuggestions').style.display = 'none'; };
+
+    window.openAddModal = () => { 
+        document.getElementById('pNameNew').value = window.activeProjectFilter || "";
+        document.getElementById('tTitleNew').value = "";
+        document.getElementById('eHoursNew').value = "";
+        document.getElementById('sNameNewContainer').innerHTML = `<div style="color: var(--muted-blue); font-size: 0.8rem; padding: 5px;">${t("chooseTeamFirst")}</div>`;
+        document.getElementById('projectSuggestions').style.display = 'none'; 
+        window.renderNewTaskHashtags();
+        document.getElementById('addTaskModal').classList.add('active'); 
+    };
+
+    window.updateStaffListNew = () => {
+        const team = document.getElementById('tTypeNew').value;
+        const container = document.getElementById('sNameNewContainer');
+        container.innerHTML = '';
+        if (window.staffByTeam[team]) {
+            window.staffByTeam[team].forEach(e => { container.innerHTML += `<label><input type="checkbox" value="${e}"> ${window.getAvatarHTML(e)} ${e}</label>`; });
+        }
+    };
+
+    window.updateChecklistAssigneeOptions = () => {
+        const checkedBoxes = document.querySelectorAll('#dt-assignee-container input[type="checkbox"]:checked');
+        const select = document.getElementById('dt-new-checklist-assignee');
+        if(!select) return;
+        const currentVal = select.value;
+        select.innerHTML = `<option value="">${t("assignedToPlh")}</option>`;
+        checkedBoxes.forEach(cb => { select.innerHTML += `<option value="${cb.value}">${cb.value}</option>`; });
+        if (Array.from(checkedBoxes).some(cb => cb.value === currentVal)) select.value = currentVal;
+    };
+
+    window.openTaskDetailsModal = (id) => {
+        const task = window.allTasks[id];
+        document.getElementById('dt-id').value = id;
+        document.getElementById('dt-project').innerText = `# ${task.projectName}`;
+        document.getElementById('dt-title-input').value = task.title; 
+        
+        const statusMap = { 'pending': t("colPending"), 'inprogress': t("colInProgress"), 'completed': t("colCompleted") };
+        document.getElementById('dt-status-text').innerText = statusMap[task.status];
+        document.getElementById('dt-desc').value = task.description || "";
+        if(!task.dueDate) document.getElementById('dt-duedate').valueAsDate = new Date();
+        else document.getElementById('dt-duedate').value = task.dueDate;
+        
+        document.getElementById('dt-hours').value = task.estHours || 0;
+        document.getElementById('dt-team').value = task.team || "";
+        
+        let assignedToArray = task.assignedTo ? (Array.isArray(task.assignedTo) ? task.assignedTo : [task.assignedTo]) : [];
+        window.updateStaffListDetails(assignedToArray);
+
+        window.renderComments(task.comments);
+        window.renderChecklist(task.checklist);
+
+        document.getElementById('taskDetailsModal').classList.add('active');
+    };
+
+    window.closeDetailsModal = () => document.getElementById('taskDetailsModal').classList.remove('active');
+
+    window.updateStaffListDetails = (selectedAssignees = []) => {
+        const team = document.getElementById('dt-team').value;
+        const container = document.getElementById('dt-assignee-container');
+        container.innerHTML = '';
+        const hasAdminRights = window.isManager || window.isTeamLead;
+        if (window.staffByTeam[team]) {
+            window.staffByTeam[team].forEach(e => {
+                const isChecked = selectedAssignees.includes(e) ? 'checked' : '';
+                const disabled = !hasAdminRights ? 'disabled' : '';
+                container.innerHTML += `<label><input type="checkbox" value="${e}" ${isChecked} ${disabled} onchange="updateChecklistAssigneeOptions()"> ${window.getAvatarHTML(e)} ${e}</label>`;
+            });
+        }
+        window.updateChecklistAssigneeOptions();
+    };
+
+    window.renderChecklist = (checklistObj) => {
+        const list = document.getElementById('dt-checklist-items');
+        list.innerHTML = '';
+        
+        if(!checklistObj) {
+            document.getElementById('dt-header-progress-fill').style.width = '0%';
+            document.getElementById('dt-header-progress-fill').style.background = 'var(--amber)';
+            document.getElementById('dt-header-progress-text').innerText = '0%';
+            return;
+        }
+        
+        let total = 0; let doneCount = 0;
+        const hasAdminRights = window.isManager || window.isTeamLead;
+        
+        Object.keys(checklistObj).forEach(k => {
+            total++;
+            const item = checklistObj[k];
+            if(item.done) doneCount++;
+            
+            const hoursHtml = item.actualHours ? `<span class="hours-badge-small">⏱ ${item.actualHours} ${t("hrsSymbol")}</span>` : '';
+            const isAssignedUser = window.currentUserName === item.assignedToItem;
+            const canCheck = hasAdminRights || isAssignedUser;
+            const disabledAttr = canCheck ? '' : 'disabled';
+            
+            const tagAddedBy = `<span style="display:flex; align-items:center; gap:5px; font-size: 0.65rem; color: var(--blue-grey); background: var(--card-bg); padding: 3px 8px; border-radius: 10px; border: 1px solid var(--border);">${t("bySymbol")} ${window.getAvatarHTML(item.addedBy)} ${item.addedBy}</span>`;
+            const tagAssignedTo = item.assignedToItem ? `<span style="display:flex; align-items:center; gap:5px; font-size: 0.65rem; color: var(--intel-blue); background: rgba(0, 131, 255, 0.1); padding: 3px 8px; border-radius: 10px; border: 1px solid rgba(0,131,255,0.2);">${t("toSymbol")} ${window.getAvatarHTML(item.assignedToItem)} ${item.assignedToItem}</span>` : '';
+            const noteBtn = `<button onclick="editChecklistNote('${k}', '${(item.note || '').replace(/'/g, "\\'")}')" style="background: none; border: none; color: var(--blue-grey); cursor: pointer; font-size: 1rem; margin-inline-end:5px;" title="📝 Note">📝</button>`;
+            const deleteBtn = hasAdminRights ? `<button onclick="deleteChecklistItem('${k}')" style="background: none; border: none; color: var(--red-danger); cursor: pointer; font-size: 1.1rem; margin-inline-end: auto;">✖</button>` : '';
+
+            const noteAuthor = item.noteBy || item.addedBy;
+            const noteDisplay = item.note ? `<div class="checklist-note-display"><div style="font-weight: 600; margin-bottom: 5px; color: var(--amber); font-size: 0.75rem;">${t("noteSymbol")} ${noteAuthor}</div><div>${item.note}</div></div>` : '';
+
+            list.innerHTML += `
+                <div class="checklist-item" style="border-color: ${item.done ? 'var(--soft-line)' : 'var(--border)'}; opacity: ${item.done ? '0.6' : '1'};">
+                    <div class="checklist-item-header">
+                        <label style="text-decoration: ${item.done ? 'line-through' : 'none'}; color: ${item.done ? 'var(--blue-grey)' : 'var(--text)'}">
+                            <input type="checkbox" ${item.done ? 'checked' : ''} ${disabledAttr} onchange="toggleChecklistItem('${k}', ${item.done})">
+                            ${item.text}
+                        </label>
+                        <div style="display:flex; align-items:center; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+                            ${hoursHtml}
+                            ${tagAddedBy}
+                            ${tagAssignedTo}
+                            ${noteBtn}
+                            ${deleteBtn}
+                        </div>
+                    </div>
+                    ${noteDisplay}
+                </div>
+            `;
+        });
+        
+        const progress = total === 0 ? 0 : Math.round((doneCount / total) * 100);
+        const fill = document.getElementById('dt-header-progress-fill');
+        fill.style.width = `${progress}%`;
+        fill.style.background = progress === 100 ? 'var(--green-success)' : 'var(--amber)';
+        document.getElementById('dt-header-progress-text').innerText = `${progress}%`;
+    };
+
+    window.renderComments = (commentsObj) => {
+        const list = document.getElementById('dt-comments-list');
+        list.innerHTML = '';
+        if(!commentsObj) return;
+        const commentsArray = Object.keys(commentsObj).map(k => commentsObj[k]).sort((a,b) => b.time - a.time);
+        commentsArray.forEach(c => {
+            const date = new Date(c.time).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+            list.innerHTML += `<div class="comment-item">${window.getAvatarHTML(c.user)}<div class="comment-content"><div class="comment-meta"><b>${c.user}</b> <span>${date}</span></div><div style="color:var(--text); font-size: 0.9rem; margin-top:5px;">${c.text}</div></div></div>`;
+        });
+    };
+
+    window.dragStart = (e, id) => { e.dataTransfer.setData("taskId", id); e.target.style.opacity = "0.4"; };
+    window.dragEnd = (e) => { e.target.style.opacity = "1"; };
+    window.dragOver = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
+    window.dragLeave = (e) => { e.currentTarget.classList.remove('drag-over'); };
+    
+    // ربط القوائم
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.onclick = () => { 
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); 
+            item.classList.add('active'); 
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
+            document.getElementById(item.dataset.target).classList.add('active'); 
+            
+            if(item.dataset.target === 'dashboard') {
+                setTimeout(() => { if (window.isManager || window.isTeamLead) window.updateAdminStats(); }, 50);
+            }
+            if(item.dataset.target === 'reports') {
+                if (window.isManager || window.isTeamLead) window.prepareReportData();
+            }
+        }
+    });
+
+    window.exportExcel = () => {
+        if(window.projectReportData.length === 0) return alert("No Data to Export");
+        const projExport = window.projectReportData.map(p => ({
+            "Project": p.project, "Team": p.team, "Assignees": p.assignees, 
+            "Tasks": p.tasks, "Est. Hours": p.estHours, "Act. Hours": p.actHours
+        }));
+        const empExport = window.employeeReportData.map(e => ({
+            "Employee": e.name, "Team": e.team, "Assigned Tasks": e.tasks, "Actual Hours": e.hours
+        }));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(projExport), "Projects Progress");
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(empExport), "Employees Productivity");
+        XLSX.writeFile(wb, "Blue_Studio_Full_Reports.xlsx");
+    };
+
+    // ----------------------------------------------------
+    // 5. تهيئة الفايربيس (Firebase Initialization)
+    // ----------------------------------------------------
+    function initFirebaseApp() {
+        if (!window.firebaseTools) {
+            setTimeout(initFirebaseApp, 100);
+            return;
+        }
         
         const { auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onValue, ref, db, update, push, remove, set, sendPasswordResetEmail } = window.firebaseTools;
-        
-        const monthInput = document.getElementById('monthFilter');
-        if(monthInput) monthInput.value = activeMonthFilter;
 
-        onValue(ref(db, 'projectReports'), (snap) => {
-            allProjectReports = snap.val() || {};
-        });
-
-        window.handleAuth = async () => { 
-            const e = document.getElementById('login-email').value.trim(); 
-            const p = document.getElementById('login-pass').value; 
-            if(!e || !p) return showError("Data Required"); 
-            if (!whitelist[e]) return showError("Unauthorized"); 
-
-            if(ALLOWED_IPS.length > 0) {
-                try {
-                    const res = await fetch('https://api.ipify.org?format=json');
-                    const data = await res.json();
-                    if(!ALLOWED_IPS.includes(data.ip)) {
-                        return showError("تم حظر الدخول. الـ IP الخاص بك غير مصرح به.");
-                    }
-                } catch(error) {
-                    return showError("فشل التحقق من أمان الشبكة (IP).");
-                }
-            }
-
-            if(isLoginMode) signInWithEmailAndPassword(auth, e, p).catch(err=>showError("Error logging in.")); 
-            else { 
-                if(p.length < 6) return showError("Password too short"); 
-                createUserWithEmailAndPassword(auth, e, p).then(()=>alert("Done")).catch(err=>showError("Error creating account.")); 
-            }
-        };
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                const userData = whitelist[user.email];
-                if (!userData) { signOut(auth); showError("عذراً، هذا البريد غير مصرح له."); return; }
-                
-                isManager = userData.role === "manager";
-                isTeamLead = userData.isLead === true;
-                currentUserName = userData.name;
-                
-                document.getElementById('login-page').style.display = 'none';
-                document.getElementById('app-ui').style.display = 'flex';
-                document.getElementById('user-name').innerText = userData.name;
-                document.getElementById('user-role').innerText = isManager ? "Manager" : (isTeamLead ? `Team Lead (${userData.role})` : `Team ${userData.role}`);
-                
-                const hasAdminRights = isManager || isTeamLead;
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = hasAdminRights ? 'flex' : 'none');
-                document.getElementById('dt-team').disabled = !hasAdminRights;
-
-                onValue(ref(db, 'users'), (userSnap) => {
-                    const usersData = userSnap.val() || {};
-                    customAvatars = {};
-                    for (let key in usersData) { if (usersData[key].avatar) customAvatars[key] = usersData[key].avatar; }
-                    
-                    const safeEmail = sanitizeEmail(user.email);
-                    const avatarContainer = document.getElementById('user-avatar-main');
-                    if (avatarContainer) { avatarContainer.outerHTML = getAvatarHTML(userData.name, safeEmail).replace('class="avatar"', 'id="user-avatar-main" class="avatar avatar-lg"'); }
-                    
-                    refreshAllViews();
-                    if(document.getElementById('taskDetailsModal').classList.contains('active')) {
-                        const activeId = document.getElementById('dt-id').value;
-                        if(activeId && allTasks[activeId]) {
-                            renderComments(allTasks[activeId].comments);
-                            renderChecklist(allTasks[activeId].checklist);
-                            let assignedToArray = allTasks[activeId].assignedTo ? (Array.isArray(allTasks[activeId].assignedTo) ? allTasks[activeId].assignedTo : [allTasks[activeId].assignedTo]) : [];
-                            updateStaffListDetails(assignedToArray);
-                        }
-                    }
-                });
-
-                onValue(ref(db, 'tasks'), (snap) => {
-                    allTasks = snap.val() || {};
-                    refreshAllViews();
-                    
-                    if(document.getElementById('taskDetailsModal').classList.contains('active')) {
-                        const activeId = document.getElementById('dt-id').value;
-                        if(activeId && allTasks[activeId]) {
-                            renderComments(allTasks[activeId].comments);
-                            renderChecklist(allTasks[activeId].checklist);
-                        }
-                    }
-                });
-            } else {
-                document.getElementById('login-page').style.display = 'flex';
-                document.getElementById('app-ui').style.display = 'none';
-            }
-        });
-
-        window.toggleAuthMode = () => { isLoginMode = !isLoginMode; document.getElementById('auth-title').innerText = isLoginMode ? t("login") : t("createAccountBtn"); document.getElementById('reset-form-container').style.display = 'none'; document.getElementById('auth-form-container').style.display = 'block'; };
-        window.toggleResetView = (show) => { document.getElementById('auth-form-container').style.display = show ? 'none' : 'block'; document.getElementById('reset-form-container').style.display = show ? 'block' : 'none'; document.getElementById('auth-title').innerText = show ? t("forgotPass") : t("login"); };
-        window.handleResetPassword = () => { const e = document.getElementById('reset-email').value.trim(); if(!e || !whitelist[e]) return showError("Invalid Email"); sendPasswordResetEmail(auth, e).then(()=>showSuccess("Link Sent.")).catch(()=>showError("Error")); };
-        window.handleLogout = () => signOut(auth);
-        function showError(m) { const b = document.getElementById('login-error'); b.innerText = m; b.style.display = 'block'; document.getElementById('login-success').style.display = 'none';}
-        function showSuccess(m) { const b = document.getElementById('login-success'); b.innerText = m; b.style.display = 'block'; document.getElementById('login-error').style.display = 'none';}
-
-        function refreshAllViews() {
-            renderProjectsSidebar(); 
-            renderBoard(); 
-            if(isManager || isTeamLead) {
-                setTimeout(() => {
-                    if(document.getElementById('dashboard').classList.contains('active')) updateAdminStats();
-                    prepareReportData();
-                }, 50);
-            }
-        }
-
-        window.handleSearch = () => { searchTerm = document.getElementById('searchInput').value.toLowerCase(); refreshAllViews(); };
-        window.setProjectFilter = (projName) => { activeProjectFilter = projName === activeProjectFilter ? null : projName; refreshAllViews(); };
-        window.handleMonthFilterChange = () => { activeMonthFilter = document.getElementById('monthFilter').value; refreshAllViews(); };
-        
-        window.clearFilters = () => { 
-            activeProjectFilter = null; searchTerm = ""; document.getElementById('searchInput').value = ""; 
-            activeMonthFilter = ""; 
-            if(document.getElementById('monthFilter')) document.getElementById('monthFilter').value = activeMonthFilter;
-            refreshAllViews();
-        };
-
-        function renderProjectsSidebar() {
-            const container = document.getElementById('project-filters-list');
-            if(!container) return;
-            const projCounts = {};
-            const hasAdminRights = isManager || isTeamLead;
-            Object.values(allTasks).forEach(t => {
-                if(!t || !t.projectName) return;
-                let assignedToArray = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
-                if(!hasAdminRights && !assignedToArray.includes(currentUserName)) return;
-                if(hasAdminRights && !taskMatchesMonthFilter(t)) return;
-                projCounts[t.projectName] = (projCounts[t.projectName] || 0) + 1;
-            });
-            container.innerHTML = '';
-            Object.keys(projCounts).forEach(p => {
-                const isActive = p === activeProjectFilter ? 'active' : '';
-                container.innerHTML += `<div class="project-filter-item ${isActive}" onclick="setProjectFilter('${p}')"><span># ${p}</span><span class="count">${projCounts[p]}</span></div>`;
-            });
-        }
-
-        function renderBoard() {
-            ['pending', 'inprogress', 'completed'].forEach(s => { 
-                const list = document.getElementById(`list-${s}`);
-                if(list) list.innerHTML = ''; 
-                const count = document.getElementById(`count-${s}`);
-                if(count) count.innerText = '0'; 
-            });
-            let counts = { pending: 0, inprogress: 0, completed: 0 };
-            const arr = getFilteredTasks();
-
-            arr.forEach(task => {
-                counts[task.status]++;
-
-                let dateHtml = '';
-                if(task.dueDate) {
-                    const today = new Date().toISOString().split('T')[0];
-                    const isOverdue = task.dueDate < today && task.status !== 'completed';
-                    dateHtml = `<div class="due-date-chip" style="${isOverdue ? 'background: rgba(248, 113, 113, 0.2); color: var(--red-danger);' : 'background: rgba(136, 207, 253, 0.1); color: var(--intel-blue);'}">📅 ${task.dueDate}</div>`;
-                }
-
-                let progressHtml = '';
-                let totalItems = 0; let doneItems = 0;
-                if (task.checklist) { Object.values(task.checklist).forEach(item => { totalItems++; if (item.done) doneItems++; }); }
-                if (totalItems > 0) {
-                    const progressPercent = Math.round((doneItems / totalItems) * 100);
-                    const fillClass = progressPercent === 100 ? 'card-progress-fill completed' : 'card-progress-fill';
-                    progressHtml = `<div class="card-progress-wrap"><div class="card-progress-header"><span>☑ (${doneItems}/${totalItems})</span><span>${progressPercent}%</span></div><div class="card-progress-bg"><div class="${fillClass}" style="width: ${progressPercent}%;"></div></div></div>`;
-                }
-
-                let assignedToArray = task.assignedTo ? (Array.isArray(task.assignedTo) ? task.assignedTo : [task.assignedTo]) : [];
-                let avatarsHtml = assignedToArray.map(name => getAvatarHTML(name)).join('');
-
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.draggable = true;
-                card.setAttribute('ondragstart', `dragStart(event, '${task.id || Object.keys(allTasks).find(k => allTasks[k]===task)}')`); 
-                card.setAttribute('ondragend', `dragEnd(event)`);
-                card.onclick = () => openTaskDetailsModal(Object.keys(allTasks).find(k => allTasks[k]===task));
-                
-                card.innerHTML = `
-                    <div class="project-chip"># ${task.projectName}</div>
-                    ${dateHtml}
-                    <div class="card-title">${task.title || 'Task'}</div>
-                    ${progressHtml}
-                    <div class="card-footer"><div class="user-info">${avatarsHtml}</div><div class="hour-badge">${task.estHours || 0} ${t("hrsSymbol")}</div></div>
-                `;
-                const colList = document.getElementById(`list-${task.status}`);
-                if(colList) colList.appendChild(card);
-            });
-
-            if(document.getElementById('count-pending')) document.getElementById('count-pending').innerText = counts.pending;
-            if(document.getElementById('count-inprogress')) document.getElementById('count-inprogress').innerText = counts.inprogress;
-            if(document.getElementById('count-completed')) document.getElementById('count-completed').innerText = counts.completed;
-            
-            const pLbl = document.querySelector('[data-status="pending"] h3 span[data-i18n]');
-            if(pLbl) pLbl.innerText = t("colPending");
-            const iLbl = document.querySelector('[data-status="inprogress"] h3 span[data-i18n]');
-            if(iLbl) iLbl.innerText = t("colInProgress");
-            const cLbl = document.querySelector('[data-status="completed"] h3 span[data-i18n]');
-            if(cLbl) cLbl.innerText = t("colCompleted");
-        }
-
-        window.renderNewTaskHashtags = () => {
-            const container = document.getElementById('hashtagContainerNew');
-            if(!container) return;
-            const projMap = {};
-            Object.values(allTasks).forEach(t => {
-                if(!t || !t.projectName) return;
-                if(!projMap[t.projectName] || (t.createdAt && t.createdAt > projMap[t.projectName])) projMap[t.projectName] = t.createdAt || Date.now();
-            });
-            const sortedProjs = Object.keys(projMap).sort((a,b) => projMap[b] - projMap[a]);
-            const top4 = sortedProjs.slice(0, 4);
-            container.innerHTML = top4.map(p => `<span class="project-hashtag" onclick="document.getElementById('pNameNew').value='${p}'; document.getElementById('projectSuggestions').style.display='none';"># ${p}</span>`).join('');
-        };
-        
-        window.handleProjectInput = () => {
-            const input = document.getElementById('pNameNew');
-            const val = input.value.toLowerCase();
-            const suggestionsBox = document.getElementById('projectSuggestions');
-            if (!val) { suggestionsBox.style.display = 'none'; return; }
-            const projs = [...new Set(Object.values(allTasks).filter(t=>t && t.projectName).map(task => task.projectName))];
-            let filtered = [];
-            if (val.includes('#')) {
-                const searchStr = val.substring(val.indexOf('#') + 1).trim();
-                filtered = projs.filter(p => p.toLowerCase().includes(searchStr));
-            } else {
-                filtered = projs.filter(p => p.toLowerCase().includes(val));
-            }
-            if (filtered.length > 0) {
-                suggestionsBox.innerHTML = filtered.map(p => `<div class="suggestion-item" onclick="selectProjectSuggestion('${p}')"># ${p}</div>`).join('');
-                suggestionsBox.style.display = 'block';
-            } else { suggestionsBox.style.display = 'none'; }
-        };
-
-        window.selectProjectSuggestion = (pName) => { document.getElementById('pNameNew').value = pName; document.getElementById('projectSuggestions').style.display = 'none'; };
-
-        window.openAddModal = () => { 
-            document.getElementById('pNameNew').value = activeProjectFilter || "";
-            document.getElementById('tTitleNew').value = "";
-            document.getElementById('eHoursNew').value = "";
-            document.getElementById('sNameNewContainer').innerHTML = `<div style="color: var(--muted-blue); font-size: 0.8rem; padding: 5px;">${t("chooseTeamFirst")}</div>`;
-            document.getElementById('projectSuggestions').style.display = 'none'; 
-            renderNewTaskHashtags();
-            document.getElementById('addTaskModal').classList.add('active'); 
-        };
-
-        window.updateStaffListNew = () => {
-            const team = document.getElementById('tTypeNew').value;
-            const container = document.getElementById('sNameNewContainer');
-            container.innerHTML = '';
-            if (staffByTeam[team]) {
-                staffByTeam[team].forEach(e => { container.innerHTML += `<label><input type="checkbox" value="${e}"> ${getAvatarHTML(e)} ${e}</label>`; });
-            }
+        // دوال الإضافة والحذف المرتبطة بالفايربيس
+        window.saveProjectReport = () => {
+            const rawName = document.getElementById('pr-project-name').getAttribute('data-raw-name');
+            const safeKey = sanitizeProjName(rawName);
+            const embedUrl = document.getElementById('embed-url-input').value.trim();
+            update(ref(db, `projectReports/${safeKey}`), {
+                embedUrl: embedUrl,
+                lastUpdatedBy: window.currentUserName,
+                lastUpdatedAt: Date.now()
+            }).then(() => {
+                const btn = document.getElementById('btn-save-report');
+                const oldT = btn.innerText;
+                btn.innerText = "✔️";
+                btn.style.background = "var(--green-success)"; 
+                setTimeout(() => { btn.innerText = oldT; btn.style.background = "var(--green-success)"; }, 2000);
+            }).catch(err => console.log(err));
         };
 
         window.saveNewTask = () => {
@@ -1472,60 +1584,9 @@
             document.getElementById('addTaskModal').classList.remove('active');
         };
 
-        window.updateChecklistAssigneeOptions = () => {
-            const checkedBoxes = document.querySelectorAll('#dt-assignee-container input[type="checkbox"]:checked');
-            const select = document.getElementById('dt-new-checklist-assignee');
-            if(!select) return;
-            const currentVal = select.value;
-            select.innerHTML = `<option value="">${t("assignedToPlh")}</option>`;
-            checkedBoxes.forEach(cb => { select.innerHTML += `<option value="${cb.value}">${cb.value}</option>`; });
-            if (Array.from(checkedBoxes).some(cb => cb.value === currentVal)) select.value = currentVal;
-        };
-
-        window.openTaskDetailsModal = (id) => {
-            const task = allTasks[id];
-            document.getElementById('dt-id').value = id;
-            document.getElementById('dt-project').innerText = `# ${task.projectName}`;
-            document.getElementById('dt-title-input').value = task.title; 
-            
-            const statusMap = { 'pending': t("colPending"), 'inprogress': t("colInProgress"), 'completed': t("colCompleted") };
-            document.getElementById('dt-status-text').innerText = statusMap[task.status];
-            document.getElementById('dt-desc').value = task.description || "";
-            if(!task.dueDate) document.getElementById('dt-duedate').valueAsDate = new Date();
-            else document.getElementById('dt-duedate').value = task.dueDate;
-            
-            document.getElementById('dt-hours').value = task.estHours || 0;
-            document.getElementById('dt-team').value = task.team || "";
-            
-            let assignedToArray = task.assignedTo ? (Array.isArray(task.assignedTo) ? task.assignedTo : [task.assignedTo]) : [];
-            updateStaffListDetails(assignedToArray);
-
-            renderComments(task.comments);
-            renderChecklist(task.checklist);
-
-            document.getElementById('taskDetailsModal').classList.add('active');
-        };
-
-        window.closeDetailsModal = () => document.getElementById('taskDetailsModal').classList.remove('active');
-
-        window.updateStaffListDetails = (selectedAssignees = []) => {
-            const team = document.getElementById('dt-team').value;
-            const container = document.getElementById('dt-assignee-container');
-            container.innerHTML = '';
-            const hasAdminRights = isManager || isTeamLead;
-            if (staffByTeam[team]) {
-                staffByTeam[team].forEach(e => {
-                    const isChecked = selectedAssignees.includes(e) ? 'checked' : '';
-                    const disabled = !hasAdminRights ? 'disabled' : '';
-                    container.innerHTML += `<label><input type="checkbox" value="${e}" ${isChecked} ${disabled} onchange="updateChecklistAssigneeOptions()"> ${getAvatarHTML(e)} ${e}</label>`;
-                });
-            }
-            updateChecklistAssigneeOptions();
-        };
-
         window.saveTaskDetails = () => {
             const id = document.getElementById('dt-id').value;
-            const hasAdminRights = isManager || isTeamLead;
+            const hasAdminRights = window.isManager || window.isTeamLead;
             const updates = {
                 title: document.getElementById('dt-title-input').value.trim() || "Task",
                 description: document.getElementById('dt-desc').value,
@@ -1537,7 +1598,6 @@
                 const checkedBoxes = document.querySelectorAll('#dt-assignee-container input[type="checkbox"]:checked');
                 updates.assignedTo = Array.from(checkedBoxes).map(cb => cb.value);
             }
-
             update(ref(db, `tasks/${id}`), updates).then(() => {
                 const btn = document.getElementById('btn-save-details');
                 btn.innerText = "✔️";
@@ -1550,67 +1610,8 @@
             const newNote = prompt("Add/Edit note:", currentNote || "");
             if (newNote !== null) {
                 const taskId = document.getElementById('dt-id').value;
-                update(ref(db, `tasks/${taskId}/checklist/${itemId}`), { note: newNote.trim(), noteBy: currentUserName, noteTime: Date.now() });
+                update(ref(db, `tasks/${taskId}/checklist/${itemId}`), { note: newNote.trim(), noteBy: window.currentUserName, noteTime: Date.now() });
             }
-        };
-
-        window.renderChecklist = (checklistObj) => {
-            const list = document.getElementById('dt-checklist-items');
-            list.innerHTML = '';
-            
-            if(!checklistObj) {
-                document.getElementById('dt-header-progress-fill').style.width = '0%';
-                document.getElementById('dt-header-progress-fill').style.background = 'var(--amber)';
-                document.getElementById('dt-header-progress-text').innerText = '0%';
-                return;
-            }
-            
-            let total = 0; let doneCount = 0;
-            const hasAdminRights = isManager || isTeamLead;
-            
-            Object.keys(checklistObj).forEach(k => {
-                total++;
-                const item = checklistObj[k];
-                if(item.done) doneCount++;
-                
-                const hoursHtml = item.actualHours ? `<span class="hours-badge-small">⏱ ${item.actualHours} ${t("hrsSymbol")}</span>` : '';
-                const isAssignedUser = currentUserName === item.assignedToItem;
-                const canCheck = hasAdminRights || isAssignedUser;
-                const disabledAttr = canCheck ? '' : 'disabled';
-                
-                const tagAddedBy = `<span style="display:flex; align-items:center; gap:5px; font-size: 0.65rem; color: var(--blue-grey); background: var(--card-bg); padding: 3px 8px; border-radius: 10px; border: 1px solid var(--border);">${t("bySymbol")} ${getAvatarHTML(item.addedBy)} ${item.addedBy}</span>`;
-                const tagAssignedTo = item.assignedToItem ? `<span style="display:flex; align-items:center; gap:5px; font-size: 0.65rem; color: var(--intel-blue); background: rgba(0, 131, 255, 0.1); padding: 3px 8px; border-radius: 10px; border: 1px solid rgba(0,131,255,0.2);">${t("toSymbol")} ${getAvatarHTML(item.assignedToItem)} ${item.assignedToItem}</span>` : '';
-                const noteBtn = `<button onclick="editChecklistNote('${k}', '${(item.note || '').replace(/'/g, "\\'")}')" style="background: none; border: none; color: var(--blue-grey); cursor: pointer; font-size: 1rem; margin-inline-end:5px;" title="📝 Note">📝</button>`;
-                const deleteBtn = hasAdminRights ? `<button onclick="deleteChecklistItem('${k}')" style="background: none; border: none; color: var(--red-danger); cursor: pointer; font-size: 1.1rem; margin-inline-end: auto;">✖</button>` : '';
-
-                const noteAuthor = item.noteBy || item.addedBy;
-                const noteDisplay = item.note ? `<div class="checklist-note-display"><div style="font-weight: 600; margin-bottom: 5px; color: var(--amber); font-size: 0.75rem;">${t("noteSymbol")} ${noteAuthor}</div><div>${item.note}</div></div>` : '';
-
-                list.innerHTML += `
-                    <div class="checklist-item" style="border-color: ${item.done ? 'var(--soft-line)' : 'var(--border)'}; opacity: ${item.done ? '0.6' : '1'};">
-                        <div class="checklist-item-header">
-                            <label style="text-decoration: ${item.done ? 'line-through' : 'none'}; color: ${item.done ? 'var(--blue-grey)' : 'var(--text)'}">
-                                <input type="checkbox" ${item.done ? 'checked' : ''} ${disabledAttr} onchange="toggleChecklistItem('${k}', ${item.done})">
-                                ${item.text}
-                            </label>
-                            <div style="display:flex; align-items:center; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
-                                ${hoursHtml}
-                                ${tagAddedBy}
-                                ${tagAssignedTo}
-                                ${noteBtn}
-                                ${deleteBtn}
-                            </div>
-                        </div>
-                        ${noteDisplay}
-                    </div>
-                `;
-            });
-            
-            const progress = total === 0 ? 0 : Math.round((doneCount / total) * 100);
-            const fill = document.getElementById('dt-header-progress-fill');
-            fill.style.width = `${progress}%`;
-            fill.style.background = progress === 100 ? 'var(--green-success)' : 'var(--amber)';
-            document.getElementById('dt-header-progress-text').innerText = `${progress}%`;
         };
 
         window.addChecklistItem = () => {
@@ -1623,9 +1624,9 @@
             const assignedToItem = assigneeInput ? assigneeInput.value : null;
 
             if(!text) return;
-            const newItem = { text: text, done: false, addedBy: currentUserName, actualHours: hours, time: Date.now(), assignedToItem: assignedToItem, note: "" };
+            const newItem = { text: text, done: false, addedBy: window.currentUserName, actualHours: hours, time: Date.now(), assignedToItem: assignedToItem, note: "" };
             
-            const task = allTasks[id];
+            const task = window.allTasks[id];
             let updates = {};
             if(!task.startedAt) updates[`tasks/${id}/startedAt`] = Date.now();
             
@@ -1635,80 +1636,125 @@
 
         window.toggleChecklistItem = (itemId, currentStatus) => { update(ref(db, `tasks/${document.getElementById('dt-id').value}/checklist/${itemId}`), { done: !currentStatus }); };
         window.deleteChecklistItem = (itemId) => { remove(ref(db, `tasks/${document.getElementById('dt-id').value}/checklist/${itemId}`)); };
-
-        function renderComments(commentsObj) {
-            const list = document.getElementById('dt-comments-list');
-            list.innerHTML = '';
-            if(!commentsObj) return;
-            const commentsArray = Object.keys(commentsObj).map(k => commentsObj[k]).sort((a,b) => b.time - a.time);
-            commentsArray.forEach(c => {
-                const date = new Date(c.time).toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-                list.innerHTML += `<div class="comment-item">${getAvatarHTML(c.user)}<div class="comment-content"><div class="comment-meta"><b>${c.user}</b> <span>${date}</span></div><div style="color:var(--text); font-size: 0.9rem; margin-top:5px;">${c.text}</div></div></div>`;
-            });
-        }
-
+        
         window.addComment = () => {
             const id = document.getElementById('dt-id').value;
             const input = document.getElementById('dt-new-comment');
             if(!input.value.trim()) return;
-            push(ref(db, `tasks/${id}/comments`), { user: currentUserName, text: input.value.trim(), time: Date.now() }).then(() => input.value = "");
+            push(ref(db, `tasks/${id}/comments`), { user: window.currentUserName, text: input.value.trim(), time: Date.now() }).then(() => input.value = "");
         };
 
-        window.deleteTaskFromDetails = () => { if(!confirm("Delete?")) return; remove(ref(db, `tasks/${document.getElementById('dt-id').value}`)).then(() => closeDetailsModal()); };
+        window.deleteTaskFromDetails = () => { if(!confirm("Delete?")) return; remove(ref(db, `tasks/${document.getElementById('dt-id').value}`)).then(() => window.closeDetailsModal()); };
 
-        window.dragStart = (e, id) => { e.dataTransfer.setData("taskId", id); e.target.style.opacity = "0.4"; };
-        window.dragEnd = (e) => { e.target.style.opacity = "1"; };
-        window.dragOver = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
-        window.dragLeave = (e) => { e.currentTarget.classList.remove('drag-over'); };
         window.drop = (e, status) => { 
             e.preventDefault(); e.currentTarget.classList.remove('drag-over'); 
             const id = e.dataTransfer.getData("taskId"); 
             if(id) {
                 const updates = { status: status };
-                if(status === 'inprogress' && !allTasks[id].startedAt) updates.startedAt = Date.now();
+                if(status === 'inprogress' && !window.allTasks[id].startedAt) updates.startedAt = Date.now();
                 if(status === 'completed') updates.completedAt = Date.now();
                 update(ref(db, `tasks/${id}`), updates); 
             }
         };
-        
-        // التحويل بين التابات والتأكد من رسم الداشبورد
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.onclick = () => { 
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); 
-                item.classList.add('active'); 
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
-                document.getElementById(item.dataset.target).classList.add('active'); 
-                
-                if(item.dataset.target === 'dashboard') {
-                    setTimeout(() => { if (isManager || isTeamLead) updateAdminStats(); }, 50);
-                }
-                if(item.dataset.target === 'reports') {
-                    if (isManager || isTeamLead) prepareReportData();
+
+        window.handleAuth = async () => { 
+            const e = document.getElementById('login-email').value.trim(); 
+            const p = document.getElementById('login-pass').value; 
+            if(!e || !p) return window.showError("Data Required"); 
+            if (!window.whitelist[e]) return window.showError("Unauthorized"); 
+
+            if(ALLOWED_IPS.length > 0) {
+                try {
+                    const res = await fetch('https://api.ipify.org?format=json');
+                    const data = await res.json();
+                    if(!ALLOWED_IPS.includes(data.ip)) {
+                        return window.showError("تم حظر الدخول. الـ IP الخاص بك غير مصرح به.");
+                    }
+                } catch(error) {
+                    return window.showError("فشل التحقق من أمان الشبكة (IP).");
                 }
             }
-        });
 
-        window.exportExcel = () => {
-            if(projectReportData.length === 0) return alert("No Data to Export");
-            
-            const projExport = projectReportData.map(p => ({
-                "Project": p.project, "Team": p.team, "Assignees": p.assignees, 
-                "Tasks": p.tasks, "Est. Hours": p.estHours, "Act. Hours": p.actHours
-            }));
-            
-            const empExport = employeeReportData.map(e => ({
-                "Employee": e.name, "Team": e.team, 
-                "Assigned Tasks": e.tasks, "Actual Hours": e.hours
-            }));
-
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(projExport), "Projects Progress");
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(empExport), "Employees Productivity");
-            
-            XLSX.writeFile(wb, "Blue_Studio_Full_Reports.xlsx");
+            if(window.isLoginMode) signInWithEmailAndPassword(auth, e, p).catch(err=>window.showError("Error logging in.")); 
+            else { 
+                if(p.length < 6) return window.showError("Password too short"); 
+                createUserWithEmailAndPassword(auth, e, p).then(()=>alert("Done")).catch(err=>window.showError("Error creating account.")); 
+            }
         };
 
-    }, 1500);
+        window.handleResetPassword = () => { const e = document.getElementById('reset-email').value.trim(); if(!e || !window.whitelist[e]) return window.showError("Invalid Email"); sendPasswordResetEmail(auth, e).then(()=>window.showSuccess("Link Sent.")).catch(()=>window.showError("Error")); };
+        window.handleLogout = () => signOut(auth);
+
+        window.showError = (m) => { const b = document.getElementById('login-error'); b.innerText = m; b.style.display = 'block'; document.getElementById('login-success').style.display = 'none';};
+        window.showSuccess = (m) => { const b = document.getElementById('login-success'); b.innerText = m; b.style.display = 'block'; document.getElementById('login-error').style.display = 'none';};
+
+        // المراقبة والتحديث المباشر
+        onValue(ref(db, 'projectReports'), (snap) => {
+            window.allProjectReports = snap.val() || {};
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userData = window.whitelist[user.email];
+                if (!userData) { signOut(auth); window.showError("عذراً، هذا البريد غير مصرح له."); return; }
+                
+                window.isManager = userData.role === "manager";
+                window.isTeamLead = userData.isLead === true;
+                window.currentUserName = userData.name;
+                
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('app-ui').style.display = 'flex';
+                document.getElementById('user-name').innerText = userData.name;
+                document.getElementById('user-role').innerText = window.isManager ? "Manager" : (window.isTeamLead ? `Team Lead (${userData.role})` : `Team ${userData.role}`);
+                
+                const hasAdminRights = window.isManager || window.isTeamLead;
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = hasAdminRights ? 'flex' : 'none');
+                document.getElementById('dt-team').disabled = !hasAdminRights;
+
+                onValue(ref(db, 'users'), (userSnap) => {
+                    const usersData = userSnap.val() || {};
+                    window.customAvatars = {};
+                    for (let key in usersData) { if (usersData[key].avatar) window.customAvatars[key] = usersData[key].avatar; }
+                    
+                    const safeEmail = sanitizeEmail(user.email);
+                    const avatarContainer = document.getElementById('user-avatar-main');
+                    if (avatarContainer) { avatarContainer.outerHTML = window.getAvatarHTML(userData.name, safeEmail).replace('class="avatar"', 'id="user-avatar-main" class="avatar avatar-lg"'); }
+                    
+                    window.refreshAllViews();
+                    if(document.getElementById('taskDetailsModal').classList.contains('active')) {
+                        const activeId = document.getElementById('dt-id').value;
+                        if(activeId && window.allTasks[activeId]) {
+                            window.renderComments(window.allTasks[activeId].comments);
+                            window.renderChecklist(window.allTasks[activeId].checklist);
+                            let assignedToArray = window.allTasks[activeId].assignedTo ? (Array.isArray(window.allTasks[activeId].assignedTo) ? window.allTasks[activeId].assignedTo : [window.allTasks[activeId].assignedTo]) : [];
+                            window.updateStaffListDetails(assignedToArray);
+                        }
+                    }
+                });
+
+                onValue(ref(db, 'tasks'), (snap) => {
+                    window.allTasks = snap.val() || {};
+                    window.refreshAllViews();
+                    
+                    if(document.getElementById('taskDetailsModal').classList.contains('active')) {
+                        const activeId = document.getElementById('dt-id').value;
+                        if(activeId && window.allTasks[activeId]) {
+                            window.renderComments(window.allTasks[activeId].comments);
+                            window.renderChecklist(window.allTasks[activeId].checklist);
+                        }
+                    }
+                });
+            } else {
+                document.getElementById('login-page').style.display = 'flex';
+                document.getElementById('app-ui').style.display = 'none';
+            }
+        });
+    }
+
+    // إطلاق التطبيق
+    window.applyI18n();
+    initFirebaseApp();
+
   </script>
 </body>
 </html>
