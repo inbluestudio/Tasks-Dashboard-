@@ -6,13 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blue Design Studio — Cloud Management System</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
     <!-- Frappe Gantt Chart -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.6.1/frappe-gantt.css">
@@ -1737,53 +1735,26 @@
         /* قسم الجانت شارت */
         #gantt.active {
             display: flex !important;
-            overflow-y: auto;
-            padding-bottom: 30px;
+            flex-direction: column;
+            padding-bottom: 20px;
+            height: 100%; /* لكي يتمدد للنهاية */
         }
 
-        .gantt .grid-header {
-            fill: var(--card-bg);
-            stroke: var(--border);
+        .gantt-view-modes .btn-outline {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 6px;
         }
 
-        .gantt .grid-row {
-            fill: var(--bg);
-            stroke: var(--border);
-        }
-
-        .gantt .grid-row:nth-child(even) {
-            fill: var(--card-bg);
-        }
-
-        .gantt .tick text {
-            fill: var(--blue-grey);
-            font-family: inherit;
-        }
-
-        .gantt .bar-label {
-            fill: #fff;
-            font-weight: bold;
-            font-family: inherit;
-        }
-
-        .gantt .bar-progress {
-            fill: var(--accent);
-        }
-
-        .gantt .bar-wrapper:hover .bar {
-            fill: var(--light-blue);
-        }
-
-        .gantt .lower-text {
-            font-size: 11px;
-            fill: var(--text);
-        }
-
-        .gantt .upper-text {
-            font-size: 13px;
-            font-weight: bold;
-            fill: var(--text);
-        }
+        .gantt .grid-header { fill: var(--card-bg); stroke: var(--border); }
+        .gantt .grid-row { fill: var(--bg); stroke: var(--border); }
+        .gantt .grid-row:nth-child(even) { fill: var(--card-bg); }
+        .gantt .tick text { fill: var(--blue-grey); font-family: inherit; }
+        .gantt .bar-label { fill: #fff; font-weight: bold; font-family: inherit; }
+        .gantt .bar-progress { fill: var(--accent); }
+        .gantt .bar-wrapper:hover .bar { fill: var(--light-blue); }
+        .gantt .lower-text { font-size: 11px; fill: var(--text); }
+        .gantt .upper-text { font-size: 13px; font-weight: bold; fill: var(--text); }
 
         .admin-only {
             display: none;
@@ -2016,12 +1987,19 @@
 
             <!-- مخطط جانت -->
             <section id="gantt" class="section">
-                <div class="page-header">
+                <div class="page-header" style="margin-bottom: 10px;">
                     <h1 style="margin-bottom: 0;" data-i18n="ganttTitle">مخطط جانت الزمني للمشاريع</h1>
+                    <div class="gantt-view-modes" style="display: flex; gap: 10px;">
+                        <button class="btn-outline" onclick="changeGanttView('Day')" id="gantt-btn-Day" style="background: var(--accent); color: #fff;">شهر (يومي)</button>
+                        <button class="btn-outline" onclick="changeGanttView('Week')" id="gantt-btn-Week">3-6 أشهر (أسبوعي)</button>
+                        <button class="btn-outline" onclick="changeGanttView('Month')" id="gantt-btn-Month">سنة (شهري)</button>
+                    </div>
                 </div>
-                <div class="table-container"
-                    style="padding: 20px; overflow-x: auto; background: var(--card-bg); height: 100%;">
-                    <div class="gantt-target" id="gantt-target" style="width: 100%;"></div>
+                <!-- تصميم متجاوب ليعرض المخطط بكامل الشاشة المتبقية -->
+                <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); flex: 1; overflow: hidden; display: flex; flex-direction: column;">
+                    <div style="flex: 1; overflow: auto; padding: 10px;">
+                        <div class="gantt-target" id="gantt-target" style="width: 100%;"></div>
+                    </div>
                 </div>
             </section>
 
@@ -2334,7 +2312,7 @@
                         <div id="dt-assignee-container" class="checkbox-group"></div>
                     </div>
 
-                    <label data-i18n="dueDateLbl">تاريخ التسليم المتوقع (Due Date)</label>
+                    <label data-i18n="dueDateLbl">تاريخ التسليم المتوقع</label>
                     <input type="date" id="dt-duedate">
                     <label data-i18n="estHrsLbl">الساعات التقديرية (المخططة)</label>
                     <input type="number" id="dt-hours" min="0">
@@ -2383,6 +2361,8 @@
         window.chartTopProjects = null;
         window.chartYearly = null;
         window.chartOverallComp = null;
+        window.ganttChartInst = null;
+        window.currentGanttMode = 'Day';
 
         window.customAvatars = {};
         window.projectReportData = [];
@@ -3025,34 +3005,52 @@
             return `<span class="avatar" style="background-color: ${color};" title="${name}">${char}</span>`;
         };
 
+        // --- دوال تحكم مخطط جانت ---
+        window.changeGanttView = (mode) => {
+            window.currentGanttMode = mode;
+            if(window.ganttChartInst) {
+                window.ganttChartInst.change_view_mode(mode);
+            }
+            
+            document.querySelectorAll('.gantt-view-modes button').forEach(b => {
+                b.style.background = 'transparent';
+                b.style.color = 'var(--accent)';
+            });
+            const activeBtn = document.getElementById(`gantt-btn-${mode}`);
+            if(activeBtn) {
+                activeBtn.style.background = 'var(--accent)';
+                activeBtn.style.color = '#fff';
+            }
+        };
+
         window.renderGanttChart = () => {
             if (typeof Gantt === 'undefined') return;
-            const arr = window.getFilteredTasks(true);
+            const arr = window.getFilteredTasks(true); 
             const container = document.getElementById('gantt-target');
             if (!container) return;
 
-            if (arr.length === 0) {
-                container.innerHTML = '<h3 style="color:var(--text);text-align:center;padding:50px;">لا توجد مشاريع لعرضها</h3>';
+            if(arr.length === 0) {
+                container.innerHTML = `<h3 style="color:var(--blue-grey);text-align:center;padding:50px;">لا توجد مشاريع لعرضها في المخطط الزمني</h3>`;
                 return;
             }
 
             const projMap = {};
             arr.forEach(t => {
-                if (!projMap[t.projectName]) {
+                if(!projMap[t.projectName]) {
                     projMap[t.projectName] = {
                         id: 'Project_' + t.projectName.replace(/\s+/g, '_'),
                         name: t.projectName,
                         start: t.createdAt || Date.now(),
-                        end: t.completedAt || t.dueDate ? new Date(t.dueDate).getTime() : Date.now() + (7 * 24 * 60 * 60 * 1000),
+                        end: t.completedAt || (t.dueDate ? new Date(t.dueDate).getTime() : Date.now() + (7*24*60*60*1000)), 
                         totalSub: 0,
                         doneSub: 0
                     };
                 }
-
+                
                 const p = projMap[t.projectName];
                 if (t.createdAt && t.createdAt < p.start) p.start = t.createdAt;
-
-                let taskEnd = t.completedAt || (t.dueDate ? new Date(t.dueDate).getTime() : Date.now());
+                
+                let taskEnd = t.completedAt || (t.dueDate ? new Date(t.dueDate).getTime() : Date.now() + (7*24*60*60*1000));
                 if (taskEnd > p.end) p.end = taskEnd;
 
                 if (t.checklist) {
@@ -3068,10 +3066,12 @@
                 const format = (d) => new Date(d).toISOString().split('T')[0];
                 let endDate = format(p.end);
                 let startDate = format(p.start);
+                
+                // حل برمجي ليظهر الشريط بشكل صحيح اذا كان تاريخ البداية هو نفسه النهاية
                 if (startDate === endDate) {
-                    endDate = format(p.end + (24 * 60 * 60 * 1000));
+                   endDate = format(p.end + (24*60*60*1000));
                 }
-
+                
                 return {
                     id: p.id,
                     name: p.name,
@@ -3083,7 +3083,7 @@
             });
 
             container.innerHTML = '';
-            new Gantt("#gantt-target", tasksForGantt, {
+            window.ganttChartInst = new Gantt("#gantt-target", tasksForGantt, {
                 header_height: 50,
                 column_width: 30,
                 step: 24,
@@ -3092,8 +3092,8 @@
                 bar_corner_radius: 6,
                 arrow_curve: 5,
                 padding: 18,
-                view_mode: 'Day',
-                language: window.currentLang === 'ar' ? 'ar' : 'en',
+                view_mode: window.currentGanttMode,   
+                language: window.currentLang === 'ar' ? 'ar' : 'en', 
             });
         };
 
@@ -3257,8 +3257,8 @@
             const data = {
                 projectName: document.getElementById('pNameNew').value.replace('#', '').trim(),
                 title: document.getElementById('tTitleNew').value.trim(),
-                assignedTo: [], // إزالة تعيين المسؤولين من الصفحة الرئيسية
-                team: "",
+                assignedTo: [], 
+                team: "", 
                 estHours: parseFloat(document.getElementById('eHoursNew').value) || 0,
                 priority: document.getElementById('tPriorityNew').value || 'low',
                 status: 'pending', createdAt: Date.now(), description: "", dueDate: "", comments: {}, checklist: {}
@@ -3506,7 +3506,6 @@
                 let assignedHtml = item.assignedToItem ? `<span style="font-size: 0.75rem; color: var(--blue-grey);">موجه لـ: <b>${item.assignedToItem}</b></span>` : '';
                 let hoursHtml = item.actualHours ? `<span class="hours-badge-small">${item.actualHours} ${t("hrsSymbol")}</span>` : '';
 
-                // زر الحذف محمي للمدراء وقادة الفرق فقط
                 const deleteBtn = hasAdminRights ? `<button onclick="window.deleteChecklistItem('${key}')" style="background: none; border: none; cursor: pointer; color: var(--red-danger);" title="حذف">✖</button>` : '';
 
                 container.innerHTML += `
@@ -3536,7 +3535,6 @@
             list.innerHTML = '';
             if (!comments) return;
 
-            // ترتيب من الأحدث إلى الأقدم (Newest first)
             const sortedKeys = Object.keys(comments).sort((a, b) => comments[b].time - comments[a].time);
 
             sortedKeys.forEach(key => {
@@ -3726,7 +3724,6 @@
                     const hasAdminRights = window.isManager || window.isTeamLead;
                     document.querySelectorAll('.admin-only').forEach(el => {
                         if (!hasAdminRights) { el.style.display = 'none'; return; }
-                        // Restore appropriate display type based on element tag/class
                         if (el.tagName === 'BUTTON') {
                             el.style.display = el.classList.contains('btn-add-circle') ? 'flex' : 'inline-flex';
                         } else if (el.tagName === 'SELECT') {
@@ -3764,7 +3761,6 @@
 
                     onValue(ref(db, 'tasks'), (snap) => {
                         const rawData = snap.val() || {};
-                        // Inject Firebase key as _id into each task object for reliable lookup
                         window.allTasks = {};
                         Object.keys(rawData).forEach(k => {
                             window.allTasks[k] = { ...rawData[k], _id: k };
