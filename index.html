@@ -511,7 +511,25 @@
             overflow-x: auto;
             overflow-y: hidden;
             height: 100%;
-            padding-bottom: 10px;
+            padding-bottom: 20px; /* مساحة للسلايدر */
+        }
+
+        /* تصميم السلايدر (Scrollbar) المخصص للوحة المهام */
+        .board-container::-webkit-scrollbar {
+            height: 14px;
+        }
+        .board-container::-webkit-scrollbar-track {
+            background: var(--bg);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .board-container::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+            border: 2px solid var(--bg);
+        }
+        .board-container::-webkit-scrollbar-thumb:hover {
+            background: var(--intel-blue);
         }
 
         .board {
@@ -519,7 +537,7 @@
             gap: 20px;
             height: 100%;
             padding-inline-end: 15px;
-            min-width: min-content;
+            min-width: max-content; /* يضمن التمدد الأفقي لجميع الأعمدة */
         }
 
         .column {
@@ -791,6 +809,18 @@
             line-height: 1;
             flex-shrink: 0;
             box-shadow: 0 4px 15px rgba(59, 164, 254, 0.4);
+        }
+        
+        /* زر الإضافة العائم */
+        .btn-add-fab {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            width: 65px;
+            height: 65px;
+            font-size: 35px;
+            z-index: 99;
+            box-shadow: 0 10px 25px rgba(59, 164, 254, 0.5);
         }
 
         /* شاشة الدخول */
@@ -1380,6 +1410,7 @@
             color: var(--blue-grey);
         }
 
+        /* تصميم الـ Project Completion Widget الجديد */
         .widget-progress-header {
             display: flex;
             align-items: center;
@@ -1600,6 +1631,18 @@
             overflow: hidden;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
+        }
+
+        .report-modal.fullscreen {
+            max-width: 100%;
+            height: 100vh;
+            border-radius: 0;
+            border: none;
+            margin: 0;
+        }
+
+        #projectReportModal.fullscreen-active {
+            padding: 0;
         }
 
         .report-header {
@@ -1934,16 +1977,13 @@
 
         <main class="main-content">
             <!-- الكانبان -->
-            <section id="kanban" class="section active">
+            <section id="kanban" class="section active" style="position: relative;">
                 <div class="page-header">
                     <div>
                         <h1 id="page-title" style="margin-bottom: 5px;" data-i18n="workspaceTitle">مساحة العمل</h1>
                         <p style="font-size: 0.85rem; color: var(--blue-grey);" data-i18n="workspaceSub">تتبع وإدارة
                             المشاريع الجارية</p>
                     </div>
-                    <!-- تمت إزالة admin-only ليظهر الزر للجميع إذا كانت الإضافة متاحة -->
-                    <button onclick="openAddModal()" class="btn-main btn-add-circle"
-                        title="إضافة مهمة">+</button>
                 </div>
 
                 <div class="filters-bar">
@@ -1974,6 +2014,10 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- زر الإضافة العائم أسفل يمين مساحة العمل (يظهر للمدراء فقط) -->
+                <button onclick="openAddModal()" class="btn-main btn-add-circle admin-only btn-add-fab"
+                    title="إضافة مهمة">+</button>
             </section>
 
             <!-- مخطط جانت -->
@@ -2632,6 +2676,12 @@
             wrapper.style.height = `${100 / window.currentZoom}%`;
         };
 
+        window.toggleReportFullscreen = () => {
+            // This function is kept for potential future use or to avoid console errors if referenced.
+            // As requested, the toggle fullscreen button has been removed from the UI.
+            console.log("Fullscreen is disabled in this view.");
+        };
+
         window.openProjectReport = (projectName) => {
             const safeKey = sanitizeProjName(projectName);
             const reportData = window.allProjectReports[safeKey];
@@ -3234,13 +3284,6 @@
             document.getElementById('addTaskModal').classList.add('active');
         };
 
-        window.updateStaffListNew = () => {
-            const team = document.getElementById('tTypeNew').value;
-            const container = document.getElementById('sNameNewContainer');
-            if(container) container.innerHTML = '';
-            // لم يعد يستخدم لأننا أزلنا تحديد الأشخاص من نافذة الإضافة السريعة كما طلب المستخدم
-        };
-
         window.saveNewTask = () => {
             const data = {
                 projectName: document.getElementById('pNameNew').value.replace('#', '').trim(),
@@ -3599,7 +3642,9 @@
             const { ref, update, db } = window.firebaseTools;
             update(ref(db, `tasks/${document.getElementById('dt-id').value}/checklist/${itemId}`), { done: !currentStatus });
         };
+
         window.deleteChecklistItem = (itemId) => {
+            if (!window.isManager && !window.isTeamLead) return alert("غير مصرح لك بالحذف.");
             const { ref, remove, db } = window.firebaseTools;
             remove(ref(db, `tasks/${document.getElementById('dt-id').value}/checklist/${itemId}`));
         };
@@ -3618,6 +3663,7 @@
         };
 
         window.deleteTaskFromDetails = () => {
+            if (!window.isManager && !window.isTeamLead) return alert("غير مصرح لك بالحذف.");
             if (!confirm("Delete?")) return;
             const { ref, remove, db } = window.firebaseTools;
             remove(ref(db, `tasks/${document.getElementById('dt-id').value}`)).then(() => window.closeDetailsModal());
@@ -3719,7 +3765,7 @@
                         if (!hasAdminRights) { el.style.display = 'none'; return; }
                         // Restore appropriate display type based on element tag/class
                         if (el.tagName === 'BUTTON') {
-                            el.style.display = el.classList.contains('btn-add-circle') ? 'flex' : 'inline-flex';
+                            el.style.display = el.classList.contains('btn-add-circle') || el.classList.contains('btn-add-fab') ? 'flex' : 'inline-flex';
                         } else if (el.tagName === 'SELECT') {
                             el.style.display = 'block';
                         } else {
@@ -3824,7 +3870,7 @@
                     if (item.dataset.target === 'gantt') {
                         setTimeout(() => { if (window.isManager || window.isTeamLead) window.renderGanttChart(); }, 50);
                     }
-                    if (item.dataset.target === 'reports') {
+                    if (item.target === 'reports' || item.dataset.target === 'reports') {
                         if (window.isManager || window.isTeamLead) window.prepareReportData();
                     }
                 }
