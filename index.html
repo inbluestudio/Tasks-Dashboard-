@@ -269,16 +269,16 @@
     td { padding: 16px 20px; border-bottom: 1px solid var(--border); color: var(--text); font-size: 0.95rem; }
     tbody tr:hover { background: var(--bg); }
 
-    /* --- محرر التقارير التنفيذية للمشاريع (النسخة المحدثة لروابط الـ Embed) --- */
+    /* --- محرر التقارير ونافذة العرض (Embed Viewer) --- */
     .report-modal { background: var(--card-bg); width: 100%; max-width: 900px; height: 85vh; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); transition: all 0.3s ease; }
     
     .report-header { padding: 20px 30px; border-bottom: 1px solid var(--border); background: var(--bg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:10px;}
     
-    /* شريط الأدوات الجديد للـ Embed */
+    /* شريط الأدوات المبسط لروابط الـ Embed */
     .embed-toolbar { padding: 15px 30px; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
     
     .embed-url-wrapper { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; width: 40px; height: 40px; transition: 0.3s ease; overflow: hidden; direction: rtl; justify-content: flex-start;}
-    .embed-url-wrapper.expanded { width: 350px; }
+    .embed-url-wrapper.expanded { width: 350px; background: var(--bg); border-color: var(--accent);}
     .link-icon-btn { background: none; border: none; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; flex-shrink: 0; color: var(--blue-grey); }
     .embed-url-input { border: none; background: transparent; color: var(--text); padding: 0 10px; width: 100%; outline: none; font-family: inherit; opacity: 0; transition: 0.2s; }
     .embed-url-wrapper.expanded .embed-url-input { opacity: 1; }
@@ -480,7 +480,7 @@
                                 <th onclick="sortProjTable('tasks')" data-i18n="thTasks">عدد المهام ↕</th>
                                 <th onclick="sortProjTable('estHours')" data-i18n="thEstHrs">ساعات مخططة ↕</th>
                                 <th onclick="sortProjTable('actHours')" data-i18n="thActHrs">ساعات فعلية ↕</th>
-                                <th data-i18n="thExecReport">ملفات المشروع</th>
+                                <th data-i18n="thExecReport">التقارير</th>
                             </tr>
                         </thead>
                         <tbody id="report-projects-body"></tbody>
@@ -549,12 +549,11 @@
           <div class="report-header" style="border-bottom: none; padding-bottom: 10px;">
               <div>
                   <h2 style="color: var(--text); font-size: 1.4rem; margin-bottom: 5px;">
-                      <span data-i18n="execReportLabel">ملفات مشروع:</span> 
+                      <span data-i18n="execReportLabel">تقارير مشروع:</span> 
                       <span id="pr-project-name" style="color: var(--accent);"></span>
                   </h2>
               </div>
               <div style="display: flex; gap: 15px; align-items: center;">
-                  <button class="btn-save-big admin-only" onclick="saveProjectReport()" style="padding: 8px 20px; font-size: 1rem;" data-i18n="saveBtn">حفظ التعديلات</button>
                   <button onclick="closeProjectReport()" style="background: none; border: none; font-size: 1.8rem; color: var(--blue-grey); cursor: pointer;">✖</button>
               </div>
           </div>
@@ -568,7 +567,7 @@
               </div>
               
               <div class="admin-only embed-url-wrapper" id="urlWrapper">
-                  <button class="link-icon-btn" onclick="toggleLinkInput()" title="إضافة أو تعديل رابط الملف">📄</button>
+                  <button class="link-icon-btn" onclick="openLinkInput()" title="إضافة أو تعديل رابط الملف">📄</button>
                   <input type="url" id="embed-url-input" class="embed-url-input" placeholder="ضع رابط جوجل شيت أو درايف واضغط Enter..." onkeydown="handleEmbedEnter(event)" onblur="closeLinkInput()">
               </div>
           </div>
@@ -680,7 +679,7 @@
     
     let activeProjectFilter = null;
     let searchTerm = "";
-    let activeMonthFilter = ""; // تم تصفير الفلتر لتعود الداتا القديمة للظهور
+    let activeMonthFilter = ""; 
     
     let chartStatus, chartTopProjects, chartYearly;
     let customAvatars = {};
@@ -688,7 +687,7 @@
     let employeeReportData = [];
     let sortStateProj = { key: null, asc: true };
     let sortStateEmp = { key: null, asc: true };
-    let currentZoom = 1; // لنسبة تكبير ملف العرض
+    let currentZoom = 1; 
 
     const whitelist = {
       "safwan.krasneh@bluedesignstudio.com": { name: "صفوان", role: "manager" },
@@ -717,7 +716,7 @@
             dashboardTitle: "لوحة المعلومات والتحليلات الاستراتيجية", statTasks: "إجمالي المهام", statHours: "الساعات التقديرية (الكلية)", statProjects: "مشاريع نشطة",
             chartTaskStatus: "حالة المهام الكلية", chartProjComp: "نسبة إنجاز المشاريع الفعّالة", chartTopProj: "حجم المشاريع (عدد المهام)", chartYearly: "حركة المشاريع خلال السنة",
             reportsTitle: "التقارير الشاملة", exportBtn: "⬇ تصدير الجداول لـ Excel",
-            projReportTitle: "تقرير سير المشاريع", thProject: "المشروع ↕", thTeam: "القسم (Team) ↕", thTasks: "عدد المهام ↕", thEstHrs: "ساعات مخططة ↕", thActHrs: "ساعات فعلية ↕", thExecReport: "ملفات المشروع",
+            projReportTitle: "تقرير سير المشاريع", thProject: "المشروع ↕", thTeam: "القسم (Team) ↕", thTasks: "عدد المهام ↕", thEstHrs: "ساعات مخططة ↕", thActHrs: "ساعات فعلية ↕", thExecReport: "التقارير",
             empReportTitle: "تقرير أداء الموظفين", thEmpName: "اسم الموظف ↕", thEmpTeam: "القسم التابع له ↕", thEmpTasks: "مهام موكلة ↕",
             addTaskTitle: "إضافة مهمة سريعة", addProjPlh: "اسم المشروع (أو اكتب # للبحث)", addTaskTitlePlh: "عنوان المهمة", selTeamPlh: "-- القسم --",
             chooseAssignees: "اختيار المسؤولين", chooseTeamFirst: "يرجى اختيار القسم أولاً...", estHrsPlh: "ساعات العمل المتوقعة", createTaskBtn: "إنشاء المهمة", cancelBtn: "إلغاء",
@@ -727,7 +726,7 @@
             assignmentSettings: "إعدادات التكليف", teamLbl: "القسم (Team)", assigneesLbl: "المسؤولون (Assignees)", dueDateLbl: "تاريخ التسليم المتوقع (Due Date)", estHrsLbl: "الساعات التقديرية (المخططة)",
             delTaskBtn: "حذف المهمة نهائياً 🗑️",
             hrsSymbol: "س", bySymbol: "بواسطة:", toSymbol: "موجه لـ:", noteSymbol: "📝 ملاحظة من:",
-            execReportLabel: "ملفات مشروع:", lastUpdatedBy: "تاريخ الإضافة:", typeReportHere: "لم يتم إضافة ملف بعد. يرجى الضغط على الأيقونة 📄 في الأعلى لتبدأ.",
+            execReportLabel: "تقارير مشروع:", lastUpdatedBy: "تاريخ الإضافة:", typeReportHere: "لم يتم إضافة ملف بعد. يرجى الضغط على الأيقونة 📄 في الأعلى لتبدأ.",
             sortDesc: "الأعلى إنجازاً ⬇️", sortAsc: "الأقل إنجازاً ⬆️"
         },
         en: {
@@ -741,7 +740,7 @@
             dashboardTitle: "Strategic Analytics Dashboard", statTasks: "Total Tasks", statHours: "Total Est. Hours", statProjects: "Active Projects",
             chartTaskStatus: "Overall Tasks Status", chartProjComp: "Project Completion (%)", chartTopProj: "Project Volume (Tasks Count)", chartYearly: "Projects Flow (Current Year)",
             reportsTitle: "Comprehensive Reports", exportBtn: "⬇ Export Tables to Excel",
-            projReportTitle: "Projects Progress Report", thProject: "Project ↕", thTeam: "Team ↕", thTasks: "Tasks ↕", thEstHrs: "Est. Hours ↕", thActHrs: "Act. Hours ↕", thExecReport: "Project Files",
+            projReportTitle: "Projects Progress Report", thProject: "Project ↕", thTeam: "Team ↕", thTasks: "Tasks ↕", thEstHrs: "Est. Hours ↕", thActHrs: "Act. Hours ↕", thExecReport: "Reports",
             empReportTitle: "Employees Performance Report", thEmpName: "Employee Name ↕", thEmpTeam: "Team ↕", thEmpTasks: "Assigned Tasks ↕",
             addTaskTitle: "Quick Add Task", addProjPlh: "Project Name (or type # to search)", addTaskTitlePlh: "Task Title", selTeamPlh: "-- Team --",
             chooseAssignees: "Select Assignees", chooseTeamFirst: "Please select a team first...", estHrsPlh: "Estimated Hours", createTaskBtn: "Create Task", cancelBtn: "Cancel",
@@ -751,13 +750,12 @@
             assignmentSettings: "Assignment Settings", teamLbl: "Team", assigneesLbl: "Assignees", dueDateLbl: "Due Date", estHrsLbl: "Estimated Hours",
             delTaskBtn: "Delete Task Permanently 🗑️",
             hrsSymbol: "h", bySymbol: "By:", toSymbol: "To:", noteSymbol: "📝 Note from:",
-            execReportLabel: "Files for:", lastUpdatedBy: "Added On:", typeReportHere: "No file added yet. Please click the 📄 icon above to start.",
+            execReportLabel: "Reports for:", lastUpdatedBy: "Added On:", typeReportHere: "No file added yet. Please click the 📄 icon above to start.",
             sortDesc: "Highest % ⬇️", sortAsc: "Lowest % ⬆️"
         }
     };
 
     let currentLang = localStorage.getItem('blue_lang') || 'ar';
-    // الوضع الفاتح كافتراضي للجميع
     let currentTheme = localStorage.getItem('blue_theme') || 'light';
 
     document.documentElement.setAttribute('data-theme', currentTheme);
@@ -813,13 +811,11 @@
 
     // --- دوال عرض الملفات (Embed Viewer المحدثة) ---
     
-    window.toggleLinkInput = () => {
+    window.openLinkInput = () => {
         const wrapper = document.getElementById('urlWrapper');
         const input = document.getElementById('embed-url-input');
-        wrapper.classList.toggle('expanded');
-        if(wrapper.classList.contains('expanded')) {
-            input.focus();
-        }
+        wrapper.classList.add('expanded');
+        setTimeout(() => input.focus(), 50);
     };
 
     window.closeLinkInput = () => {
@@ -842,7 +838,6 @@
                 emptyState.style.display = 'flex';
             }
             closeLinkInput();
-            // تفعيل حفظ تلقائي بعد الإدخال
             saveProjectReport();
         }
     };
@@ -874,14 +869,11 @@
         document.getElementById('pr-project-name').innerText = projectName;
         document.getElementById('pr-project-name').setAttribute('data-raw-name', projectName); 
         
-        const hasAdminRights = isManager || isTeamLead;
         const urlInput = document.getElementById('embed-url-input');
         const iframe = document.getElementById('pr-iframe');
         const emptyState = document.getElementById('pr-empty-state');
-        const toolbar = document.getElementById('pr-toolbar');
         const wrapper = document.getElementById('urlWrapper');
         
-        // تصفير الزووم
         currentZoom = 1;
         const zoomWrapper = document.getElementById('iframe-zoom-wrapper');
         zoomWrapper.style.transform = `scale(1)`;
@@ -911,7 +903,7 @@
 
     window.closeProjectReport = () => {
         document.getElementById('projectReportModal').classList.remove('active');
-        document.getElementById('pr-iframe').src = ''; // ايقاف أي عمليات في الخلفية
+        document.getElementById('pr-iframe').src = ''; 
     };
 
     window.saveProjectReport = () => {
@@ -924,13 +916,7 @@
             embedUrl: embedUrl,
             lastUpdatedBy: currentUserName,
             lastUpdatedAt: Date.now()
-        }).then(() => {
-            const btn = document.getElementById('btn-save-report');
-            const oldT = btn.innerText;
-            btn.innerText = "✔️";
-            btn.style.background = "var(--green-success)"; 
-            setTimeout(() => { btn.innerText = oldT; btn.style.background = "var(--green-success)"; }, 2000);
-        });
+        }).catch(err => console.log(err));
     };
 
 
@@ -994,7 +980,8 @@
             });
         }
         projectReportData.forEach(p => {
-            const reportBtn = `<button onclick="openProjectReport('${p.project.replace(/'/g, "\\'")}')" class="btn-outline" style="padding: 4px 10px; font-size:0.75rem;">📄 ${t("thExecReport")}</button>`;
+            const safeProj = p.project.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            const reportBtn = `<button onclick="openProjectReport('${safeProj}')" class="btn-outline" style="padding: 4px 10px; font-size:0.75rem;">📄 ${t("thExecReport")}</button>`;
 
             body.innerHTML += `<tr>
                 <td><span class="project-chip" style="margin:0;"># ${p.project}</span></td>
