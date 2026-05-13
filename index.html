@@ -397,43 +397,41 @@
         }
 
         /* فلاتر البحث */
-        .filters-bar {
-            display: flex;
-            gap: 15px;
-            flex-shrink: 0;
-            flex-wrap: wrap;
-        }
-
         .search-input {
-            flex: 1;
-            min-width: 200px;
-            padding: 10px 18px;
+            width: 100%;
+            padding: 10px 15px;
             border-radius: var(--radius);
             background: var(--card-bg);
             border: 1px solid var(--border);
             color: var(--text);
             outline: none;
             font-family: inherit;
+            font-size: 0.85rem;
+            transition: 0.2s;
         }
 
         .search-input:focus {
             border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 164, 254, 0.1);
         }
 
         .btn-clear {
-            background: var(--card-bg);
-            color: var(--text);
+            background: transparent;
+            color: var(--blue-grey);
             border: 1px solid var(--border);
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: var(--radius);
             cursor: pointer;
             transition: 0.2s;
             font-family: inherit;
-            white-space: nowrap;
+            font-size: 0.85rem;
+            width: 100%;
         }
 
         .btn-clear:hover {
-            background: var(--border);
+            background: rgba(248, 113, 113, 0.1);
+            color: var(--red-danger);
+            border-color: var(--red-danger);
         }
 
         /* تخطيط الكانبان */
@@ -446,7 +444,7 @@
         }
 
         .projects-sidebar {
-            width: 220px;
+            width: 250px; /* زيادة العرض قليلاً لاستيعاب الأزرار */
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: var(--radius);
@@ -543,7 +541,7 @@
             overflow-x: auto;
             overflow-y: hidden;
             height: 100%;
-            padding-bottom: 20px;
+            padding-bottom: 10px;
         }
 
         .board-container::-webkit-scrollbar {
@@ -582,17 +580,6 @@
         .column.drag-over {
             border-color: var(--accent);
             background: rgba(59, 164, 254, 0.05);
-        }
-
-        .column h3 {
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-            color: var(--blue-grey);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
         }
 
         .list {
@@ -1724,6 +1711,11 @@
             color: var(--accent);
         }
 
+        .editor-btn.zoom-btn {
+            padding: 8px 12px;
+            font-size: 1rem;
+        }
+
         .embed-container-body {
             flex: 1;
             padding: 20px;
@@ -1731,6 +1723,13 @@
             flex-direction: column;
             background: var(--card-bg);
             overflow: auto;
+        }
+
+        #iframe-zoom-wrapper {
+            width: 100%;
+            height: 100%;
+            transform-origin: top center;
+            transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease;
         }
 
         .iframe-container {
@@ -1961,22 +1960,21 @@
                         <p style="font-size: 0.85rem; color: var(--blue-grey);" data-i18n="workspaceSub">تتبع وإدارة
                             المشاريع الجارية</p>
                     </div>
-                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 15px;">
-                        <button onclick="openAddModal()" class="btn-main admin-only" style="border-radius: 8px; padding: 10px 25px; display:flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(59, 164, 254, 0.4);"
-                            title="إضافة مهمة">
-                            <span style="font-size: 1.4rem; font-weight: bold;">+</span> <span data-i18n="addTaskTitle">إضافة مهمة جديدة</span>
-                        </button>
-                        <div class="filters-bar" style="margin-bottom: 0;">
-                            <input type="text" id="searchInput" class="search-input" data-i18n-placeholder="searchPlh"
-                                placeholder="🔍 ابحث عن اسم مهمة أو مشروع..." onkeyup="handleSearch()" style="width: 300px;">
-                            <button class="btn-clear" onclick="clearFilters()" data-i18n="clearFiltersBtn">مسح الفلاتر
-                                ✖</button>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="kanban-layout">
-                    <div class="projects-sidebar">
+                    <div class="projects-sidebar" style="width: 260px;">
+                        
+                        <!-- نقل أزرار الإضافة والبحث والمسح إلى هنا -->
+                        <button onclick="openAddModal()" class="btn-main admin-only" style="width: 100%; justify-content: center; margin-bottom: 15px; padding: 12px; border-radius: 8px;">
+                            <span style="font-size: 1.2rem; font-weight: bold; margin-inline-end: 5px;">+</span> <span data-i18n="addTaskTitle">إضافة مهمة جديدة</span>
+                        </button>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
+                            <input type="text" id="searchInput" class="search-input" data-i18n-placeholder="searchPlh" placeholder="🔍 ابحث عن مهمة..." onkeyup="handleSearch()" style="width: 100%; padding: 8px 12px; font-size: 0.85rem;">
+                            <button class="btn-clear" onclick="clearFilters()" data-i18n="clearFiltersBtn" style="width: 100%; padding: 8px; font-size: 0.85rem;">مسح الفلاتر ✖</button>
+                        </div>
+
                         <h3 data-i18n="filterProjTitle">📁 تصفية بالمشروع</h3>
                         <div class="admin-only" style="margin-bottom: 15px;">
                             <label
@@ -2185,7 +2183,6 @@
                             الإضافة:</span> <span id="pr-last-updated">-</span></div>
                 </div>
                 <div style="display: flex; gap: 15px; align-items: center;">
-                    <!-- تم إزالة زر التكبير من هنا بناء على طلبك -->
                     <button onclick="closeProjectReport()"
                         style="background: none; border: none; font-size: 1.8rem; color: var(--blue-grey); cursor: pointer;">✖</button>
                 </div>
@@ -2196,7 +2193,6 @@
                     <button class="btn-outline"
                         style="border-color: var(--amber); color: var(--amber); padding: 6px 12px; font-size: 0.85rem;"
                         onclick="openEmbedExternal()" data-i18n="openExtBtn">🔗 فتح في نافذة جديدة</button>
-                    <!-- أزرار التقريب والتصغير بدلاً من التكبير الكامل للشاشة -->
                     <button class="editor-btn zoom-btn" onclick="zoomIframe(-0.1)" title="تصغير">➖</button>
                     <button class="editor-btn zoom-btn" onclick="zoomIframe(0.1)" title="تكبير">➕</button>
                 </div>
@@ -2377,7 +2373,7 @@
         window.activeProjectFilter = null;
         window.searchTerm = "";
         
-        // --- تعديل: الفلتر الافتراضي هو الشهر الحالي ---
+        // --- الفلتر الافتراضي هو الشهر الحالي ---
         window.activeMonthFilter = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
 
         window.chartStatus = null;
@@ -2437,7 +2433,7 @@
                 delTaskBtn: "حذف المهمة نهائياً 🗑️",
                 hrsSymbol: "س", bySymbol: "بواسطة:", toSymbol: "موجه لـ:", noteSymbol: "📝 ملاحظة من:",
                 execReportLabel: "ملفات مشروع:", lastUpdatedBy: "تاريخ الإضافة:", typeReportHere: "لم يتم إضافة ملف بعد. يرجى الضغط على الأيقونة 📄 في الأعلى لتبدأ.",
-                fullscreenBtn: "تكبير", openExtBtn: "🔗 فتح في نافذة جديدة",
+                openExtBtn: "🔗 فتح في نافذة جديدة",
                 sortDesc: "الأعلى إنجازاً ⬇️", sortAsc: "الأقل إنجازاً ⬆️",
                 noNotif: "لا توجد إشعارات جديدة", clearNotif: "تحديد كمقروء", notifTitle: "إشعار جديد من Blue Design", ganttTitle: "مخطط جانت الزمني للمشاريع"
             },
@@ -2465,7 +2461,7 @@
                 delTaskBtn: "Delete Task Permanently 🗑️",
                 hrsSymbol: "h", bySymbol: "By:", toSymbol: "To:", noteSymbol: "📝 Note from:",
                 execReportLabel: "Files for:", lastUpdatedBy: "Added On:", typeReportHere: "No file added yet. Please click the 📄 icon above to start.",
-                fullscreenBtn: "Fullscreen", openExtBtn: "🔗 Open in new window",
+                openExtBtn: "🔗 Open in new window",
                 sortDesc: "Highest % ⬇️", sortAsc: "Lowest % ⬆️",
                 noNotif: "No new notifications", clearNotif: "Mark as read", notifTitle: "New Notification", ganttTitle: "Projects Gantt Timeline"
             }
@@ -2660,12 +2656,6 @@
             wrapper.style.transform = `scale(${window.currentZoom})`;
             wrapper.style.width = `${100 / window.currentZoom}%`;
             wrapper.style.height = `${100 / window.currentZoom}%`;
-        };
-
-        // -- تمت إزالة زر Fullscreen بناء على طلب المستخدم --
-        // ولكن تم الإبقاء على الدالة احتياطياً إذا تم استخدامها مستقبلاً
-        window.toggleReportFullscreen = () => {
-            console.log("Fullscreen is disabled in this view.");
         };
 
         window.openProjectReport = (projectName) => {
@@ -3175,6 +3165,13 @@
             });
         };
 
+        window.deleteColumn = (colId) => {
+            if (!confirm("هل أنت متأكد من حذف هذا العمود؟")) return;
+            window.boardColumns = window.boardColumns.filter(c => c.id !== colId);
+            const { ref, set, db } = window.firebaseTools;
+            set(ref(db, 'settings/columns'), window.boardColumns);
+        };
+
         window.renderBoard = () => {
             const board = document.getElementById('main-board');
             if (!board) return;
@@ -3183,9 +3180,14 @@
 
             window.boardColumns.forEach(col => {
                 const colTitle = window.currentLang === 'en' && col.titleEn ? col.titleEn : col.title;
+                const deleteBtnHtml = (window.isManager || window.isTeamLead) ? `<button class="admin-only" onclick="window.deleteColumn('${col.id}')" style="background:none;border:none;cursor:pointer;color:var(--red-danger);" title="حذف العمود">🗑️</button>` : '';
+                
                 board.innerHTML += `
               <div class="column" data-status="${col.id}" ondragover="window.dragOver(event)" ondragleave="window.dragLeave(event)" ondrop="window.drop(event, '${col.id}')">
-                <h3>${colTitle} <span id="count-${col.id}" style="background:var(--bg); padding:2px 8px; border-radius:10px; margin-inline-start:auto;">0</span></h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin-bottom: 0;">${colTitle} <span id="count-${col.id}" style="background:var(--bg); padding:2px 8px; border-radius:10px; font-size:0.75rem;">0</span></h3>
+                    ${deleteBtnHtml}
+                </div>
                 <div class="list" id="list-${col.id}"></div>
               </div>
             `;
@@ -3201,6 +3203,7 @@
             const arr = window.getFilteredTasks();
 
             arr.forEach(task => {
+                // If a task belongs to a deleted column, fallback to the first available column
                 const status = counts[task.status] !== undefined ? task.status : window.boardColumns[0].id;
                 counts[status]++;
 
@@ -3305,7 +3308,8 @@
                 team: document.getElementById('tTypeNew').value, 
                 estHours: parseFloat(document.getElementById('eHoursNew').value) || 0,
                 priority: document.getElementById('tPriorityNew').value || 'low',
-                status: 'pending', createdAt: Date.now(), description: "", dueDate: "", comments: {}, checklist: {}
+                status: window.boardColumns[0].id, // Default to first column
+                createdAt: Date.now(), description: "", dueDate: "", comments: {}, checklist: {}
             };
             if (!data.projectName || !data.title) return alert("Required data missing.");
 
@@ -3778,7 +3782,7 @@
                         if (!hasAdminRights) { el.style.display = 'none'; return; }
                         // Restore appropriate display type based on element tag/class
                         if (el.tagName === 'BUTTON') {
-                            el.style.display = 'inline-flex';
+                            el.style.display = el.classList.contains('btn-add-circle') || el.classList.contains('btn-add-fab') ? 'flex' : 'inline-flex';
                         } else if (el.tagName === 'SELECT') {
                             el.style.display = 'block';
                         } else {
