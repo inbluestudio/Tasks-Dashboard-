@@ -271,20 +271,26 @@
 
     /* --- محرر التقارير التنفيذية للمشاريع (النسخة المحدثة لروابط الـ Embed) --- */
     .report-modal { background: var(--card-bg); width: 100%; max-width: 900px; height: 85vh; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); transition: all 0.3s ease; }
-    .report-modal.fullscreen { max-width: 100%; height: 100vh; border-radius: 0; border: none; margin: 0; }
-    #projectReportModal.fullscreen-active { padding: 0; }
     
     .report-header { padding: 20px 30px; border-bottom: 1px solid var(--border); background: var(--bg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:10px;}
-    .editor-toolbar { padding: 15px 30px; background: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     
-    .embed-url-input { flex: 1; padding: 10px 15px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; font-family: inherit; transition: 0.2s; min-width: 250px;}
-    .embed-url-input:focus { border-color: var(--accent); }
+    /* شريط الأدوات الجديد للـ Embed */
+    .embed-toolbar { padding: 15px 30px; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
     
-    .editor-btn { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; font-weight: 600;}
+    .embed-url-wrapper { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; width: 40px; height: 40px; transition: 0.3s ease; overflow: hidden; direction: rtl; justify-content: flex-start;}
+    .embed-url-wrapper.expanded { width: 350px; }
+    .link-icon-btn { background: none; border: none; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; flex-shrink: 0; color: var(--blue-grey); }
+    .embed-url-input { border: none; background: transparent; color: var(--text); padding: 0 10px; width: 100%; outline: none; font-family: inherit; opacity: 0; transition: 0.2s; }
+    .embed-url-wrapper.expanded .embed-url-input { opacity: 1; }
+
+    .editor-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; font-weight: 600;}
     .editor-btn:hover { background: rgba(59, 164, 254, 0.1); border-color: var(--accent); color: var(--accent); }
+    .editor-btn.zoom-btn { padding: 8px 12px; font-size: 1rem; }
     
-    .embed-container-body { flex: 1; padding: 20px; display: flex; flex-direction: column; background: var(--card-bg); overflow: hidden; }
-    .iframe-container { flex: 1; width: 100%; height: 100%; background: #fff; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .embed-container-body { flex: 1; padding: 20px; display: flex; flex-direction: column; background: var(--card-bg); overflow: auto; }
+    
+    #iframe-zoom-wrapper { width: 100%; height: 100%; transform-origin: top center; transition: transform 0.2s ease, width 0.2s ease, height 0.2s ease; }
+    .iframe-container { width: 100%; height: 100%; background: #fff; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
     .admin-only { display: none; }
     .manager-lock { position: relative; }
@@ -304,6 +310,7 @@
         .nav-item { justify-content: center; padding: 15px; }
         .settings-toggles { flex-direction: column; align-items: center; border-top: none; }
         .main-content { padding: 15px; }
+        .embed-url-wrapper.expanded { width: 200px; }
     }
   </style>
 </head>
@@ -539,34 +546,40 @@
   <!-- نافذة ملفات المشروع المضمنة (Embed Viewer) -->
   <div class="modal" id="projectReportModal">
       <div class="report-modal">
-          <div class="report-header">
+          <div class="report-header" style="border-bottom: none; padding-bottom: 10px;">
               <div>
                   <h2 style="color: var(--text); font-size: 1.4rem; margin-bottom: 5px;">
                       <span data-i18n="execReportLabel">ملفات مشروع:</span> 
                       <span id="pr-project-name" style="color: var(--accent);"></span>
                   </h2>
-                  <div style="font-size: 0.85rem; color: var(--blue-grey);">
-                      <span data-i18n="lastUpdatedBy">تاريخ الإضافة:</span> <span id="pr-last-updated">-</span>
-                  </div>
               </div>
-              <div style="display: flex; gap: 15px;">
-                  <button class="btn-outline" onclick="toggleReportFullscreen()" title="تكبير/تصغير الشاشة">🔲 تكبير</button>
-                  <button id="btn-save-report" class="btn-save-big admin-only" onclick="saveProjectReport()" data-i18n="saveBtn">حفظ التعديلات</button>
+              <div style="display: flex; gap: 15px; align-items: center;">
+                  <button class="btn-save-big admin-only" onclick="saveProjectReport()" style="padding: 8px 20px; font-size: 1rem;" data-i18n="saveBtn">حفظ التعديلات</button>
                   <button onclick="closeProjectReport()" style="background: none; border: none; font-size: 1.8rem; color: var(--blue-grey); cursor: pointer;">✖</button>
               </div>
           </div>
           
-          <div class="editor-toolbar admin-only" id="pr-toolbar" style="align-items: center;">
-              <span style="font-size: 1.2rem; color: var(--blue-grey);">📄</span>
-              <input type="url" id="embed-url-input" class="embed-url-input" placeholder="ضع رابط (URL) ملف جوجل شيت أو درايف هنا واضغط Enter للرؤية..." onkeydown="handleEmbedEnter(event)">
-              <button class="editor-btn" onclick="openEmbedExternal()" style="color: var(--amber); border-color: var(--amber);" title="الذهاب للرابط الخارجي">🔗 فتح في نافذة جديدة</button>
+          <!-- شريط التحكم بملف العرض -->
+          <div class="embed-toolbar">
+              <div style="display: flex; gap: 10px; align-items: center;">
+                  <button class="btn-outline" style="border-color: var(--amber); color: var(--amber); padding: 6px 12px; font-size: 0.85rem;" onclick="openEmbedExternal()">🔗 فتح في نافذة جديدة</button>
+                  <button class="editor-btn zoom-btn" onclick="zoomIframe(-0.1)" title="تصغير">➖</button>
+                  <button class="editor-btn zoom-btn" onclick="zoomIframe(0.1)" title="تكبير">➕</button>
+              </div>
+              
+              <div class="admin-only embed-url-wrapper" id="urlWrapper">
+                  <button class="link-icon-btn" onclick="toggleLinkInput()" title="إضافة أو تعديل رابط الملف">📄</button>
+                  <input type="url" id="embed-url-input" class="embed-url-input" placeholder="ضع رابط جوجل شيت أو درايف واضغط Enter..." onkeydown="handleEmbedEnter(event)" onblur="closeLinkInput()">
+              </div>
           </div>
 
-          <!-- منطقة عرض الـ Iframe -->
-          <div class="embed-container-body">
-              <iframe id="pr-iframe" class="iframe-container" src="" style="display:none;"></iframe>
-              <div id="pr-empty-state" style="flex: 1; display: flex; align-items: center; justify-content: center; color: var(--blue-grey); font-size: 1.1rem;" data-i18n="typeReportHere">
-                  لم يتم إضافة ملف بعد. يرجى وضع الرابط في الأعلى.
+          <!-- منطقة عرض الـ Iframe مع ميزة التكبير/التصغير -->
+          <div class="embed-container-body" style="padding: 0; position: relative;">
+              <div id="iframe-zoom-wrapper">
+                  <iframe id="pr-iframe" class="iframe-container" src="" style="border:none; border-radius: 0; box-shadow: none; display:none;"></iframe>
+              </div>
+              <div id="pr-empty-state" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--blue-grey); font-size: 1.1rem; background: var(--card-bg);" data-i18n="typeReportHere">
+                  لم يتم إضافة ملف بعد. يرجى الضغط على الأيقونة 📄 في الأعلى لتبدأ.
               </div>
           </div>
       </div>
@@ -652,7 +665,6 @@
   </div>
 
   <script type="module">
-    // --- Security Configuration ---
     const ALLOWED_IPS = []; 
 
     if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined') {
@@ -668,7 +680,7 @@
     
     let activeProjectFilter = null;
     let searchTerm = "";
-    let activeMonthFilter = ""; 
+    let activeMonthFilter = ""; // تم تصفير الفلتر لتعود الداتا القديمة للظهور
     
     let chartStatus, chartTopProjects, chartYearly;
     let customAvatars = {};
@@ -676,6 +688,7 @@
     let employeeReportData = [];
     let sortStateProj = { key: null, asc: true };
     let sortStateEmp = { key: null, asc: true };
+    let currentZoom = 1; // لنسبة تكبير ملف العرض
 
     const whitelist = {
       "safwan.krasneh@bluedesignstudio.com": { name: "صفوان", role: "manager" },
@@ -692,7 +705,6 @@
 
     const staffByTeam = { "3D": ["نور الدين", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "Code": ["عبدالله"] };
 
-    // --- I18N DICTIONARY ---
     const i18n = {
         ar: {
             login: "تسجيل الدخول", loginSub: "Blue Design Studio Cloud", emailPlh: "البريد الإلكتروني", passPlh: "كلمة المرور",
@@ -715,7 +727,7 @@
             assignmentSettings: "إعدادات التكليف", teamLbl: "القسم (Team)", assigneesLbl: "المسؤولون (Assignees)", dueDateLbl: "تاريخ التسليم المتوقع (Due Date)", estHrsLbl: "الساعات التقديرية (المخططة)",
             delTaskBtn: "حذف المهمة نهائياً 🗑️",
             hrsSymbol: "س", bySymbol: "بواسطة:", toSymbol: "موجه لـ:", noteSymbol: "📝 ملاحظة من:",
-            execReportLabel: "ملفات مشروع:", lastUpdatedBy: "تاريخ الإضافة:", typeReportHere: "لم يتم إضافة ملف بعد. يرجى وضع الرابط في الأعلى.",
+            execReportLabel: "ملفات مشروع:", lastUpdatedBy: "تاريخ الإضافة:", typeReportHere: "لم يتم إضافة ملف بعد. يرجى الضغط على الأيقونة 📄 في الأعلى لتبدأ.",
             sortDesc: "الأعلى إنجازاً ⬇️", sortAsc: "الأقل إنجازاً ⬆️"
         },
         en: {
@@ -739,12 +751,13 @@
             assignmentSettings: "Assignment Settings", teamLbl: "Team", assigneesLbl: "Assignees", dueDateLbl: "Due Date", estHrsLbl: "Estimated Hours",
             delTaskBtn: "Delete Task Permanently 🗑️",
             hrsSymbol: "h", bySymbol: "By:", toSymbol: "To:", noteSymbol: "📝 Note from:",
-            execReportLabel: "Files for:", lastUpdatedBy: "Added On:", typeReportHere: "No file added yet. Please insert a link above.",
+            execReportLabel: "Files for:", lastUpdatedBy: "Added On:", typeReportHere: "No file added yet. Please click the 📄 icon above to start.",
             sortDesc: "Highest % ⬇️", sortAsc: "Lowest % ⬆️"
         }
     };
 
     let currentLang = localStorage.getItem('blue_lang') || 'ar';
+    // الوضع الفاتح كافتراضي للجميع
     let currentTheme = localStorage.getItem('blue_theme') || 'light';
 
     document.documentElement.setAttribute('data-theme', currentTheme);
@@ -798,12 +811,27 @@
     }
     window.updateSortIcons = updateSortIcons;
 
-    // --- دوال عرض الملفات (Embed Viewer) ---
+    // --- دوال عرض الملفات (Embed Viewer المحدثة) ---
+    
+    window.toggleLinkInput = () => {
+        const wrapper = document.getElementById('urlWrapper');
+        const input = document.getElementById('embed-url-input');
+        wrapper.classList.toggle('expanded');
+        if(wrapper.classList.contains('expanded')) {
+            input.focus();
+        }
+    };
+
+    window.closeLinkInput = () => {
+        document.getElementById('urlWrapper').classList.remove('expanded');
+    };
+
     window.handleEmbedEnter = (e) => {
         if (e.key === 'Enter') {
             const url = e.target.value.trim();
             const iframe = document.getElementById('pr-iframe');
             const emptyState = document.getElementById('pr-empty-state');
+            
             if(url) {
                 iframe.src = url;
                 iframe.style.display = 'block';
@@ -813,6 +841,9 @@
                 iframe.style.display = 'none';
                 emptyState.style.display = 'flex';
             }
+            closeLinkInput();
+            // تفعيل حفظ تلقائي بعد الإدخال
+            saveProjectReport();
         }
     };
 
@@ -821,19 +852,19 @@
         if(url) {
             window.open(url, '_blank');
         } else {
-            alert("يرجى وضع رابط أولاً لتتمكن من فتحه.");
+            alert("يرجى إدخال وحفظ رابط أولاً.");
         }
     };
 
-    window.toggleReportFullscreen = () => {
-        const modal = document.getElementById('projectReportModal');
-        const modalBox = modal.querySelector('.report-modal');
-        modalBox.classList.toggle('fullscreen');
-        if (modalBox.classList.contains('fullscreen')) {
-            modal.classList.add('fullscreen-active');
-        } else {
-            modal.classList.remove('fullscreen-active');
-        }
+    window.zoomIframe = (step) => {
+        currentZoom += step;
+        if (currentZoom < 0.5) currentZoom = 0.5;
+        if (currentZoom > 3) currentZoom = 3;
+        
+        const wrapper = document.getElementById('iframe-zoom-wrapper');
+        wrapper.style.transform = `scale(${currentZoom})`;
+        wrapper.style.width = `${100 / currentZoom}%`;
+        wrapper.style.height = `${100 / currentZoom}%`;
     };
 
     window.openProjectReport = (projectName) => {
@@ -848,7 +879,17 @@
         const iframe = document.getElementById('pr-iframe');
         const emptyState = document.getElementById('pr-empty-state');
         const toolbar = document.getElementById('pr-toolbar');
+        const wrapper = document.getElementById('urlWrapper');
         
+        // تصفير الزووم
+        currentZoom = 1;
+        const zoomWrapper = document.getElementById('iframe-zoom-wrapper');
+        zoomWrapper.style.transform = `scale(1)`;
+        zoomWrapper.style.width = `100%`;
+        zoomWrapper.style.height = `100%`;
+
+        wrapper.classList.remove('expanded');
+
         if (reportData && reportData.embedUrl) {
             urlInput.value = reportData.embedUrl;
             iframe.src = reportData.embedUrl;
@@ -856,7 +897,7 @@
             emptyState.style.display = 'none';
             
             const d = new Date(reportData.lastUpdatedAt).toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-            document.getElementById('pr-last-updated').innerText = `${reportData.lastUpdatedBy} (${d})`;
+            document.getElementById('pr-last-updated').innerText = `${d}`;
         } else {
             urlInput.value = '';
             iframe.src = '';
@@ -865,19 +906,12 @@
             document.getElementById('pr-last-updated').innerText = '-';
         }
 
-        toolbar.style.display = hasAdminRights ? 'flex' : 'none';
-
         document.getElementById('projectReportModal').classList.add('active');
     };
 
     window.closeProjectReport = () => {
         document.getElementById('projectReportModal').classList.remove('active');
-        // Reset fullscreen state if closed while maxed out
-        const modal = document.getElementById('projectReportModal');
-        const modalBox = modal.querySelector('.report-modal');
-        modalBox.classList.remove('fullscreen');
-        modal.classList.remove('fullscreen-active');
-        document.getElementById('pr-iframe').src = ''; // stop any playing media
+        document.getElementById('pr-iframe').src = ''; // ايقاف أي عمليات في الخلفية
     };
 
     window.saveProjectReport = () => {
@@ -1037,14 +1071,12 @@
         if(!compContainer) return;
         compContainer.innerHTML = '';
         
-        // تحويل الكائن إلى مصفوفة وإضافة النسبة المئوية
         let projectsArr = Object.keys(projStats).map(pName => {
             const stats = projStats[pName];
             const pct = stats.totalChecklistItems > 0 ? Math.round((stats.completedChecklistItems / stats.totalChecklistItems) * 100) : 0;
             return { name: pName, pct: pct };
         });
 
-        // تطبيق الترتيب المختار
         if (window.projCompSortType === 'desc') {
             projectsArr.sort((a, b) => b.pct - a.pct || a.name.localeCompare(b.name));
         } else {
@@ -1661,7 +1693,6 @@
                 document.getElementById(item.dataset.target).classList.add('active'); 
                 
                 if(item.dataset.target === 'dashboard') {
-                    // الانتظار قليلاً ليتم تفعيل الـ CSS (display: flex) قبل محاولة رسم الشارتس
                     setTimeout(() => { if (isManager || isTeamLead) updateAdminStats(); }, 50);
                 }
                 if(item.dataset.target === 'reports') {
