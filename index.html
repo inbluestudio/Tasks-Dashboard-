@@ -12,13 +12,12 @@
   <!-- Chart.js DataLabels Plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
   
-  <!-- مكتبات تصدير PDF و Excel -->
+  <!-- مكتبات تصدير PDF و Excel و تحويل المحرر لصور -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   
-  <!-- استدعاء Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove, update, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -42,7 +41,7 @@
   </script>
 
   <style>
-    /* التزام بـ THE BLUE PALETTE (DARK MODE DEFAULT) */
+    /* التزام بـ THE BLUE PALETTE (DARK MODE) */
     :root {
       --ink-black: #020610; 
       --deep-navy: #0A1628; 
@@ -69,7 +68,7 @@
 
     /* LIGHT MODE PALETTE */
     [data-theme="light"] {
-      --ink-black: #f8fafc; 
+      --ink-black: #f0f4f8; 
       --deep-navy: #ffffff; 
       --navy-mid: #ffffff; 
       --tech-white: #0f172a; 
@@ -132,6 +131,7 @@
     .main-content { flex: 1; padding: 20px 25px; background: var(--bg); display: flex; flex-direction: column; height: 100vh; overflow: hidden; position: relative; }
     .section { display: none; flex: 1; flex-direction: column; height: 100%; overflow: hidden; }
     .section.active { display: flex; animation: contentFade 0.4s ease-out; }
+    @keyframes contentFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0; flex-wrap: wrap; gap: 10px; }
     
@@ -496,7 +496,6 @@
                 <canvas id="chartStatus"></canvas>
             </div>
             <div class="chart-wrapper">
-                <!-- تصميم الداشبورد الجديد لنسبة الإنجاز -->
                 <div class="widget-progress-header">
                     <div class="widget-progress-info">
                         <div class="pct" id="overall-comp-pct">0%</div>
@@ -746,6 +745,9 @@
   </div>
 
   <script type="module">
+    // ----------------------------------------------------
+    // 1. المتغيرات العامة والإعدادات الأساسية
+    // ----------------------------------------------------
     const ALLOWED_IPS = []; 
 
     if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined') {
@@ -770,12 +772,12 @@
     
     window.activeProjectFilter = null;
     window.searchTerm = "";
-    window.activeMonthFilter = ""; 
+    window.activeMonthFilter = ""; // إزالة الفلتر الافتراضي لإظهار كل البيانات
     
     window.chartStatus = null;
     window.chartTopProjects = null;
     window.chartYearly = null;
-    window.chartOverallComp = null; // للدائرة الجديدة المدمجة
+    window.chartOverallComp = null;
     
     window.customAvatars = {};
     window.projectReportData = [];
@@ -799,7 +801,9 @@
 
     window.staffByTeam = { "3D": ["نور الدين", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "Code": ["عبدالله"] };
 
-    // --- I18N DICTIONARY ---
+    // ----------------------------------------------------
+    // 2. إعدادات اللغة والثيم
+    // ----------------------------------------------------
     const i18n = {
         ar: {
             login: "تسجيل الدخول", loginSub: "Blue Design Studio Cloud", emailPlh: "البريد الإلكتروني", passPlh: "كلمة المرور",
@@ -813,10 +817,10 @@
             chartTaskStatus: "حالة المهام الكلية", chartProjComp: "نسبة إنجاز المشاريع الفعّالة", chartTopProj: "حجم المشاريع (عدد المهام)", chartYearly: "حركة المشاريع خلال السنة",
             progTitle: "تقدم المشاريع", progSub: "المهام الفرعية المنجزة",
             reportsTitle: "التقارير الشاملة", exportBtn: "⬇ تصدير الجداول لـ Excel",
-            projReportTitle: "تقرير سير المشاريع", thProject: "المشروع ↕", thTeam: "القسم (Team) ↕", thTasks: "عدد المهام ↕", thEstHrs: "ساعات مخططة ↕", thActHrs: "ساعات فعلية ↕", thExecReport: "ملفات المشروع",
+            projReportTitle: "تقرير سير المشاريع", thProject: "المشروع ↕", thTeam: "القسم (Team) ↕", thTasks: "عدد المهام ↕", thEstHrs: "ساعات مخططة ↕", thActHrs: "ساعات فعلية ↕", thExecReport: "التقارير",
             empReportTitle: "تقرير أداء الموظفين", thEmpName: "اسم الموظف ↕", thEmpTeam: "القسم التابع له ↕", thEmpTasks: "مهام موكلة ↕",
             addTaskTitle: "إضافة مهمة سريعة", addProjPlh: "اسم المشروع (أو اكتب # للبحث)", addTaskTitlePlh: "عنوان المهمة", selTeamPlh: "-- القسم --",
-            chooseAssignees: "اختيار المسؤولين", chooseTeamFirst: "يرجى اختيار القسم أولاً...", estHrsPlh: "ساعات المتوقعة", createTaskBtn: "إنشاء المهمة", cancelBtn: "إلغاء",
+            chooseAssignees: "اختيار المسؤولين", chooseTeamFirst: "يرجى اختيار القسم أولاً...", estHrsPlh: "ساعات العمل المتوقعة", createTaskBtn: "إنشاء المهمة", cancelBtn: "إلغاء",
             priLow: "🔵 عادي", priMed: "🟡 متوسط", priHigh: "🟠 هام", priUrg: "🔴 عاجل جداً", priorityLbl: "أولوية المهمة",
             saveBtn: "حفظ التعديلات", taskTitlePlh: "عنوان المهمة", currStatusLbl: "الحالة الحالية:", descTitle: "الوصف الأساسي للمهمة", descPlh: "أضف تفاصيل عامة للمهمة هنا...",
             checklistTitle: "قائمة المهام الفرعية (Checklist) والإنجاز الفعلي", checkItemPlh: "إضافة خطوة فرعية (ماذا أنجزت؟)...", assignedToPlh: "-- موجه لـ --", actHrsPlh: "ساعات فعلية", addBtn: "إضافة",
@@ -826,7 +830,8 @@
             hrsSymbol: "س", bySymbol: "بواسطة:", toSymbol: "موجه لـ:", noteSymbol: "📝 ملاحظة من:",
             execReportLabel: "ملفات مشروع:", lastUpdatedBy: "تاريخ الإضافة:", typeReportHere: "لم يتم إضافة ملف بعد. يرجى الضغط على الأيقونة 📄 في الأعلى لتبدأ.",
             fullscreenBtn: "تكبير", openExtBtn: "🔗 فتح في نافذة جديدة",
-            notifTitle: "الإشعارات", clearNotif: "تحديد كمقروء", noNotif: "لا توجد إشعارات جديدة"
+            sortDesc: "الأعلى إنجازاً ⬇️", sortAsc: "الأقل إنجازاً ⬆️",
+            noNotif: "لا توجد إشعارات جديدة", clearNotif: "تحديد كمقروء", notifTitle: "الإشعارات"
         },
         en: {
             login: "Login", loginSub: "Blue Design Studio Cloud", emailPlh: "Email Address", passPlh: "Password",
@@ -840,10 +845,10 @@
             chartTaskStatus: "Overall Tasks Status", chartProjComp: "Project Completion (%)", chartTopProj: "Project Volume (Tasks Count)", chartYearly: "Projects Flow (Current Year)",
             progTitle: "Project Progress", progSub: "Completed Sub-tasks",
             reportsTitle: "Comprehensive Reports", exportBtn: "⬇ Export Tables to Excel",
-            projReportTitle: "Projects Progress Report", thProject: "Project ↕", thTeam: "Team ↕", thTasks: "Tasks ↕", thEstHrs: "Est. Hours ↕", thActHrs: "Act. Hours ↕", thExecReport: "Project Files",
+            projReportTitle: "Projects Progress Report", thProject: "Project ↕", thTeam: "Team ↕", thTasks: "Tasks ↕", thEstHrs: "Est. Hours ↕", thActHrs: "Act. Hours ↕", thExecReport: "Reports",
             empReportTitle: "Employees Performance Report", thEmpName: "Employee Name ↕", thEmpTeam: "Team ↕", thEmpTasks: "Assigned Tasks ↕",
             addTaskTitle: "Quick Add Task", addProjPlh: "Project Name (or type # to search)", addTaskTitlePlh: "Task Title", selTeamPlh: "-- Team --",
-            chooseAssignees: "Select Assignees", chooseTeamFirst: "Please select a team first...", estHrsPlh: "Est. Hours", createTaskBtn: "Create Task", cancelBtn: "Cancel",
+            chooseAssignees: "Select Assignees", chooseTeamFirst: "Please select a team first...", estHrsPlh: "Estimated Hours", createTaskBtn: "Create Task", cancelBtn: "Cancel",
             priLow: "🔵 Low", priMed: "🟡 Medium", priHigh: "🟠 High", priUrg: "🔴 Urgent", priorityLbl: "Task Priority",
             saveBtn: "Save Changes", taskTitlePlh: "Task Title", currStatusLbl: "Current Status:", descTitle: "Task Description", descPlh: "Add general details here...",
             checklistTitle: "Sub-tasks (Checklist) & Actual Progress", checkItemPlh: "Add sub-task (What did you do?)...", assignedToPlh: "-- Assign to --", actHrsPlh: "Actual Hrs", addBtn: "Add",
@@ -853,11 +858,13 @@
             hrsSymbol: "h", bySymbol: "By:", toSymbol: "To:", noteSymbol: "📝 Note from:",
             execReportLabel: "Files for:", lastUpdatedBy: "Added On:", typeReportHere: "No file added yet. Please click the 📄 icon above to start.",
             fullscreenBtn: "Fullscreen", openExtBtn: "🔗 Open in new window",
-            notifTitle: "Notifications", clearNotif: "Mark as read", noNotif: "No new notifications"
+            sortDesc: "Highest % ⬇️", sortAsc: "Lowest % ⬆️",
+            noNotif: "No new notifications", clearNotif: "Mark as read", notifTitle: "Notifications"
         }
     };
 
     window.currentLang = localStorage.getItem('blue_lang') || 'ar';
+    // الوضع الفاتح هو الافتراضي
     window.currentTheme = localStorage.getItem('blue_theme') || 'light';
 
     document.documentElement.setAttribute('data-theme', window.currentTheme);
@@ -869,7 +876,10 @@
         document.querySelectorAll('[data-i18n]').forEach(el => { el.innerText = i18n[window.currentLang][el.getAttribute('data-i18n')] || el.innerText; });
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = i18n[window.currentLang][el.getAttribute('data-i18n-placeholder')] || el.placeholder; });
         
-        window.renderBoard();
+        const sortBtn = document.getElementById('sortCompBtn');
+        if(sortBtn && window.projCompSortType) {
+             sortBtn.innerText = window.projCompSortType === 'desc' ? t('sortDesc') : t('sortAsc');
+        }
     };
     
     const t = (key) => i18n[window.currentLang][key] || key;
@@ -877,7 +887,7 @@
     const sanitizeProjName = (name) => name.replace(/[\.\#\$\[\]]/g, '_'); 
 
     // ----------------------------------------------------
-    // دوال مساعدة
+    // 3. دوال مساعدة للفلترة والجلب
     // ----------------------------------------------------
     window.taskMatchesMonthFilter = (task) => {
         if(!window.activeMonthFilter) return true; 
@@ -890,114 +900,20 @@
         const hasAdminRights = window.isManager || window.isTeamLead;
         return Object.values(window.allTasks).filter(t => {
             if(!t || !t.projectName) return false;
+            
             let assignedToArray = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
             if(!hasAdminRights && !assignedToArray.includes(window.currentUserName)) return false;
+            
             if(!ignoreMonthFilter && hasAdminRights && !window.taskMatchesMonthFilter(t)) return false;
             if(window.activeProjectFilter && t.projectName !== window.activeProjectFilter) return false;
             if(window.searchTerm && !t.title.toLowerCase().includes(window.searchTerm) && !t.projectName.toLowerCase().includes(window.searchTerm)) return false;
+            
             return true;
         });
     };
 
     // ----------------------------------------------------
-    // نظام الإشعارات (Notifications)
-    // ----------------------------------------------------
-    window.toggleNotifications = (e) => {
-        e.stopPropagation();
-        const panel = document.getElementById('notifications-panel');
-        panel.classList.toggle('show');
-    };
-
-    document.addEventListener('click', (e) => {
-        const panel = document.getElementById('notifications-panel');
-        if (panel.classList.contains('show') && !panel.contains(e.target) && !e.target.closest('.toggle-btn')) {
-            panel.classList.remove('show');
-        }
-    });
-
-    window.renderNotifications = () => {
-        const badge = document.getElementById('notif-badge');
-        const body = document.getElementById('notif-body');
-        
-        let unreadCount = 0;
-        let html = '';
-        
-        const notifArray = Object.keys(window.allNotifications).map(k => ({id: k, ...window.allNotifications[k]})).sort((a,b) => b.time - a.time);
-        
-        notifArray.forEach(n => {
-            if(!n.read) unreadCount++;
-            const d = new Date(n.time).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-            html += `
-                <div class="notif-item ${n.read ? '' : 'unread'}" onclick="handleNotifClick('${n.taskId}', '${n.id}')">
-                    <div><b>${n.from}</b> ذكرك في مهمة: <span style="color:var(--intel-blue); font-weight:bold;">${n.taskName}</span></div>
-                    <div class="notif-time">${d}</div>
-                </div>
-            `;
-        });
-
-        if (notifArray.length === 0) {
-            html = `<div style="text-align: center; color: var(--blue-grey); padding: 20px 0; font-size: 0.85rem;">${t('noNotif')}</div>`;
-        }
-
-        body.innerHTML = html;
-        
-        if(unreadCount > 0) {
-            badge.innerText = unreadCount;
-            badge.classList.add('has-notifications');
-        } else {
-            badge.classList.remove('has-notifications');
-        }
-    };
-
-    window.handleNotifClick = (taskId, notifId) => {
-        const { ref, update, db } = window.firebaseTools;
-        update(ref(db, `users/${window.currentUserEmailSafe}/notifications/${notifId}`), { read: true });
-        document.getElementById('notifications-panel').classList.remove('show');
-        if (window.allTasks[taskId]) {
-            window.openTaskDetailsModal(taskId);
-        }
-    };
-
-    window.clearNotifications = () => {
-        const { ref, update, db } = window.firebaseTools;
-        let updates = {};
-        Object.keys(window.allNotifications).forEach(k => {
-            if(!window.allNotifications[k].read) updates[`users/${window.currentUserEmailSafe}/notifications/${k}/read`] = true;
-        });
-        if(Object.keys(updates).length > 0) update(ref(db), updates);
-    };
-
-    window.sendMentionNotifications = (text, taskId, taskName) => {
-        const { ref, push, db } = window.firebaseTools;
-        
-        let mentionedEmails = [];
-        for (let email in window.whitelist) {
-            const user = window.whitelist[email];
-            if (text.includes(`@${user.name}`)) {
-                mentionedEmails.push(sanitizeEmail(email));
-            }
-        }
-        
-        // إشعار للجميع
-        if (text.includes('@الجميع') || text.includes('@all')) {
-            mentionedEmails = Object.keys(window.whitelist).map(e => sanitizeEmail(e));
-        }
-
-        mentionedEmails.forEach(emailKey => {
-            if (emailKey !== window.currentUserEmailSafe) {
-                push(ref(db, `users/${emailKey}/notifications`), {
-                    from: window.currentUserName,
-                    taskId: taskId,
-                    taskName: taskName,
-                    time: Date.now(),
-                    read: false
-                });
-            }
-        });
-    };
-
-    // ----------------------------------------------------
-    // دوال واجهة المستخدم الأخرى (الثيم، الكانبان)
+    // 4. دوال واجهة المستخدم والأحداث
     // ----------------------------------------------------
     window.toggleLang = () => { 
         window.currentLang = window.currentLang === 'ar' ? 'en' : 'ar'; 
@@ -1013,6 +929,84 @@
         window.refreshAllViews(); 
     };
 
+    window.updateSortIcons = (tableId, state) => {
+        const ths = document.querySelectorAll(`#${tableId} th`);
+        ths.forEach(th => { th.classList.remove('sort-asc', 'sort-desc'); });
+        if(!state.key) return;
+        const activeTh = document.querySelector(`#${tableId} th[onclick*="'${state.key}'"]`);
+        if(activeTh) activeTh.classList.add(state.asc ? 'sort-asc' : 'sort-desc');
+    };
+
+    // --- الإشعارات ---
+    window.toggleNotifications = (e) => {
+        e.stopPropagation();
+        document.getElementById('notifications-panel').classList.toggle('show');
+    };
+
+    document.addEventListener('click', (e) => {
+        const panel = document.getElementById('notifications-panel');
+        if (panel && panel.classList.contains('show') && !panel.contains(e.target) && !e.target.closest('.toggle-btn')) {
+            panel.classList.remove('show');
+        }
+    });
+
+    window.renderNotifications = () => {
+        const badge = document.getElementById('notif-badge');
+        const body = document.getElementById('notif-body');
+        let unreadCount = 0;
+        let html = '';
+        const notifArray = Object.keys(window.allNotifications).map(k => ({id: k, ...window.allNotifications[k]})).sort((a,b) => b.time - a.time);
+        
+        notifArray.forEach(n => {
+            if(!n.read) unreadCount++;
+            const d = new Date(n.time).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+            html += `
+                <div class="notif-item ${n.read ? '' : 'unread'}" onclick="window.handleNotifClick('${n.taskId}', '${n.id}')">
+                    <div><b>${n.from}</b> ذكرك في مهمة: <span style="color:var(--intel-blue); font-weight:bold;">${n.taskName}</span></div>
+                    <div class="notif-time">${d}</div>
+                </div>
+            `;
+        });
+        if (notifArray.length === 0) html = `<div style="text-align: center; color: var(--blue-grey); padding: 20px 0; font-size: 0.85rem;">${t('noNotif')}</div>`;
+        if(body) body.innerHTML = html;
+        if(badge) {
+            if(unreadCount > 0) { badge.innerText = unreadCount; badge.classList.add('has-notifications'); } 
+            else { badge.classList.remove('has-notifications'); }
+        }
+    };
+
+    window.handleNotifClick = (taskId, notifId) => {
+        const { ref, update, db } = window.firebaseTools;
+        update(ref(db, `users/${window.currentUserEmailSafe}/notifications/${notifId}`), { read: true });
+        document.getElementById('notifications-panel').classList.remove('show');
+        if (window.allTasks[taskId]) window.openTaskDetailsModal(taskId);
+    };
+
+    window.clearNotifications = () => {
+        const { ref, update, db } = window.firebaseTools;
+        let updates = {};
+        Object.keys(window.allNotifications).forEach(k => {
+            if(!window.allNotifications[k].read) updates[`users/${window.currentUserEmailSafe}/notifications/${k}/read`] = true;
+        });
+        if(Object.keys(updates).length > 0) update(ref(db), updates);
+    };
+
+    window.sendMentionNotifications = (text, taskId, taskName) => {
+        const { ref, push, db } = window.firebaseTools;
+        let mentionedEmails = [];
+        for (let email in window.whitelist) {
+            if (text.includes(`@${window.whitelist[email].name}`)) mentionedEmails.push(sanitizeEmail(email));
+        }
+        if (text.includes('@الجميع') || text.includes('@all')) mentionedEmails = Object.keys(window.whitelist).map(e => sanitizeEmail(e));
+
+        mentionedEmails.forEach(emailKey => {
+            if (emailKey !== window.currentUserEmailSafe) {
+                push(ref(db, `users/${emailKey}/notifications`), { from: window.currentUserName, taskId: taskId, taskName: taskName, time: Date.now(), read: false });
+            }
+        });
+    };
+
+    // --- نافذة عرض الملفات ---
     window.openLinkInput = () => {
         const wrapper = document.getElementById('urlWrapper');
         const input = document.getElementById('embed-url-input');
@@ -1046,11 +1040,8 @@
 
     window.openEmbedExternal = () => {
         const url = document.getElementById('embed-url-input').value.trim();
-        if(url) {
-            window.open(url, '_blank');
-        } else {
-            alert("يرجى إدخال وحفظ رابط أولاً.");
-        }
+        if(url) window.open(url, '_blank');
+        else alert("يرجى إدخال وحفظ رابط أولاً.");
     };
 
     window.zoomIframe = (step) => {
@@ -1068,11 +1059,8 @@
         const modal = document.getElementById('projectReportModal');
         const modalBox = modal.querySelector('.report-modal');
         modalBox.classList.toggle('fullscreen');
-        if (modalBox.classList.contains('fullscreen')) {
-            modal.classList.add('fullscreen-active');
-        } else {
-            modal.classList.remove('fullscreen-active');
-        }
+        if (modalBox.classList.contains('fullscreen')) modal.classList.add('fullscreen-active');
+        else modal.classList.remove('fullscreen-active');
     };
 
     window.openProjectReport = (projectName) => {
@@ -1100,11 +1088,14 @@
             iframe.src = reportData.embedUrl;
             iframe.style.display = 'block';
             emptyState.style.display = 'none';
+            const d = new Date(reportData.lastUpdatedAt).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+            document.getElementById('pr-last-updated').innerText = `${d}`;
         } else {
             urlInput.value = '';
             iframe.src = '';
             iframe.style.display = 'none';
             emptyState.style.display = 'flex';
+            document.getElementById('pr-last-updated').innerText = '-';
         }
 
         document.getElementById('projectReportModal').classList.add('active');
@@ -1117,6 +1108,339 @@
         modalBox.classList.remove('fullscreen');
         modal.classList.remove('fullscreen-active');
         document.getElementById('pr-iframe').src = ''; 
+    };
+
+    window.saveProjectReport = () => {
+        const rawName = document.getElementById('pr-project-name').getAttribute('data-raw-name');
+        const safeKey = sanitizeProjName(rawName);
+        const embedUrl = document.getElementById('embed-url-input').value.trim();
+        const { ref, update, db } = window.firebaseTools;
+
+        update(ref(db, `projectReports/${safeKey}`), {
+            embedUrl: embedUrl,
+            lastUpdatedBy: window.currentUserName,
+            lastUpdatedAt: Date.now()
+        }).catch(err => console.log(err));
+    };
+
+
+    // --- دوال بناء التقارير ---
+    window.prepareReportData = () => {
+        try {
+            const arr = window.getFilteredTasks();
+            const projMap = {};
+            const empMap = {};
+
+            arr.forEach(t => {
+                if(!projMap[t.projectName]) projMap[t.projectName] = { project: t.projectName, teams: new Set(), assignees: new Set(), tasks: 0, estHours: 0, actHours: 0 };
+                projMap[t.projectName].estHours += (t.estHours || 0); 
+                projMap[t.projectName].tasks++; 
+                if(t.team) projMap[t.projectName].teams.add(t.team);
+                
+                let assignedToArray = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+                assignedToArray.forEach(u => projMap[t.projectName].assignees.add(u));
+
+                if(t.checklist) {
+                    Object.values(t.checklist).forEach(item => {
+                        const actual = parseFloat(item.actualHours) || 0;
+                        if(actual > 0) {
+                            projMap[t.projectName].actHours += actual;
+                            const worker = item.addedBy || 'Unknown';
+                            if(!empMap[worker]) empMap[worker] = { name: worker, team: t.team || '-', tasks: 0, hours: 0 };
+                            empMap[worker].hours += actual;
+                        }
+                    });
+                }
+                
+                assignedToArray.forEach(worker => {
+                     if(!empMap[worker]) empMap[worker] = { name: worker, team: t.team || '-', tasks: 0, hours: 0 };
+                     empMap[worker].tasks++;
+                });
+            });
+
+            window.projectReportData = Object.values(projMap).map(p => ({
+                project: p.project, team: Array.from(p.teams).join(', '), assignees: Array.from(p.assignees).join(', '),
+                tasks: p.tasks, estHours: p.estHours, actHours: p.actHours
+            }));
+
+            window.employeeReportData = Object.values(empMap);
+            window.renderProjTable();
+            window.renderEmpTable();
+        } catch (error) {
+            console.error("Error preparing reports data:", error);
+        }
+    };
+
+    window.renderProjTable = () => {
+        try {
+            const body = document.getElementById('report-projects-body');
+            if(!body) return;
+            body.innerHTML = '';
+            if(window.sortStateProj.key) {
+                window.projectReportData.sort((a, b) => {
+                    let valA = a[window.sortStateProj.key]; let valB = b[window.sortStateProj.key];
+                    if (typeof valA === 'string') return window.sortStateProj.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    return window.sortStateProj.asc ? valA - valB : valB - valA;
+                });
+            }
+            window.projectReportData.forEach(p => {
+                const safeProj = p.project.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                const reportBtn = `<button onclick="window.openProjectReport('${safeProj}')" class="btn-outline" style="padding: 4px 10px; font-size:0.75rem;">📄 ${t("thExecReport")}</button>`;
+
+                body.innerHTML += `<tr>
+                    <td><span class="project-chip" style="margin:0;"># ${p.project}</span></td>
+                    <td style="color: var(--blue-grey);">${p.team || '-'}</td>
+                    <td>${p.tasks}</td>
+                    <td>${p.estHours}</td>
+                    <td style="color:var(--amber); font-weight:700;">${p.actHours}</td>
+                    <td>${reportBtn}</td>
+                </tr>`;
+            });
+            window.updateSortIcons('projectsTable', window.sortStateProj);
+        } catch(e) { console.log(e); }
+    };
+
+    window.renderEmpTable = () => {
+        try {
+            const body = document.getElementById('report-employees-body');
+            if(!body) return;
+            body.innerHTML = '';
+            if(window.sortStateEmp.key) {
+                window.employeeReportData.sort((a, b) => {
+                    let valA = a[window.sortStateEmp.key]; let valB = b[window.sortStateEmp.key];
+                    if (typeof valA === 'string') return window.sortStateEmp.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    return window.sortStateEmp.asc ? valA - valB : valB - valA;
+                });
+            }
+            window.employeeReportData.forEach(e => {
+                body.innerHTML += `<tr>
+                    <td><div style="display:flex; align-items:center; gap:8px;">${window.getAvatarHTML(e.name)} <span style="font-weight:600;">${e.name}</span></div></td>
+                    <td style="color: var(--blue-grey);">${e.team || '-'}</td>
+                    <td>${e.tasks}</td>
+                    <td style="color:var(--amber); font-weight:700;">${e.hours}</td>
+                </tr>`;
+            });
+            window.updateSortIcons('employeesTable', window.sortStateEmp);
+        } catch(e) { console.log(e); }
+    };
+
+    window.sortProjTable = (key) => {
+        if(window.sortStateProj.key === key) window.sortStateProj.asc = !window.sortStateProj.asc;
+        else { window.sortStateProj.key = key; window.sortStateProj.asc = true; }
+        window.renderProjTable();
+    };
+
+    window.sortEmpTable = (key) => {
+        if(window.sortStateEmp.key === key) window.sortStateEmp.asc = !window.sortStateEmp.asc;
+        else { window.sortStateEmp.key = key; window.sortStateEmp.asc = true; }
+        window.renderEmpTable();
+    };
+
+    window.projCompSortType = 'desc'; 
+    window.toggleCompSort = () => {
+        window.projCompSortType = window.projCompSortType === 'desc' ? 'asc' : 'desc';
+        document.getElementById('sortCompBtn').innerText = window.projCompSortType === 'desc' ? t('sortDesc') : t('sortAsc');
+        const arr = window.getFilteredTasks();
+        window.renderProjectCompletion(arr);
+    };
+
+    window.renderProjectCompletion = (arr) => {
+        try {
+            let projStats = {};
+            let totalSub = 0; let doneSub = 0;
+            
+            arr.forEach(t => {
+                if(!projStats[t.projectName]) projStats[t.projectName] = { totalChecklistItems: 0, completedChecklistItems: 0 };
+                
+                if (t.checklist) {
+                    Object.values(t.checklist).forEach(item => {
+                        projStats[t.projectName].totalChecklistItems++;
+                        totalSub++;
+                        if(item.done) {
+                            projStats[t.projectName].completedChecklistItems++;
+                            doneSub++;
+                        }
+                    });
+                }
+            });
+
+            document.getElementById('overall-comp-txt').innerText = `${doneSub} / ${totalSub}`;
+            const overallPct = totalSub > 0 ? Math.round((doneSub / totalSub) * 100) : 0;
+            document.getElementById('overall-comp-pct').innerText = `${overallPct}%`;
+            
+            if(window.chartOverallComp) window.chartOverallComp.destroy();
+            window.chartOverallComp = new Chart(document.getElementById('chartOverallComp'), { 
+                type: 'doughnut', 
+                data: { datasets: [{ data: [doneSub, totalSub - doneSub], backgroundColor: ['#f87171', 'rgba(0,0,0,0.1)'], borderWidth: 0 }] }, 
+                options: { cutout: '75%', maintainAspectRatio: false, plugins: { tooltip: {enabled: false}, legend: { display: false }, datalabels: { display: false } } } 
+            });
+
+
+            const compContainer = document.getElementById('projectCompletionList');
+            if(!compContainer) return;
+            compContainer.innerHTML = '';
+            
+            let projectsArr = Object.keys(projStats).map(pName => {
+                const stats = projStats[pName];
+                const pct = stats.totalChecklistItems > 0 ? Math.round((stats.completedChecklistItems / stats.totalChecklistItems) * 100) : 0;
+                return { name: pName, pct: pct };
+            });
+
+            if (window.projCompSortType === 'desc') {
+                projectsArr.sort((a, b) => b.pct - a.pct || a.name.localeCompare(b.name));
+            } else {
+                projectsArr.sort((a, b) => a.pct - b.pct || a.name.localeCompare(b.name));
+            }
+
+            const colors = ['#34d399', '#fbbf24', '#f97316', '#3BA4FE', '#a78bfa', '#f87171']; 
+            let colorIdx = 0;
+
+            projectsArr.forEach(p => {
+                const color = colors[colorIdx % colors.length];
+                colorIdx++;
+
+                compContainer.innerHTML += `
+                    <div class="comp-item-new">
+                        <div class="comp-pct-new">${p.pct}%</div>
+                        <div class="comp-bar-container-new">
+                            <div class="comp-bar-fill-new" style="width: ${p.pct}%; background: ${color};"></div>
+                        </div>
+                        <div class="comp-name-icon">
+                            <div class="comp-name-new" title="${p.name}">${p.name}</div>
+                            <div class="comp-icon-new">🎯</div>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch(e) { console.log(e); }
+    };
+
+    const getChartTextColor = () => window.currentTheme === 'light' ? '#0f172a' : '#E8EEF5';
+    const getChartGridColor = () => window.currentTheme === 'light' ? '#e2e8f0' : '#1F3550';
+
+    window.drawCharts = (arr, arrYearly) => {
+        if (typeof Chart === 'undefined') return; 
+        
+        try {
+            const sData = [arr.filter(t => t.status === 'pending').length, arr.filter(t => t.status === 'inprogress').length, arr.filter(t => t.status === 'completed').length];
+            if(window.chartStatus) window.chartStatus.destroy();
+            window.chartStatus = new Chart(document.getElementById('chartStatus'), { 
+                type: 'doughnut', 
+                data: { 
+                    labels: [t('colPending'), t('colInProgress'), t('colCompleted')], 
+                    datasets: [{ data: sData, backgroundColor: ['#fbbf24', '#3BA4FE', '#34d399'], borderWidth: 0 }] 
+                }, 
+                options: { 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { color: getChartTextColor() } },
+                        datalabels: { color: '#020610', font: { weight: 'bold', size: 16 }, formatter: (value) => { return value > 0 ? value : ''; } }
+                    } 
+                } 
+            });
+
+            let projTaskCounts = {};
+            arr.forEach(t => { projTaskCounts[t.projectName] = (projTaskCounts[t.projectName] || 0) + 1; });
+            const sortedProjs = Object.keys(projTaskCounts).sort((a, b) => projTaskCounts[b] - projTaskCounts[a]).slice(0, 7);
+            const projCountsData = sortedProjs.map(p => projTaskCounts[p]);
+            
+            if(window.chartTopProjects) window.chartTopProjects.destroy();
+            window.chartTopProjects = new Chart(document.getElementById('chartTopProjects'), { 
+                type: 'bar', 
+                data: { labels: sortedProjs, datasets: [{ label: t("statTasks"), data: projCountsData, backgroundColor: '#88CFFD', borderRadius: 4 }] }, 
+                options: { 
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: getChartGridColor() }, ticks: { color: getChartTextColor(), stepSize: 1 } }, 
+                        x: { grid: { display: false }, ticks: { color: getChartTextColor() } } 
+                    }, 
+                    plugins: { legend: { display: false }, datalabels: { display: false } } 
+                } 
+            });
+
+            let currentYear = new Date().getFullYear();
+            let monthlyProjects = Array(12).fill().map(() => new Set());
+            arrYearly.forEach(t => {
+                let d = new Date(t.createdAt || Date.now()); 
+                if(d.getFullYear() === currentYear) monthlyProjects[d.getMonth()].add(t.projectName);
+            });
+            
+            const monthLabels = window.currentLang === 'ar' ? 
+                ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'] :
+                ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                
+            const monthData = monthlyProjects.map(set => set.size);
+            
+            if(window.chartYearly) window.chartYearly.destroy();
+            window.chartYearly = new Chart(document.getElementById('chartYearly'), { 
+                type: 'line', 
+                data: { labels: monthLabels, datasets: [{ label: 'Projects', data: monthData, borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4 }] }, 
+                options: { 
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: getChartGridColor() }, ticks: { color: getChartTextColor(), stepSize: 1 } }, 
+                        x: { grid: { display: false }, ticks: { color: getChartTextColor() } } 
+                    }, 
+                    plugins: { legend: { display: false }, datalabels: { display: false } } 
+                } 
+            });
+        } catch(e) {
+            console.error("Error drawing charts:", e);
+        }
+    };
+
+    window.updateAdminStats = () => {
+        try {
+            const arr = window.getFilteredTasks();
+            const arrYearly = window.getFilteredTasks(true); 
+            
+            document.getElementById('st-total').innerText = arr.length;
+            document.getElementById('st-hours').innerText = arr.reduce((a, b) => a + (b.estHours || 0), 0) + " " + t("hrsSymbol");
+            document.getElementById('st-projects').innerText = [...new Set(arr.map(x => x.projectName))].length;
+            
+            if(document.getElementById('dashboard').classList.contains('active')) {
+                window.drawCharts(arr, arrYearly);
+                window.renderProjectCompletion(arr);
+            }
+        } catch (error) {
+            console.error("Dashboard error:", error);
+        }
+    };
+
+    window.getAvatarHTML = (name, emailKey = null) => {
+        if(!name) return '';
+        if (!emailKey) {
+            for (let e in window.whitelist) {
+                if (window.whitelist[e].name === name) { emailKey = sanitizeEmail(e); break; }
+            }
+        }
+        if (emailKey && window.customAvatars[emailKey]) { return `<span class="avatar" title="${name}"><img src="${window.customAvatars[emailKey]}" alt="${name}"></span>`; }
+        const colors = ['#3BA4FE', '#f87171', '#34d399', '#fbbf24', '#a78bfa', '#818cf8'];
+        const char = name.substring(0, 2);
+        const color = colors[char.charCodeAt(0) % colors.length];
+        return `<span class="avatar" style="background-color: ${color};" title="${name}">${char}</span>`;
+    };
+
+    window.refreshAllViews = () => {
+        window.renderProjectsSidebar(); 
+        window.renderBoard(); 
+        if(window.isManager || window.isTeamLead) {
+            setTimeout(() => {
+                if(document.getElementById('dashboard').classList.contains('active')) window.updateAdminStats();
+                window.prepareReportData();
+            }, 50);
+        }
+    };
+
+    window.handleSearch = () => { window.searchTerm = document.getElementById('searchInput').value.toLowerCase(); window.refreshAllViews(); };
+    window.setProjectFilter = (projName) => { window.activeProjectFilter = projName === window.activeProjectFilter ? null : projName; window.refreshAllViews(); };
+    window.handleMonthFilterChange = () => { window.activeMonthFilter = document.getElementById('monthFilter').value; window.refreshAllViews(); };
+    
+    window.clearFilters = () => { 
+        window.activeProjectFilter = null; window.searchTerm = ""; document.getElementById('searchInput').value = ""; 
+        window.activeMonthFilter = ""; 
+        if(document.getElementById('monthFilter')) document.getElementById('monthFilter').value = window.activeMonthFilter;
+        window.refreshAllViews();
     };
 
     window.renderProjectsSidebar = () => {
@@ -1138,14 +1462,12 @@
         });
     };
 
-    // نظام الكانبان الديناميكي
     window.renderBoard = () => {
         const board = document.getElementById('main-board');
         if(!board) return;
         
         board.innerHTML = '';
         
-        // رسم الأعمدة
         window.boardColumns.forEach(col => {
             const colTitle = window.currentLang === 'en' && col.titleEn ? col.titleEn : col.title;
             board.innerHTML += `
@@ -1156,7 +1478,6 @@
             `;
         });
         
-        // إضافة زر لإنشاء عمود جديد (للمدراء فقط)
         if (window.isManager || window.isTeamLead) {
             board.innerHTML += `<button class="add-column-btn admin-only" onclick="window.addNewColumn()" style="display:flex;">${t('addColBtn')}</button>`;
         }
@@ -1167,7 +1488,6 @@
         const arr = window.getFilteredTasks();
 
         arr.forEach(task => {
-            // معالجة المهام القديمة التي لا تملك حالة صحيحة
             const status = counts[task.status] !== undefined ? task.status : window.boardColumns[0].id;
             counts[status]++;
 
@@ -1193,7 +1513,6 @@
             const card = document.createElement('div');
             card.className = 'card';
             card.draggable = true;
-            // إضافة خاصية الأولوية
             if(task.priority) card.setAttribute('data-priority', task.priority);
             
             card.setAttribute('ondragstart', `window.dragStart(event, '${task.id || Object.keys(window.allTasks).find(k => window.allTasks[k]===task)}')`); 
@@ -1249,10 +1568,19 @@
             });
             const sortedProjs = Object.keys(projMap).sort((a,b) => projMap[b] - projMap[a]);
             const top4 = sortedProjs.slice(0, 4);
-            container.innerHTML = top4.map(p => `<span class="project-hashtag" onclick="document.getElementById('pNameNew').value='${p.replace(/'/g, "\\'")}'; document.getElementById('projectSuggestions').style.display='none';"># ${p}</span>`).join('');
+            container.innerHTML = top4.map(p => `<span class="project-hashtag" onclick="window.document.getElementById('pNameNew').value='${p.replace(/'/g, "\\'")}'; window.document.getElementById('projectSuggestions').style.display='none';"># ${p}</span>`).join('');
         }
         
         document.getElementById('addTaskModal').classList.add('active'); 
+    };
+
+    window.updateStaffListNew = () => {
+        const team = document.getElementById('tTypeNew').value;
+        const container = document.getElementById('sNameNewContainer');
+        container.innerHTML = '';
+        if (window.staffByTeam[team]) {
+            window.staffByTeam[team].forEach(e => { container.innerHTML += `<label><input type="checkbox" value="${e}"> ${window.getAvatarHTML(e)} ${e}</label>`; });
+        }
     };
 
     window.saveNewTask = () => {
@@ -1274,13 +1602,22 @@
         document.getElementById('addTaskModal').classList.remove('active');
     };
 
+    window.updateChecklistAssigneeOptions = () => {
+        const checkedBoxes = document.querySelectorAll('#dt-assignee-container input[type="checkbox"]:checked');
+        const select = document.getElementById('dt-new-checklist-assignee');
+        if(!select) return;
+        const currentVal = select.value;
+        select.innerHTML = `<option value="">${t("assignedToPlh")}</option>`;
+        checkedBoxes.forEach(cb => { select.innerHTML += `<option value="${cb.value}">${cb.value}</option>`; });
+        if (Array.from(checkedBoxes).some(cb => cb.value === currentVal)) select.value = currentVal;
+    };
+
     window.openTaskDetailsModal = (id) => {
         const task = window.allTasks[id];
         document.getElementById('dt-id').value = id;
         document.getElementById('dt-project').innerText = `# ${task.projectName}`;
         document.getElementById('dt-title-input').value = task.title; 
         
-        // البحث عن اسم الحالة الديناميكي
         let statusObj = window.boardColumns.find(c => c.id === task.status);
         let statusText = statusObj ? (window.currentLang === 'en' && statusObj.titleEn ? statusObj.titleEn : statusObj.title) : task.status;
         document.getElementById('dt-status-text').innerText = statusText;
@@ -1296,25 +1633,29 @@
         if(pri) pri.value = task.priority || 'low';
         
         let assignedToArray = task.assignedTo ? (Array.isArray(task.assignedTo) ? task.assignedTo : [task.assignedTo]) : [];
-        
-        // Update Staff List logic manually
-        const team = task.team;
-        const container = document.getElementById('dt-assignee-container');
-        container.innerHTML = '';
-        const hasAdminRights = window.isManager || window.isTeamLead;
-        if (window.staffByTeam[team]) {
-            window.staffByTeam[team].forEach(e => {
-                const isChecked = assignedToArray.includes(e) ? 'checked' : '';
-                const disabled = !hasAdminRights ? 'disabled' : '';
-                container.innerHTML += `<label><input type="checkbox" value="${e}" ${isChecked} ${disabled} onchange="window.updateChecklistAssigneeOptions()"> ${window.getAvatarHTML(e)} ${e}</label>`;
-            });
-        }
-        window.updateChecklistAssigneeOptions();
+        window.updateStaffListDetails(assignedToArray);
 
         window.renderComments(task.comments);
         window.renderChecklist(task.checklist);
 
         document.getElementById('taskDetailsModal').classList.add('active');
+    };
+
+    window.closeDetailsModal = () => document.getElementById('taskDetailsModal').classList.remove('active');
+
+    window.updateStaffListDetails = (selectedAssignees = []) => {
+        const team = document.getElementById('dt-team').value;
+        const container = document.getElementById('dt-assignee-container');
+        container.innerHTML = '';
+        const hasAdminRights = window.isManager || window.isTeamLead;
+        if (window.staffByTeam[team]) {
+            window.staffByTeam[team].forEach(e => {
+                const isChecked = selectedAssignees.includes(e) ? 'checked' : '';
+                const disabled = !hasAdminRights ? 'disabled' : '';
+                container.innerHTML += `<label><input type="checkbox" value="${e}" ${isChecked} ${disabled} onchange="window.updateChecklistAssigneeOptions()"> ${window.getAvatarHTML(e)} ${e}</label>`;
+            });
+        }
+        window.updateChecklistAssigneeOptions();
     };
 
     window.saveTaskDetails = () => {
@@ -1344,6 +1685,45 @@
         });
     };
 
+    window.editChecklistNote = (itemId, currentNote) => {
+        const newNote = prompt("Add/Edit note:", currentNote || "");
+        if (newNote !== null) {
+            const taskId = document.getElementById('dt-id').value;
+            const { ref, update, db } = window.firebaseTools;
+            update(ref(db, `tasks/${taskId}/checklist/${itemId}`), { note: newNote.trim(), noteBy: window.currentUserName, noteTime: Date.now() });
+        }
+    };
+
+    window.addChecklistItem = () => {
+        const id = document.getElementById('dt-id').value;
+        const input = document.getElementById('dt-new-checklist-item');
+        const hoursInput = document.getElementById('dt-new-checklist-hours');
+        const assigneeInput = document.getElementById('dt-new-checklist-assignee');
+        const text = input.value.trim();
+        const hours = parseFloat(hoursInput.value) || null;
+        const assignedToItem = assigneeInput ? assigneeInput.value : null;
+
+        if(!text) return;
+        const newItem = { text: text, done: false, addedBy: window.currentUserName, actualHours: hours, time: Date.now(), assignedToItem: assignedToItem, note: "" };
+        
+        const task = window.allTasks[id];
+        let updates = {};
+        if(!task.startedAt) updates[`tasks/${id}/startedAt`] = Date.now();
+        
+        const { ref, push, update, db } = window.firebaseTools;
+        update(ref(db), updates); 
+        push(ref(db, `tasks/${id}/checklist`), newItem).then(() => { input.value = ''; hoursInput.value = ''; });
+    };
+
+    window.toggleChecklistItem = (itemId, currentStatus) => { 
+        const { ref, update, db } = window.firebaseTools;
+        update(ref(db, `tasks/${document.getElementById('dt-id').value}/checklist/${itemId}`), { done: !currentStatus }); 
+    };
+    window.deleteChecklistItem = (itemId) => { 
+        const { ref, remove, db } = window.firebaseTools;
+        remove(ref(db, `tasks/${document.getElementById('dt-id').value}/checklist/${itemId}`)); 
+    };
+
     window.addComment = () => {
         const id = document.getElementById('dt-id').value;
         const input = document.getElementById('dt-new-comment');
@@ -1357,6 +1737,12 @@
         push(ref(db, `tasks/${id}/comments`), { user: window.currentUserName, text: text, time: Date.now() }).then(() => input.value = "");
     };
 
+    window.deleteTaskFromDetails = () => { 
+        if(!confirm("Delete?")) return; 
+        const { ref, remove, db } = window.firebaseTools;
+        remove(ref(db, `tasks/${document.getElementById('dt-id').value}`)).then(() => window.closeDetailsModal()); 
+    };
+
     window.dragStart = (e, id) => { e.dataTransfer.setData("taskId", id); e.target.style.opacity = "0.4"; };
     window.dragEnd = (e) => { e.target.style.opacity = "1"; };
     window.dragOver = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
@@ -1366,8 +1752,7 @@
         const id = e.dataTransfer.getData("taskId"); 
         if(id) {
             const updates = { status: status };
-            // إذا لم يكن قد بدأ بعد، وضعنا له تاريخ البداية
-            if(!window.allTasks[id].startedAt && status !== 'pending') updates.startedAt = Date.now();
+            if(status === 'inprogress' && !window.allTasks[id].startedAt) updates.startedAt = Date.now();
             if(status === 'completed') updates.completedAt = Date.now();
             
             const { ref, update, db } = window.firebaseTools;
@@ -1375,103 +1760,8 @@
         }
     };
 
-
     // ----------------------------------------------------
-    // التحليلات والتقارير
-    // ----------------------------------------------------
-
-    window.renderProjectCompletion = (arr) => {
-        try {
-            let projStats = {};
-            let totalSub = 0; let doneSub = 0;
-            
-            arr.forEach(t => {
-                if(!projStats[t.projectName]) projStats[t.projectName] = { totalChecklistItems: 0, completedChecklistItems: 0 };
-                
-                if (t.checklist) {
-                    Object.values(t.checklist).forEach(item => {
-                        projStats[t.projectName].totalChecklistItems++;
-                        totalSub++;
-                        if(item.done) {
-                            projStats[t.projectName].completedChecklistItems++;
-                            doneSub++;
-                        }
-                    });
-                }
-            });
-
-            // رسم الدائرة العلوية الجديدة
-            document.getElementById('overall-comp-txt').innerText = `${doneSub} / ${totalSub}`;
-            const overallPct = totalSub > 0 ? Math.round((doneSub / totalSub) * 100) : 0;
-            document.getElementById('overall-comp-pct').innerText = `${overallPct}%`;
-            
-            if(window.chartOverallComp) window.chartOverallComp.destroy();
-            window.chartOverallComp = new Chart(document.getElementById('chartOverallComp'), { 
-                type: 'doughnut', 
-                data: { datasets: [{ data: [doneSub, totalSub - doneSub], backgroundColor: ['#f87171', 'rgba(0,0,0,0.1)'], borderWidth: 0 }] }, 
-                options: { cutout: '75%', maintainAspectRatio: false, plugins: { tooltip: {enabled: false}, legend: { display: false }, datalabels: { display: false } } } 
-            });
-
-
-            const compContainer = document.getElementById('projectCompletionList');
-            if(!compContainer) return;
-            compContainer.innerHTML = '';
-            
-            let projectsArr = Object.keys(projStats).map(pName => {
-                const stats = projStats[pName];
-                const pct = stats.totalChecklistItems > 0 ? Math.round((stats.completedChecklistItems / stats.totalChecklistItems) * 100) : 0;
-                return { name: pName, pct: pct };
-            });
-
-            if (window.projCompSortType === 'desc') {
-                projectsArr.sort((a, b) => b.pct - a.pct || a.name.localeCompare(b.name));
-            } else {
-                projectsArr.sort((a, b) => a.pct - b.pct || a.name.localeCompare(b.name));
-            }
-
-            projectsArr.forEach(p => {
-                compContainer.innerHTML += `
-                    <div class="comp-item-new">
-                        <div class="comp-pct-new">${p.pct}%</div>
-                        <div class="comp-bar-container-new">
-                            <div class="comp-bar-fill-new" style="width: ${p.pct}%; background: #64748b;"></div>
-                        </div>
-                        <div class="comp-name-icon">
-                            <div class="comp-name-new" title="${p.name}">${p.name}</div>
-                            <div class="comp-icon-new">🎯</div>
-                        </div>
-                    </div>
-                `;
-            });
-        } catch(e) { console.log(e); }
-    };
-
-    // ... باقي دوال المساعدة للـ UI
-    window.refreshAllViews = () => {
-        window.renderProjectsSidebar(); 
-        window.renderBoard(); 
-        if(window.isManager || window.isTeamLead) {
-            setTimeout(() => {
-                if(document.getElementById('dashboard').classList.contains('active')) window.updateAdminStats();
-                window.prepareReportData();
-            }, 50);
-        }
-    };
-
-    window.handleSearch = () => { window.searchTerm = document.getElementById('searchInput').value.toLowerCase(); window.refreshAllViews(); };
-    window.setProjectFilter = (projName) => { window.activeProjectFilter = projName === window.activeProjectFilter ? null : projName; window.refreshAllViews(); };
-    window.handleMonthFilterChange = () => { window.activeMonthFilter = document.getElementById('monthFilter').value; window.refreshAllViews(); };
-    
-    window.clearFilters = () => { 
-        window.activeProjectFilter = null; window.searchTerm = ""; document.getElementById('searchInput').value = ""; 
-        window.activeMonthFilter = ""; 
-        if(document.getElementById('monthFilter')) document.getElementById('monthFilter').value = window.activeMonthFilter;
-        window.refreshAllViews();
-    };
-
-
-    // ----------------------------------------------------
-    // تهيئة الفايربيس (Firebase Initialization)
+    // 5. تهيئة الفايربيس (Firebase Initialization)
     // ----------------------------------------------------
     function initFirebaseApp() {
         if (!window.firebaseTools) {
@@ -1479,19 +1769,19 @@
             return;
         }
         
-        const { auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onValue, ref, db, update, push, remove, set, sendPasswordResetEmail } = window.firebaseTools;
+        const { auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onValue, ref, db, sendPasswordResetEmail } = window.firebaseTools;
 
-        // استدعاء الأعمدة الديناميكية
         onValue(ref(db, 'settings/columns'), (snap) => {
             if (snap.exists()) {
-                window.boardColumns = snap.val();
+                const val = snap.val();
+                window.boardColumns = Array.isArray(val) ? val : Object.values(val);
             } else {
+                const { set } = window.firebaseTools;
                 set(ref(db, 'settings/columns'), window.boardColumns);
             }
             if(document.getElementById('kanban').classList.contains('active')) window.renderBoard();
         });
 
-        // المراقبة والتحديث المباشر
         onValue(ref(db, 'projectReports'), (snap) => {
             window.allProjectReports = snap.val() || {};
         });
@@ -1552,11 +1842,12 @@
                         if(activeId && window.allTasks[activeId]) {
                             window.renderComments(window.allTasks[activeId].comments);
                             window.renderChecklist(window.allTasks[activeId].checklist);
+                            let assignedToArray = window.allTasks[activeId].assignedTo ? (Array.isArray(window.allTasks[activeId].assignedTo) ? window.allTasks[activeId].assignedTo : [window.allTasks[activeId].assignedTo]) : [];
+                            window.updateStaffListDetails(assignedToArray);
                         }
                     }
                 });
 
-                // الاستماع للإشعارات
                 onValue(ref(db, `users/${window.currentUserEmailSafe}/notifications`), (snap) => {
                     window.allNotifications = snap.val() || {};
                     window.renderNotifications();
@@ -1587,7 +1878,6 @@
         window.showError = (m) => { const b = document.getElementById('login-error'); b.innerText = m; b.style.display = 'block'; document.getElementById('login-success').style.display = 'none';};
         window.showSuccess = (m) => { const b = document.getElementById('login-success'); b.innerText = m; b.style.display = 'block'; document.getElementById('login-error').style.display = 'none';};
 
-        // Tab Navigation
         document.querySelectorAll('.nav-item').forEach(item => {
             item.onclick = () => { 
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); 
