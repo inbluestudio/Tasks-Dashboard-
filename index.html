@@ -440,7 +440,7 @@
         }
 
         .projects-sidebar {
-            width: 260px; 
+            width: 260px;
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: var(--radius);
@@ -509,7 +509,8 @@
             background: var(--card-bg);
             border-radius: 8px;
             border: 1px solid var(--border);
-            display: none; /* يتم إظهاره برمجياً عند الحاجة */
+            display: none;
+            /* يتم إظهاره برمجياً عند الحاجة */
         }
 
         .top-scrollbar-wrapper::-webkit-scrollbar {
@@ -521,7 +522,8 @@
         }
 
         .top-scrollbar-wrapper::-webkit-scrollbar-thumb {
-            background: var(--amber); /* اللون البرتقالي للسلايدر كما طلب المستخدم */
+            background: var(--amber);
+            /* اللون البرتقالي للسلايدر كما طلب المستخدم */
             border-radius: 8px;
             cursor: pointer;
         }
@@ -546,15 +548,52 @@
         .board-container::-webkit-scrollbar {
             height: 10px;
         }
+
         .board-container::-webkit-scrollbar-track {
             background: var(--bg);
             border-radius: 10px;
             border: 1px solid var(--border);
         }
+
         .board-container::-webkit-scrollbar-thumb {
             background: var(--accent);
             border-radius: 10px;
         }
+
+        /* أزرار التنقل بين الأعمدة */
+        .board-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 20;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            transition: background 0.2s, opacity 0.2s, transform 0.2s;
+            padding: 0;
+            line-height: 1;
+        }
+        .board-nav-btn:hover:not(:disabled) {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            transform: translateY(-50%) scale(1.1);
+        }
+        .board-nav-btn:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+        #boardNavLeft  { left:  6px; }
+        #boardNavRight { right: 6px; }
 
         .board {
             display: flex;
@@ -574,7 +613,8 @@
             height: 100%;
             width: 340px;
             flex-shrink: 0;
-            transition: transform 0.2s, opacity 0.2s; /* إضافة حركة ناعمة للسحب */
+            transition: transform 0.2s, opacity 0.2s;
+            /* إضافة حركة ناعمة للسحب */
         }
 
         .column.drag-over {
@@ -1765,7 +1805,7 @@
             display: flex !important;
             flex-direction: column;
             padding-bottom: 20px;
-            height: 100%; 
+            height: 100%;
         }
 
         .gantt-view-modes .btn-outline {
@@ -1774,15 +1814,49 @@
             border-radius: 6px;
         }
 
-        .gantt .grid-header { fill: var(--card-bg); stroke: var(--border); }
-        .gantt .grid-row { fill: var(--bg); stroke: var(--border); }
-        .gantt .grid-row:nth-child(even) { fill: var(--card-bg); }
-        .gantt .tick text { fill: var(--blue-grey); font-family: inherit; }
-        .gantt .bar-label { fill: #fff; font-weight: bold; font-family: inherit; }
-        .gantt .bar-progress { fill: var(--accent); }
-        .gantt .bar-wrapper:hover .bar { fill: var(--light-blue); }
-        .gantt .lower-text { font-size: 11px; fill: var(--text); }
-        .gantt .upper-text { font-size: 13px; font-weight: bold; fill: var(--text); }
+        .gantt .grid-header {
+            fill: var(--card-bg);
+            stroke: var(--border);
+        }
+
+        .gantt .grid-row {
+            fill: var(--bg);
+            stroke: var(--border);
+        }
+
+        .gantt .grid-row:nth-child(even) {
+            fill: var(--card-bg);
+        }
+
+        .gantt .tick text {
+            fill: var(--blue-grey);
+            font-family: inherit;
+        }
+
+        .gantt .bar-label {
+            fill: #fff;
+            font-weight: bold;
+            font-family: inherit;
+        }
+
+        .gantt .bar-progress {
+            fill: var(--accent);
+        }
+
+        .gantt .bar-wrapper:hover .bar {
+            fill: var(--light-blue);
+        }
+
+        .gantt .lower-text {
+            font-size: 11px;
+            fill: var(--text);
+        }
+
+        .gantt .upper-text {
+            font-size: 13px;
+            font-weight: bold;
+            fill: var(--text);
+        }
 
         .admin-only {
             display: none;
@@ -1977,14 +2051,20 @@
 
                 <div class="kanban-layout">
                     <div class="projects-sidebar" style="width: 260px;">
-                        
-                        <button onclick="openAddModal()" class="btn-main admin-only" style="width: 100%; justify-content: center; margin-bottom: 15px; padding: 12px; border-radius: 8px;">
-                            <span style="font-size: 1.2rem; font-weight: bold; margin-inline-end: 5px;">+</span> <span data-i18n="addTaskTitle">إضافة مهمة جديدة</span>
+
+                        <button onclick="openAddModal()" class="btn-main admin-only"
+                            style="width: 100%; justify-content: center; margin-bottom: 15px; padding: 12px; border-radius: 8px;">
+                            <span style="font-size: 1.2rem; font-weight: bold; margin-inline-end: 5px;">+</span> <span
+                                data-i18n="addTaskTitle">إضافة مهمة جديدة</span>
                         </button>
 
-                        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
-                            <input type="text" id="searchInput" class="search-input" data-i18n-placeholder="searchPlh" placeholder="🔍 ابحث عن مهمة..." onkeyup="handleSearch()" style="width: 100%; padding: 8px 12px; font-size: 0.85rem;">
-                            <button class="btn-clear" onclick="clearFilters()" data-i18n="clearFiltersBtn" style="width: 100%; padding: 8px; font-size: 0.85rem;">مسح الفلاتر ✖</button>
+                        <div
+                            style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
+                            <input type="text" id="searchInput" class="search-input" data-i18n-placeholder="searchPlh"
+                                placeholder="🔍 ابحث عن مهمة..." onkeyup="handleSearch()"
+                                style="width: 100%; padding: 8px 12px; font-size: 0.85rem;">
+                            <button class="btn-clear" onclick="clearFilters()" data-i18n="clearFiltersBtn"
+                                style="width: 100%; padding: 8px; font-size: 0.85rem;">مسح الفلاتر ✖</button>
                         </div>
 
                         <h3 data-i18n="filterProjTitle">📁 تصفية بالمشروع</h3>
@@ -2008,6 +2088,8 @@
                                 <!-- Board Columns Will Be Injected Here -->
                             </div>
                         </div>
+                        <button id="boardNavLeft"  class="board-nav-btn" onclick="window.scrollBoardLeft()"  title="التالي">&#8249;</button>
+                        <button id="boardNavRight" class="board-nav-btn" onclick="window.scrollBoardRight()" title="السابق">&#8250;</button>
                     </div>
                 </div>
             </section>
@@ -2016,12 +2098,16 @@
                 <div class="page-header" style="margin-bottom: 10px;">
                     <h1 style="margin-bottom: 0;" data-i18n="ganttTitle">مخطط جانت الزمني للمشاريع</h1>
                     <div class="gantt-view-modes" style="display: flex; gap: 10px;">
-                        <button class="btn-outline" onclick="changeGanttView('Day')" id="gantt-btn-Day" style="background: var(--accent); color: #fff;">شهر (يومي)</button>
-                        <button class="btn-outline" onclick="changeGanttView('Week')" id="gantt-btn-Week">3-6 أشهر (أسبوعي)</button>
-                        <button class="btn-outline" onclick="changeGanttView('Month')" id="gantt-btn-Month">سنة (شهري)</button>
+                        <button class="btn-outline" onclick="changeGanttView('Day')" id="gantt-btn-Day"
+                            style="background: var(--accent); color: #fff;">شهر (يومي)</button>
+                        <button class="btn-outline" onclick="changeGanttView('Week')" id="gantt-btn-Week">3-6 أشهر
+                            (أسبوعي)</button>
+                        <button class="btn-outline" onclick="changeGanttView('Month')" id="gantt-btn-Month">سنة
+                            (شهري)</button>
                     </div>
                 </div>
-                <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); flex: 1; overflow: hidden; display: flex; flex-direction: column;">
+                <div
+                    style="background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); flex: 1; overflow: hidden; display: flex; flex-direction: column;">
                     <div style="flex: 1; overflow: auto; padding: 10px;">
                         <div class="gantt-target" id="gantt-target" style="width: 100%;"></div>
                     </div>
@@ -2375,7 +2461,7 @@
 
         window.activeProjectFilter = null;
         window.searchTerm = "";
-        
+
         // --- الفلتر الافتراضي هو الشهر الحالي ---
         window.activeMonthFilter = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
 
@@ -2392,7 +2478,7 @@
         window.sortStateProj = { key: null, asc: true };
         window.sortStateEmp = { key: null, asc: true };
         window.currentZoom = 1;
-        
+
         window.boardObserver = null;
 
         window.whitelist = {
@@ -2721,18 +2807,48 @@
         };
 
         // --- دوال مزامنة السلايدر العلوي للوحة المهام (معتمد على Observer) ---
+        window.updateBoardNav = () => {
+            const c = document.getElementById('boardContainer');
+            const lBtn = document.getElementById('boardNavLeft');
+            const rBtn = document.getElementById('boardNavRight');
+            if (!c || !lBtn || !rBtn) return;
+
+            const hasOverflow = c.scrollWidth > c.clientWidth + 1;
+
+            lBtn.style.display = hasOverflow ? 'flex' : 'none';
+            rBtn.style.display = hasOverflow ? 'flex' : 'none';
+
+            if (hasOverflow) {
+                // RTL: scrollLeft = 0 عند البداية (يمين)، سالب نحو اليسار
+                const sl = c.scrollLeft;
+                const maxScroll = c.scrollWidth - c.clientWidth;
+                rBtn.disabled = sl >= -1;
+                lBtn.disabled = Math.abs(sl) >= maxScroll - 1;
+            }
+        };
+
+        window.scrollBoardLeft = () => {
+            const c = document.getElementById('boardContainer');
+            if (c) c.scrollBy({ left: -360, behavior: 'smooth' });
+        };
+
+        window.scrollBoardRight = () => {
+            const c = document.getElementById('boardContainer');
+            if (c) c.scrollBy({ left: 360, behavior: 'smooth' });
+        };
+
         window.syncScrollbars = () => {
             const topScroll = document.getElementById('topScrollWrapper');
             const boardContainer = document.getElementById('boardContainer');
             const board = document.getElementById('main-board');
             const topScrollContent = document.getElementById('topScrollContent');
-            
+
             if (topScroll && boardContainer && board && topScrollContent) {
-                if(!window.boardObserver) {
+                if (!window.boardObserver) {
                     window.boardObserver = new ResizeObserver(() => {
                         const actualWidth = board.scrollWidth;
                         topScrollContent.style.width = actualWidth + 'px';
-                        
+
                         // إظهار السلايدر فقط إذا كان هناك أعمدة مخفية وتتجاوز الشاشة
                         // عرض العمود 340 + 20 فجوة = 360 تقريباً. نعتبر 5 أعمدة = 1800 بكسل
                         if (actualWidth > boardContainer.clientWidth && window.boardColumns.length > 4) {
@@ -2740,34 +2856,37 @@
                         } else {
                             topScroll.style.display = 'none';
                         }
+                        if (window.updateBoardNav) window.updateBoardNav();
                     });
                     window.boardObserver.observe(board);
-                    
+
                     let isSyncTop = false;
                     let isSyncBottom = false;
-                    
-                    topScroll.addEventListener('scroll', function() {
+
+                    topScroll.addEventListener('scroll', function () {
                         if (!isSyncTop) {
                             isSyncBottom = true;
                             boardContainer.scrollLeft = this.scrollLeft;
                         }
                         isSyncTop = false;
                     });
-                    
-                    boardContainer.addEventListener('scroll', function() {
+
+                    boardContainer.addEventListener('scroll', function () {
                         if (!isSyncBottom) {
                             isSyncTop = true;
                             topScroll.scrollLeft = this.scrollLeft;
                         }
                         isSyncBottom = false;
+                        if (window.updateBoardNav) window.updateBoardNav();
                     });
                 }
             }
         };
-        
+
         window.addEventListener('resize', () => {
-            if(document.getElementById('kanban').classList.contains('active')) {
+            if (document.getElementById('kanban').classList.contains('active')) {
                 window.syncScrollbars();
+                window.updateBoardNav && window.updateBoardNav();
             }
         });
 
@@ -3071,16 +3190,16 @@
         // --- دوال تحكم مخطط جانت ---
         window.changeGanttView = (mode) => {
             window.currentGanttMode = mode;
-            if(window.ganttChartInst) {
+            if (window.ganttChartInst) {
                 window.ganttChartInst.change_view_mode(mode);
             }
-            
+
             document.querySelectorAll('.gantt-view-modes button').forEach(b => {
                 b.style.background = 'transparent';
                 b.style.color = 'var(--accent)';
             });
             const activeBtn = document.getElementById(`gantt-btn-${mode}`);
-            if(activeBtn) {
+            if (activeBtn) {
                 activeBtn.style.background = 'var(--accent)';
                 activeBtn.style.color = '#fff';
             }
@@ -3088,32 +3207,32 @@
 
         window.renderGanttChart = () => {
             if (typeof Gantt === 'undefined') return;
-            const arr = window.getFilteredTasks(true); 
+            const arr = window.getFilteredTasks(true);
             const container = document.getElementById('gantt-target');
             if (!container) return;
 
-            if(arr.length === 0) {
+            if (arr.length === 0) {
                 container.innerHTML = `<h3 style="color:var(--blue-grey);text-align:center;padding:50px;">لا توجد مشاريع لعرضها في المخطط الزمني</h3>`;
                 return;
             }
 
             const projMap = {};
             arr.forEach(t => {
-                if(!projMap[t.projectName]) {
+                if (!projMap[t.projectName]) {
                     projMap[t.projectName] = {
                         id: 'Project_' + t.projectName.replace(/\s+/g, '_'),
                         name: t.projectName,
                         start: t.createdAt || Date.now(),
-                        end: t.completedAt || (t.dueDate ? new Date(t.dueDate).getTime() : Date.now() + (7*24*60*60*1000)), 
+                        end: t.completedAt || (t.dueDate ? new Date(t.dueDate).getTime() : Date.now() + (7 * 24 * 60 * 60 * 1000)),
                         totalSub: 0,
                         doneSub: 0
                     };
                 }
-                
+
                 const p = projMap[t.projectName];
                 if (t.createdAt && t.createdAt < p.start) p.start = t.createdAt;
-                
-                let taskEnd = t.completedAt || (t.dueDate ? new Date(t.dueDate).getTime() : Date.now() + (7*24*60*60*1000));
+
+                let taskEnd = t.completedAt || (t.dueDate ? new Date(t.dueDate).getTime() : Date.now() + (7 * 24 * 60 * 60 * 1000));
                 if (taskEnd > p.end) p.end = taskEnd;
 
                 if (t.checklist) {
@@ -3129,11 +3248,11 @@
                 const format = (d) => new Date(d).toISOString().split('T')[0];
                 let endDate = format(p.end);
                 let startDate = format(p.start);
-                
+
                 if (startDate === endDate) {
-                   endDate = format(p.end + (24*60*60*1000));
+                    endDate = format(p.end + (24 * 60 * 60 * 1000));
                 }
-                
+
                 return {
                     id: p.id,
                     name: p.name,
@@ -3154,8 +3273,8 @@
                 bar_corner_radius: 6,
                 arrow_curve: 5,
                 padding: 18,
-                view_mode: window.currentGanttMode,   
-                language: window.currentLang === 'ar' ? 'ar' : 'en', 
+                view_mode: window.currentGanttMode,
+                language: window.currentLang === 'ar' ? 'ar' : 'en',
             });
         };
 
@@ -3203,7 +3322,7 @@
 
         // دالة سحب الأعمدة وإعادة ترتيبها
         window.dragColumnStart = (e, colId) => {
-            if(!window.isManager) { e.preventDefault(); return; }
+            if (!window.isManager) { e.preventDefault(); return; }
             e.dataTransfer.setData("colId", colId);
             setTimeout(() => e.target.closest('.column').classList.add('dragging'), 0);
         };
@@ -3211,7 +3330,7 @@
             e.target.closest('.column').classList.remove('dragging');
         };
         window.dragColumnOver = (e) => {
-            if(!window.isManager) return;
+            if (!window.isManager) return;
             e.preventDefault();
             const col = e.target.closest('.column');
             if (col && !col.classList.contains('dragging')) {
@@ -3223,21 +3342,21 @@
             if (col) col.style.border = "1px solid var(--border)";
         };
         window.dropColumn = (e, targetColId) => {
-            if(!window.isManager) return;
+            if (!window.isManager) return;
             e.preventDefault();
             const col = e.target.closest('.column');
             if (col) col.style.border = "1px solid var(--border)";
-            
+
             const sourceColId = e.dataTransfer.getData("colId");
             if (sourceColId && sourceColId !== targetColId) {
                 const sourceIdx = window.boardColumns.findIndex(c => c.id === sourceColId);
                 const targetIdx = window.boardColumns.findIndex(c => c.id === targetColId);
-                
+
                 // التبديل في المصفوفة
                 const temp = window.boardColumns[sourceIdx];
                 window.boardColumns[sourceIdx] = window.boardColumns[targetIdx];
                 window.boardColumns[targetIdx] = temp;
-                
+
                 const { ref, set, db } = window.firebaseTools;
                 set(ref(db, 'settings/columns'), window.boardColumns);
             }
@@ -3245,16 +3364,16 @@
 
         window.deleteColumn = (colId) => {
             if (!confirm(t('confirmDeleteCol') || "هل أنت متأكد من حذف هذا العمود؟ (المهام التي بداخله ستنتقل لعمود الانتظار)")) return;
-            
+
             const { ref, update, set, db } = window.firebaseTools;
             let updates = {};
             Object.keys(window.allTasks).forEach(taskId => {
-                if(window.allTasks[taskId].status === colId) {
+                if (window.allTasks[taskId].status === colId) {
                     updates[`tasks/${taskId}/status`] = 'pending';
                 }
             });
 
-            if(Object.keys(updates).length > 0) {
+            if (Object.keys(updates).length > 0) {
                 update(ref(db), updates);
             }
 
@@ -3270,14 +3389,14 @@
 
             window.boardColumns.forEach(col => {
                 const colTitle = window.currentLang === 'en' && col.titleEn ? col.titleEn : col.title;
-                
+
                 const protectedCols = ['pending', 'inprogress', 'completed'];
                 const canDelete = !protectedCols.includes(col.id);
-                
-                const deleteBtnHtml = (canDelete && (window.isManager || window.isTeamLead)) ? 
+
+                const deleteBtnHtml = (canDelete && (window.isManager || window.isTeamLead)) ?
                     `<button class="admin-only" onclick="window.deleteColumn('${col.id}')" style="background:none;border:none;cursor:pointer;color:var(--red-danger);font-size:1.1rem;padding:0;" title="حذف العمود">🗑️</button>` : '';
 
-                const dragHandleHtml = window.isManager ? `<span class="col-drag-handle admin-only" draggable="true" ondragstart="window.dragColumnStart(event, '${col.id}')" ondragend="window.dragColumnEnd(event)" title="سحب لإعادة الترتيب">⬍</span>` : '';
+                const dragHandleHtml = window.isManager ? `<span class="col-drag-handle admin-only" draggable="true" ondragstart="window.dragColumnStart(event, '${col.id}')" ondragend="window.dragColumnEnd(event)" title="سحب لإعادة الترتيب" style="display:inline-block;">⬍</span>` : '';
 
                 board.innerHTML += `
               <div class="column" data-status="${col.id}" ondragover="window.dragColumnOver(event); window.dragOver(event)" ondragleave="window.dragColumnLeave(event); window.dragLeave(event)" ondrop="window.dropColumn(event, '${col.id}'); window.drop(event, '${col.id}')">
@@ -3356,8 +3475,9 @@
                 const countEl = document.getElementById(`count-${col.id}`);
                 if (countEl) countEl.innerText = counts[col.id];
             });
-            
+
             setTimeout(window.syncScrollbars, 100); // زيادة وقت الانتظار قليلاً لضمان رسم الأعمدة بالكامل
+            setTimeout(window.updateBoardNav, 150);
         };
 
         window.addNewColumn = () => {
@@ -3397,18 +3517,18 @@
         window.updateStaffListNew = () => {
             const team = document.getElementById('tTypeNew').value;
             const container = document.getElementById('sNameNewContainer');
-            if(container) container.innerHTML = '';
+            if (container) container.innerHTML = '';
         };
 
         window.saveNewTask = () => {
             const data = {
                 projectName: document.getElementById('pNameNew').value.replace('#', '').trim(),
                 title: document.getElementById('tTitleNew').value.trim(),
-                assignedTo: [], 
-                team: document.getElementById('tTypeNew').value, 
+                assignedTo: [],
+                team: document.getElementById('tTypeNew').value,
                 estHours: parseFloat(document.getElementById('eHoursNew').value) || 0,
                 priority: document.getElementById('tPriorityNew').value || 'low',
-                status: window.boardColumns[0].id, 
+                status: window.boardColumns[0].id,
                 createdAt: Date.now(), description: "", dueDate: "", comments: {}, checklist: {}
             };
             if (!data.projectName || !data.title) return alert("Required data missing.");
@@ -3788,19 +3908,19 @@
 
         window.dragStart = (e, id) => {
             // Check if dragging column instead of task
-            if(e.target.classList && e.target.classList.contains('column')) return;
-            e.dataTransfer.setData("taskId", id); 
-            e.target.style.opacity = "0.4"; 
+            if (e.target.classList && e.target.classList.contains('column')) return;
+            e.dataTransfer.setData("taskId", id);
+            e.target.style.opacity = "0.4";
         };
         window.dragEnd = (e) => { e.target.style.opacity = "1"; };
         window.dragOver = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
         window.dragLeave = (e) => { e.currentTarget.classList.remove('drag-over'); };
         window.drop = (e, status) => {
             e.preventDefault(); e.currentTarget.classList.remove('drag-over');
-            
+
             // Check if dropped item was a column
             const colId = e.dataTransfer.getData("colId");
-            if(colId) return;
+            if (colId) return;
 
             const id = e.dataTransfer.getData("taskId");
             if (id) {
@@ -3854,7 +3974,7 @@
                         return window.showError("فشل التحقق من أمان الشبكة (IP).");
                     }
                 }
-                
+
                 // طلب تفعيل إشعارات المتصفح عند الدخول
                 if ("Notification" in window && Notification.permission === "default") {
                     Notification.requestPermission();
@@ -3873,7 +3993,7 @@
                     if ("Notification" in window && Notification.permission === "default") {
                         Notification.requestPermission();
                     }
-                    
+
                     const userData = window.whitelist[user.email];
                     if (!userData) { signOut(auth); window.showError("عذراً، هذا البريد غير مصرح له."); return; }
 
@@ -3925,12 +4045,12 @@
 
                     window.initialNotifLoad = true;
                     window.notifiedIds = new Set();
-                    
+
                     onValue(ref(db, `users/${window.currentUserEmailSafe}/notifications`), (snap) => {
                         const raw = snap.val() || {};
                         window.allNotifications = raw;
                         window.renderNotifications();
-                        
+
                         if (!window.initialNotifLoad) {
                             Object.keys(raw).forEach(k => {
                                 const n = raw[k];
@@ -3993,6 +4113,9 @@
                     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                     document.getElementById(item.dataset.target).classList.add('active');
 
+                    if (item.dataset.target === 'kanban') {
+                        setTimeout(() => { window.syncScrollbars && window.syncScrollbars(); window.updateBoardNav && window.updateBoardNav(); }, 100);
+                    }
                     if (item.dataset.target === 'dashboard') {
                         setTimeout(() => { if (window.isManager || window.isTeamLead) window.updateAdminStats(); }, 50);
                     }
