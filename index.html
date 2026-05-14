@@ -8,17 +8,13 @@
 
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <!-- Chart.js DataLabels Plugin -->
     <script
         src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
-    <!-- Frappe Gantt Chart -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.6.1/frappe-gantt.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.6.1/frappe-gantt.min.js"></script>
 
-    <!-- مكتبات تصدير PDF و Excel و تحويل المحرر لصور -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -444,7 +440,7 @@
         }
 
         .projects-sidebar {
-            width: 250px;
+            width: 260px; 
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: var(--radius);
@@ -513,6 +509,7 @@
             background: var(--card-bg);
             border-radius: 8px;
             border: 1px solid var(--border);
+            display: none; /* يتم إظهاره برمجياً عند الحاجة */
         }
 
         .top-scrollbar-wrapper::-webkit-scrollbar {
@@ -1844,7 +1841,6 @@
 
 <body>
 
-    <!-- شاشة الدخول -->
     <div id="login-page">
         <div class="login-card">
             <h2 id="auth-title" style="color: var(--accent); margin-bottom: 10px;" data-i18n="login">تسجيل الدخول</h2>
@@ -1889,7 +1885,6 @@
         </div>
     </div>
 
-    <!-- لوحة الإشعارات -->
     <div id="notifications-panel" class="notifications-panel">
         <div class="notif-header">
             <span data-i18n="notifTitle">الإشعارات</span>
@@ -1903,9 +1898,7 @@
         </div>
     </div>
 
-    <!-- النظام -->
     <div id="app-ui">
-        <!-- الشريط الجانبي -->
         <aside class="sidebar" id="mainSidebar">
             <div class="logo-container">
                 <div class="logo-main">BLUE</div>
@@ -1932,7 +1925,6 @@
             <div class="nav-item admin-only" data-target="reports">
                 <div class="nav-item-content"><span>📄</span> <span data-i18n="navReports">التقارير</span></div>
             </div>
-            <!-- صفحة جانت شارت -->
             <div class="nav-item admin-only" data-target="gantt">
                 <div class="nav-item-content"><span>📅</span> <span data-i18n="navGantt">مخطط المشاريع</span></div>
             </div>
@@ -1954,7 +1946,6 @@
         </aside>
 
         <main class="main-content">
-            <!-- الكانبان -->
             <section id="kanban" class="section active">
                 <div class="page-header" style="align-items: flex-start;">
                     <div>
@@ -1967,7 +1958,6 @@
                 <div class="kanban-layout">
                     <div class="projects-sidebar" style="width: 260px;">
                         
-                        <!-- نقل أزرار الإضافة والبحث والمسح إلى هنا -->
                         <button onclick="openAddModal()" class="btn-main admin-only" style="width: 100%; justify-content: center; margin-bottom: 15px; padding: 12px; border-radius: 8px;">
                             <span style="font-size: 1.2rem; font-weight: bold; margin-inline-end: 5px;">+</span> <span data-i18n="addTaskTitle">إضافة مهمة جديدة</span>
                         </button>
@@ -1990,21 +1980,17 @@
                     </div>
 
                     <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;">
-                        <!-- السلايدر العلوي (Top Scrollbar) -->
                         <div class="top-scrollbar-wrapper" id="topScrollWrapper">
                             <div class="top-scrollbar-content" id="topScrollContent"></div>
                         </div>
-                        <!-- لوحة الأعمدة الديناميكية -->
                         <div class="board-container" id="boardContainer">
                             <div class="board" id="main-board">
-                                <!-- سيتم رسم الأعمدة برمجياً هنا -->
-                            </div>
+                                </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- مخطط جانت -->
             <section id="gantt" class="section">
                 <div class="page-header" style="margin-bottom: 10px;">
                     <h1 style="margin-bottom: 0;" data-i18n="ganttTitle">مخطط جانت الزمني للمشاريع</h1>
@@ -2014,7 +2000,6 @@
                         <button class="btn-outline" onclick="changeGanttView('Month')" id="gantt-btn-Month">سنة (شهري)</button>
                     </div>
                 </div>
-                <!-- تصميم متجاوب ليعرض المخطط بكامل الشاشة المتبقية -->
                 <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); flex: 1; overflow: hidden; display: flex; flex-direction: column;">
                     <div style="flex: 1; overflow: auto; padding: 10px;">
                         <div class="gantt-target" id="gantt-target" style="width: 100%;"></div>
@@ -2022,7 +2007,6 @@
                 </div>
             </section>
 
-            <!-- التحليلات الداشبورد -->
             <section id="dashboard" class="section">
                 <div class="page-header">
                     <h1 style="margin-bottom: 0;" data-i18n="dashboardTitle">لوحة المعلومات والتحليلات الاستراتيجية</h1>
@@ -2076,7 +2060,6 @@
                 </div>
             </section>
 
-            <!-- التقارير -->
             <section id="reports" class="section">
                 <div class="page-header">
                     <h1 style="margin-bottom: 0;" data-i18n="reportsTitle">التقارير الشاملة</h1>
@@ -2129,7 +2112,6 @@
         </main>
     </div>
 
-    <!-- نافذة إضافة مهمة -->
     <div class="modal" id="addTaskModal">
         <div class="simple-modal">
             <h2 style="margin-bottom: 25px; color: var(--text);" data-i18n="addTaskTitle">إضافة مهمة سريعة</h2>
@@ -2172,7 +2154,6 @@
         </div>
     </div>
 
-    <!-- نافذة ملفات المشروع المضمنة (Embed Viewer) -->
     <div class="modal" id="projectReportModal">
         <div class="report-modal">
             <div class="report-header" style="border-bottom: none; padding-bottom: 10px;">
@@ -2222,7 +2203,6 @@
         </div>
     </div>
 
-    <!-- نافذة تفاصيل المهمة -->
     <div class="modal" id="taskDetailsModal">
         <div class="trello-modal">
             <div class="trello-header">
@@ -2725,29 +2705,41 @@
             const topScrollContent = document.getElementById('topScrollContent');
             
             if (topScroll && boardContainer && board && topScrollContent) {
-                const actualWidth = board.scrollWidth;
-                topScrollContent.style.width = actualWidth + 'px';
-                
-                if (actualWidth > boardContainer.clientWidth) {
-                    topScroll.style.display = 'block';
-                } else {
-                    topScroll.style.display = 'none';
+                // استخدام Observer ليراقب تغير عرض اللوحة باستمرار
+                if(!window.boardObserver) {
+                    window.boardObserver = new ResizeObserver(() => {
+                        const actualWidth = board.scrollWidth;
+                        topScrollContent.style.width = actualWidth + 'px';
+                        if (actualWidth > boardContainer.clientWidth) {
+                            topScroll.style.display = 'block';
+                        } else {
+                            topScroll.style.display = 'none';
+                        }
+                    });
+                    window.boardObserver.observe(board);
+                    
+                    // منع تضارب التمرير
+                    let isSyncTop = false;
+                    let isSyncBottom = false;
+                    
+                    topScroll.addEventListener('scroll', function() {
+                        if (!isSyncTop) {
+                            isSyncBottom = true;
+                            boardContainer.scrollLeft = this.scrollLeft;
+                        }
+                        isSyncTop = false;
+                    });
+                    
+                    boardContainer.addEventListener('scroll', function() {
+                        if (!isSyncBottom) {
+                            isSyncTop = true;
+                            topScroll.scrollLeft = this.scrollLeft;
+                        }
+                        isSyncBottom = false;
+                    });
                 }
-                
-                topScroll.onscroll = function() {
-                    boardContainer.scrollLeft = topScroll.scrollLeft;
-                };
-                boardContainer.onscroll = function() {
-                    topScroll.scrollLeft = boardContainer.scrollLeft;
-                };
             }
         };
-        
-        window.addEventListener('resize', () => {
-            if(document.getElementById('kanban').classList.contains('active')) {
-                window.syncScrollbars();
-            }
-        });
 
         // --- دوال بناء التقارير ---
         window.prepareReportData = () => {
@@ -3147,7 +3139,6 @@
                     window.prepareReportData();
                 }, 50);
             }
-            setTimeout(window.syncScrollbars, 100);
         };
 
         window.handleSearch = () => { window.searchTerm = document.getElementById('searchInput').value.toLowerCase(); window.refreshAllViews(); };
@@ -3212,10 +3203,9 @@
                 const protectedCols = ['pending', 'inprogress', 'completed'];
                 const canDelete = !protectedCols.includes(col.id);
                 
+                // حل: إزالة كلاس admin-only ليظهر الزر بعد رسم اللوحة
                 const deleteBtnHtml = (canDelete && (window.isManager || window.isTeamLead)) ? 
-                    `<button class="admin-only" onclick="window.deleteColumn('${col.id}')" style="background:none;border:none;cursor:pointer;color:var(--red-danger);font-size:1.1rem;padding:0;" title="حذف العمود">🗑️</button>` : '';
-
-                const marginAuto = canDelete ? '' : 'margin-inline-start:auto;';
+                    `<button onclick="window.deleteColumn('${col.id}')" style="background:none;border:none;cursor:pointer;color:var(--red-danger);font-size:1.1rem;padding:0;" title="حذف العمود">🗑️</button>` : '';
 
                 board.innerHTML += `
               <div class="column" data-status="${col.id}" ondragover="window.dragOver(event)" ondragleave="window.dragLeave(event)" ondrop="window.drop(event, '${col.id}')">
@@ -3232,7 +3222,7 @@
             });
 
             if (window.isManager || window.isTeamLead) {
-                board.innerHTML += `<button class="add-column-btn admin-only" onclick="window.addNewColumn()" style="display:flex;">${t('addColBtn')}</button>`;
+                board.innerHTML += `<button class="add-column-btn" onclick="window.addNewColumn()" style="display:flex;">${t('addColBtn')}</button>`;
             }
 
             let counts = {};
@@ -3241,7 +3231,6 @@
             const arr = window.getFilteredTasks();
 
             arr.forEach(task => {
-                // If column was deleted, fallback task visually to pending
                 const status = counts[task.status] !== undefined ? task.status : window.boardColumns[0].id;
                 counts[status]++;
 
@@ -3295,7 +3284,8 @@
                 if (countEl) countEl.innerText = counts[col.id];
             });
             
-            setTimeout(window.syncScrollbars, 50);
+            // استدعاء دالة مزامنة السلايدر
+            window.syncScrollbars();
         };
 
         window.addNewColumn = () => {
@@ -3346,7 +3336,7 @@
                 team: document.getElementById('tTypeNew').value, 
                 estHours: parseFloat(document.getElementById('eHoursNew').value) || 0,
                 priority: document.getElementById('tPriorityNew').value || 'low',
-                status: window.boardColumns[0].id, // Default to first column
+                status: window.boardColumns[0].id, 
                 createdAt: Date.now(), description: "", dueDate: "", comments: {}, checklist: {}
             };
             if (!data.projectName || !data.title) return alert("Required data missing.");
