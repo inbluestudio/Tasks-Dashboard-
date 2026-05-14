@@ -102,6 +102,15 @@
             overflow: hidden;
         }
 
+        /* ستاندر التصميم: 1920×1080 — توسيط على الشاشات الأعرض */
+        #app-ui {
+            display: flex;
+            width: 100%;
+            max-width: 1920px;
+            margin: 0 auto;
+            height: 100vh;
+        }
+
         /* توليد الأفاتار والصور الشخصية */
         .avatar {
             width: 28px;
@@ -3546,10 +3555,25 @@
                 return;
             }
 
-            // ترتيب: حسب اسم المشروع → ثم تاريخ البداية
+            // ترتيب: حسب التيم → ثم تاريخ بداية المهمة → ثم تاريخ التسليم
+            const getStartTs = (t) => {
+                if (t.startDate) {
+                    const [y, m, d] = t.startDate.split('-').map(Number);
+                    return new Date(y, m - 1, d).getTime();
+                }
+                return t.createdAt || 0;
+            };
+            const getDueTs = (t) => {
+                if (!t.dueDate) return 0;
+                const [y, m, d] = t.dueDate.split('-').map(Number);
+                return new Date(y, m - 1, d).getTime();
+            };
             const sorted = withDate.slice().sort((a, b) => {
-                if (a.projectName !== b.projectName) return (a.projectName || '').localeCompare(b.projectName || '');
-                return (a.createdAt || 0) - (b.createdAt || 0);
+                const teamA = a.team || 'zzz', teamB = b.team || 'zzz';
+                if (teamA !== teamB) return teamA.localeCompare(teamB);
+                const startDiff = getStartTs(a) - getStartTs(b);
+                if (startDiff !== 0) return startDiff;
+                return getDueTs(a) - getDueTs(b);
             });
 
             // لون لكل قسم (تيم) — نفس ألوان البطاقات
@@ -3610,16 +3634,31 @@
                         .gantt .bar-wrapper.gantt-team-${key} .bar-progress { fill: ${color}aa; }`;
             }).join('\n');
 
+            // حساب عرض العمود ديناميكياً ليتسع الجدول داخل الصفحة بدون scroll أفقي
+            const minStart = Math.min(...tasksForGantt.map(t => new Date(t.start).getTime()));
+            const maxEnd = Math.max(...tasksForGantt.map(t => new Date(t.end).getTime()));
+            const spanDays = Math.max(1, (maxEnd - minStart) / dayMs);
+            const wrapperEl = container.parentElement;
+            const availableWidth = (wrapperEl ? wrapperEl.clientWidth : 1500) - 280; // 280 لعمود أسماء المهام
+            let dynColumnWidth;
+            if (window.currentGanttMode === 'Month') {
+                const monthsCount = Math.max(1, Math.ceil(spanDays / 30));
+                dynColumnWidth = Math.max(50, Math.min(160, Math.floor(availableWidth / monthsCount)));
+            } else { // Week
+                const weeksCount = Math.max(1, Math.ceil(spanDays / 7));
+                dynColumnWidth = Math.max(28, Math.min(90, Math.floor(availableWidth / weeksCount)));
+            }
+
             container.innerHTML = '';
             window.ganttChartInst = new Gantt("#gantt-target", tasksForGantt, {
                 header_height: 50,
-                column_width: 30,
+                column_width: dynColumnWidth,
                 step: 24,
                 view_modes: ['Week', 'Month'],
                 bar_height: 24,
                 bar_corner_radius: 5,
                 arrow_curve: 5,
-                padding: 18,
+                padding: 14,
                 view_mode: window.currentGanttMode,
                 language: 'en',
                 custom_popup_html: (task) => `
@@ -4255,7 +4294,14 @@
                 shortText = `🟢 ${daysLeft}ي`;
             }
 
-            return { pct: Math.round(pct), color, statusText, shortText, daysLeft, start: startD.getTime(), end: endD.getTime() };
+            return {
+                pct: Math.round(pct),
+                color, statusText, shortText, daysLeft,
+                totalDays: Math.round(totalDays),
+                elapsedDays: Math.max(0, Math.round(elapsedDays)),
+                start: startD.getTime(),
+                end: endD.getTime()
+            };
         };
 
         window.updateTaskTimeProgress = () => {
@@ -4276,7 +4322,9 @@
             document.getElementById('dt-time-status').innerText = info.statusText;
             document.getElementById('dt-time-elapsed-pct').innerText = `${info.pct}%`;
             document.getElementById('dt-time-dates').innerHTML =
-                `<span>البداية: ${fmt(info.start)}</span><span>التسليم: ${fmt(info.end)}</span>`;
+                `<span>البداية: <b>${fmt(info.start)}</b></span>
+                 <span style="color:var(--accent);">المدة: <b>${info.totalDays} يوم</b></span>
+                 <span>التسليم: <b>${fmt(info.end)}</b></span>`;
 
             const fill = document.getElementById('dt-time-progress-fill');
             fill.style.width = `${info.pct}%`;
