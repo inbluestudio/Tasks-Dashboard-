@@ -574,11 +574,31 @@
             height: 100%;
             width: 340px;
             flex-shrink: 0;
+            transition: transform 0.2s, opacity 0.2s; /* إضافة حركة ناعمة للسحب */
         }
 
         .column.drag-over {
             border-color: var(--accent);
             background: rgba(59, 164, 254, 0.05);
+        }
+
+        .column.dragging {
+            opacity: 0.5;
+            transform: scale(0.98);
+        }
+
+        /* مقبض سحب العمود */
+        .col-drag-handle {
+            cursor: grab;
+            color: var(--blue-grey);
+            padding: 5px;
+            border-radius: 4px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .col-drag-handle:hover {
+            background: rgba(59, 164, 254, 0.1);
+            color: var(--accent);
         }
 
         .list {
@@ -1985,7 +2005,8 @@
                         </div>
                         <div class="board-container" id="boardContainer">
                             <div class="board" id="main-board">
-                                </div>
+                                <!-- Board Columns Will Be Injected Here -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2371,6 +2392,8 @@
         window.sortStateProj = { key: null, asc: true };
         window.sortStateEmp = { key: null, asc: true };
         window.currentZoom = 1;
+        
+        window.boardObserver = null;
 
         window.whitelist = {
             "safwan.krasneh@bluedesignstudio.com": { name: "صفوان", role: "manager" },
@@ -2697,7 +2720,7 @@
             }).catch(err => console.log(err));
         };
 
-        // --- دوال مزامنة السلايدر العلوي للوحة المهام ---
+        // --- دوال مزامنة السلايدر العلوي للوحة المهام (معتمد على Observer) ---
         window.syncScrollbars = () => {
             const topScroll = document.getElementById('topScrollWrapper');
             const boardContainer = document.getElementById('boardContainer');
@@ -2705,12 +2728,14 @@
             const topScrollContent = document.getElementById('topScrollContent');
             
             if (topScroll && boardContainer && board && topScrollContent) {
-                // استخدام Observer ليراقب تغير عرض اللوحة باستمرار
                 if(!window.boardObserver) {
                     window.boardObserver = new ResizeObserver(() => {
                         const actualWidth = board.scrollWidth;
                         topScrollContent.style.width = actualWidth + 'px';
-                        if (actualWidth > boardContainer.clientWidth) {
+                        
+                        // إظهار السلايدر فقط إذا كان هناك أعمدة مخفية وتتجاوز الشاشة
+                        // عرض العمود 340 + 20 فجوة = 360 تقريباً. نعتبر 5 أعمدة = 1800 بكسل
+                        if (actualWidth > boardContainer.clientWidth && window.boardColumns.length > 4) {
                             topScroll.style.display = 'block';
                         } else {
                             topScroll.style.display = 'none';
@@ -2718,7 +2743,6 @@
                     });
                     window.boardObserver.observe(board);
                     
-                    // منع تضارب التمرير
                     let isSyncTop = false;
                     let isSyncBottom = false;
                     
@@ -2740,6 +2764,12 @@
                 }
             }
         };
+        
+        window.addEventListener('resize', () => {
+            if(document.getElementById('kanban').classList.contains('active')) {
+                window.syncScrollbars();
+            }
+        });
 
         // --- دوال بناء التقارير ---
         window.prepareReportData = () => {
@@ -3171,6 +3201,48 @@
             });
         };
 
+        // دالة سحب الأعمدة وإعادة ترتيبها
+        window.dragColumnStart = (e, colId) => {
+            if(!window.isManager) { e.preventDefault(); return; }
+            e.dataTransfer.setData("colId", colId);
+            setTimeout(() => e.target.closest('.column').classList.add('dragging'), 0);
+        };
+        window.dragColumnEnd = (e) => {
+            e.target.closest('.column').classList.remove('dragging');
+        };
+        window.dragColumnOver = (e) => {
+            if(!window.isManager) return;
+            e.preventDefault();
+            const col = e.target.closest('.column');
+            if (col && !col.classList.contains('dragging')) {
+                col.style.border = "2px dashed var(--accent)";
+            }
+        };
+        window.dragColumnLeave = (e) => {
+            const col = e.target.closest('.column');
+            if (col) col.style.border = "1px solid var(--border)";
+        };
+        window.dropColumn = (e, targetColId) => {
+            if(!window.isManager) return;
+            e.preventDefault();
+            const col = e.target.closest('.column');
+            if (col) col.style.border = "1px solid var(--border)";
+            
+            const sourceColId = e.dataTransfer.getData("colId");
+            if (sourceColId && sourceColId !== targetColId) {
+                const sourceIdx = window.boardColumns.findIndex(c => c.id === sourceColId);
+                const targetIdx = window.boardColumns.findIndex(c => c.id === targetColId);
+                
+                // التبديل في المصفوفة
+                const temp = window.boardColumns[sourceIdx];
+                window.boardColumns[sourceIdx] = window.boardColumns[targetIdx];
+                window.boardColumns[targetIdx] = temp;
+                
+                const { ref, set, db } = window.firebaseTools;
+                set(ref(db, 'settings/columns'), window.boardColumns);
+            }
+        };
+
         window.deleteColumn = (colId) => {
             if (!confirm(t('confirmDeleteCol') || "هل أنت متأكد من حذف هذا العمود؟ (المهام التي بداخله ستنتقل لعمود الانتظار)")) return;
             
@@ -3199,18 +3271,19 @@
             window.boardColumns.forEach(col => {
                 const colTitle = window.currentLang === 'en' && col.titleEn ? col.titleEn : col.title;
                 
-                // حماية الأعمدة الأساسية من الحذف
                 const protectedCols = ['pending', 'inprogress', 'completed'];
                 const canDelete = !protectedCols.includes(col.id);
                 
-                // حل: إزالة كلاس admin-only ليظهر الزر بعد رسم اللوحة
                 const deleteBtnHtml = (canDelete && (window.isManager || window.isTeamLead)) ? 
-                    `<button onclick="window.deleteColumn('${col.id}')" style="background:none;border:none;cursor:pointer;color:var(--red-danger);font-size:1.1rem;padding:0;" title="حذف العمود">🗑️</button>` : '';
+                    `<button class="admin-only" onclick="window.deleteColumn('${col.id}')" style="background:none;border:none;cursor:pointer;color:var(--red-danger);font-size:1.1rem;padding:0;" title="حذف العمود">🗑️</button>` : '';
+
+                const dragHandleHtml = window.isManager ? `<span class="col-drag-handle admin-only" draggable="true" ondragstart="window.dragColumnStart(event, '${col.id}')" ondragend="window.dragColumnEnd(event)" title="سحب لإعادة الترتيب">⬍</span>` : '';
 
                 board.innerHTML += `
-              <div class="column" data-status="${col.id}" ondragover="window.dragOver(event)" ondragleave="window.dragLeave(event)" ondrop="window.drop(event, '${col.id}')">
-                <h3 style="display:flex; align-items:center; gap:8px; width:100%; justify-content:space-between;">
+              <div class="column" data-status="${col.id}" ondragover="window.dragColumnOver(event); window.dragOver(event)" ondragleave="window.dragColumnLeave(event); window.dragLeave(event)" ondrop="window.dropColumn(event, '${col.id}'); window.drop(event, '${col.id}')">
+                <h3 style="display:flex; align-items:center; gap:8px; width:100%; justify-content:space-between; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 10px;">
                     <div style="display:flex; align-items:center; gap:8px;">
+                        ${dragHandleHtml}
                         ${colTitle}
                         <span id="count-${col.id}" style="background:var(--bg); padding:2px 8px; border-radius:10px; font-size:0.75rem;">0</span>
                     </div>
@@ -3222,7 +3295,7 @@
             });
 
             if (window.isManager || window.isTeamLead) {
-                board.innerHTML += `<button class="add-column-btn" onclick="window.addNewColumn()" style="display:flex;">${t('addColBtn')}</button>`;
+                board.innerHTML += `<button class="add-column-btn admin-only" onclick="window.addNewColumn()" style="display:flex;">${t('addColBtn')}</button>`;
             }
 
             let counts = {};
@@ -3284,8 +3357,7 @@
                 if (countEl) countEl.innerText = counts[col.id];
             });
             
-            // استدعاء دالة مزامنة السلايدر
-            window.syncScrollbars();
+            setTimeout(window.syncScrollbars, 100); // زيادة وقت الانتظار قليلاً لضمان رسم الأعمدة بالكامل
         };
 
         window.addNewColumn = () => {
@@ -3714,12 +3786,22 @@
             remove(ref(db, `tasks/${document.getElementById('dt-id').value}`)).then(() => window.closeDetailsModal());
         };
 
-        window.dragStart = (e, id) => { e.dataTransfer.setData("taskId", id); e.target.style.opacity = "0.4"; };
+        window.dragStart = (e, id) => {
+            // Check if dragging column instead of task
+            if(e.target.classList && e.target.classList.contains('column')) return;
+            e.dataTransfer.setData("taskId", id); 
+            e.target.style.opacity = "0.4"; 
+        };
         window.dragEnd = (e) => { e.target.style.opacity = "1"; };
         window.dragOver = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
         window.dragLeave = (e) => { e.currentTarget.classList.remove('drag-over'); };
         window.drop = (e, status) => {
             e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+            
+            // Check if dropped item was a column
+            const colId = e.dataTransfer.getData("colId");
+            if(colId) return;
+
             const id = e.dataTransfer.getData("taskId");
             if (id) {
                 const updates = { status: status };
@@ -3810,9 +3892,11 @@
                         if (!hasAdminRights) { el.style.display = 'none'; return; }
                         // Restore appropriate display type based on element tag/class
                         if (el.tagName === 'BUTTON') {
-                            el.style.display = el.classList.contains('btn-add-circle') || el.classList.contains('btn-add-fab') ? 'flex' : 'inline-flex';
+                            el.style.display = el.classList.contains('btn-add-circle') || el.classList.contains('btn-add-fab') || el.classList.contains('col-drag-handle') ? 'flex' : 'inline-flex';
                         } else if (el.tagName === 'SELECT') {
                             el.style.display = 'block';
+                        } else if (el.tagName === 'SPAN' && el.classList.contains('col-drag-handle')) {
+                            el.style.display = 'inline-block';
                         } else {
                             el.style.display = 'flex';
                         }
