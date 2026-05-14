@@ -577,23 +577,31 @@
             display: none;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
             transition: background 0.2s, opacity 0.2s, transform 0.2s;
             padding: 0;
             line-height: 1;
         }
+
         .board-nav-btn:hover:not(:disabled) {
             background: var(--accent);
             color: #fff;
             border-color: var(--accent);
             transform: translateY(-50%) scale(1.1);
         }
+
         .board-nav-btn:disabled {
             opacity: 0.2;
             cursor: not-allowed;
         }
-        #boardNavLeft  { left:  6px; }
-        #boardNavRight { right: 6px; }
+
+        #boardNavLeft {
+            left: 6px;
+        }
+
+        #boardNavRight {
+            right: 6px;
+        }
 
         .board {
             display: flex;
@@ -2088,8 +2096,10 @@
                                 <!-- Board Columns Will Be Injected Here -->
                             </div>
                         </div>
-                        <button id="boardNavLeft"  class="board-nav-btn" onclick="window.scrollBoardLeft()"  title="التالي">&#8249;</button>
-                        <button id="boardNavRight" class="board-nav-btn" onclick="window.scrollBoardRight()" title="السابق">&#8250;</button>
+                        <button id="boardNavLeft" class="board-nav-btn" onclick="window.scrollBoardLeft()"
+                            title="التالي">&#8249;</button>
+                        <button id="boardNavRight" class="board-nav-btn" onclick="window.scrollBoardRight()"
+                            title="السابق">&#8250;</button>
                     </div>
                 </div>
             </section>
@@ -3363,6 +3373,8 @@
         };
 
         window.deleteColumn = (colId) => {
+            if (!window.isManager && !window.isTeamLead) return alert("غير مصرح لك بحذف الأعمدة. هذه الصلاحية للمدير أو قائد الفريق فقط.");
+            if (['pending', 'inprogress', 'completed'].includes(colId)) return alert("لا يمكن حذف الأعمدة الرئيسية (انتظار / تنفيذ / مكتملة).");
             if (!confirm(t('confirmDeleteCol') || "هل أنت متأكد من حذف هذا العمود؟ (المهام التي بداخله ستنتقل لعمود الانتظار)")) return;
 
             const { ref, update, set, db } = window.firebaseTools;
@@ -3394,9 +3406,9 @@
                 const canDelete = !protectedCols.includes(col.id);
 
                 const deleteBtnHtml = (canDelete && (window.isManager || window.isTeamLead)) ?
-                    `<button class="admin-only" onclick="window.deleteColumn('${col.id}')" style="background:none;border:none;cursor:pointer;color:var(--red-danger);font-size:1.1rem;padding:0;" title="حذف العمود">🗑️</button>` : '';
+                    `<button onclick="window.deleteColumn('${col.id}')" style="background:none;border:none;cursor:pointer;color:var(--red-danger);font-size:1.1rem;padding:0;" title="حذف العمود">🗑️</button>` : '';
 
-                const dragHandleHtml = window.isManager ? `<span class="col-drag-handle admin-only" draggable="true" ondragstart="window.dragColumnStart(event, '${col.id}')" ondragend="window.dragColumnEnd(event)" title="سحب لإعادة الترتيب" style="display:inline-block;">⬍</span>` : '';
+                const dragHandleHtml = window.isManager ? `<span class="col-drag-handle" draggable="true" ondragstart="window.dragColumnStart(event, '${col.id}')" ondragend="window.dragColumnEnd(event)" title="سحب لإعادة الترتيب" style="display:inline-block;">⬍</span>` : '';
 
                 board.innerHTML += `
               <div class="column" data-status="${col.id}" ondragover="window.dragColumnOver(event); window.dragOver(event)" ondragleave="window.dragColumnLeave(event); window.dragLeave(event)" ondrop="window.dropColumn(event, '${col.id}'); window.drop(event, '${col.id}')">
@@ -3414,7 +3426,7 @@
             });
 
             if (window.isManager || window.isTeamLead) {
-                board.innerHTML += `<button class="add-column-btn admin-only" onclick="window.addNewColumn()" style="display:flex;">${t('addColBtn')}</button>`;
+                board.innerHTML += `<button class="add-column-btn" onclick="window.addNewColumn()" style="display:flex;">${t('addColBtn')}</button>`;
             }
 
             let counts = {};
