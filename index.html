@@ -22,7 +22,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, onValue, remove, update, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, onValue, remove, update, set, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -39,7 +39,7 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
 
-        window.firebaseTools = { ref, push, onValue, remove, update, set, db, auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail };
+        window.firebaseTools = { ref, push, onValue, remove, update, set, onDisconnect, serverTimestamp, db, auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail };
     </script>
 
     <style>
@@ -460,6 +460,32 @@
             padding-bottom: 10px;
         }
 
+        .filter-tab {
+            flex: 1;
+            padding: 6px 8px;
+            font-size: 0.75rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--blue-grey);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            font-weight: 600;
+        }
+
+        .filter-tab.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .filter-tab:hover:not(.active) {
+            background: rgba(59,164,254,0.08);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
         .project-filter-item {
             padding: 10px 12px;
             border-radius: 8px;
@@ -745,6 +771,59 @@
             padding: 3px 8px;
             border-radius: 6px;
             font-weight: bold;
+        }
+
+        .team-chip {
+            display: inline-block;
+            padding: 3px 9px;
+            font-size: 0.68rem;
+            border-radius: 5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* قسم المتصلون الآن */
+        .online-users-section {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .online-users-header {
+            font-size: 0.75rem;
+            color: var(--blue-grey);
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .online-user-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 0;
+            font-size: 0.8rem;
+            color: var(--text);
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green-success);
+            margin-inline-start: auto;
+            box-shadow: 0 0 6px var(--green-success);
+            animation: onlinePulse 2s infinite;
+        }
+
+        @keyframes onlinePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .card-title {
@@ -2144,6 +2223,14 @@
                 <button class="toggle-btn" onclick="toggleLang()">🌐 <span data-i18n="langLbl">اللغة</span></button>
             </div>
 
+            <div class="online-users-section" id="onlineUsersSection" style="display:none;">
+                <div class="online-users-header">
+                    <span>👥 المتصلون الآن</span>
+                    <span id="onlineUsersCount" style="background:var(--green-success); color:#fff; font-size:0.65rem; padding:1px 7px; border-radius:10px;">0</span>
+                </div>
+                <div id="onlineUsersList"></div>
+            </div>
+
             <div style="margin-top: auto; width: 100%;">
                 <button onclick="handleLogout()"
                     style="background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); color: var(--red-danger); width: 100%; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; font-family: inherit;"
@@ -2179,16 +2266,20 @@
                                 style="width: 100%; padding: 8px; font-size: 0.85rem;">مسح الفلاتر ✖</button>
                         </div>
 
-                        <h3 data-i18n="filterProjTitle">📁 تصفية بالمشروع</h3>
-                        <div class="admin-only" style="margin-bottom: 15px;">
-                            <label
-                                style="font-size: 0.75rem; color: var(--blue-grey); margin-bottom: 5px; display: block;"
-                                data-i18n="archiveLabel">سجل الأرشيف (تاريخ الإنشاء):</label>
-                            <input type="month" id="monthFilter"
-                                style="width: 100%; padding: 4px 10px; height: 32px; font-size: 0.85rem; margin-bottom: 10px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: inherit; outline: none; cursor: pointer;"
-                                onchange="handleMonthFilterChange()">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; border-bottom: 1px solid var(--border); padding-bottom:10px;">
+                            <h3 style="margin:0; border:none; padding:0;">📁 السجل</h3>
+                            <input type="date" id="dateFilter" class="admin-only"
+                                style="padding: 4px 8px; height: 30px; font-size: 0.75rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: inherit; outline: none; cursor: pointer; width: auto; max-width: 130px;"
+                                onchange="handleDateFilterChange()">
                         </div>
+
+                        <div class="filter-tabs" style="display:flex; gap:6px; margin-bottom:10px;">
+                            <button class="filter-tab active" data-tab="projects" onclick="switchFilterTab('projects')">📁 المشاريع</button>
+                            <button class="filter-tab" data-tab="tasks" onclick="switchFilterTab('tasks')">📋 المهام</button>
+                        </div>
+
                         <div id="project-filters-list"></div>
+                        <div id="task-filters-list" style="display:none;"></div>
                     </div>
 
                     <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;">
@@ -2532,6 +2623,9 @@
                         <div id="dt-assignee-container" class="checkbox-group"></div>
                     </div>
 
+                    <label>📅 تاريخ بداية المهمة</label>
+                    <input type="date" id="dt-startdate" onchange="window.updateTaskTimeProgress()">
+
                     <label data-i18n="dueDateLbl">تاريخ التسليم المتوقع</label>
                     <input type="date" id="dt-duedate" onchange="window.updateTaskTimeProgress()">
 
@@ -2591,8 +2685,10 @@
         window.activeProjectFilter = null;
         window.searchTerm = "";
 
-        // --- الفلتر الافتراضي هو الشهر الحالي ---
-        window.activeMonthFilter = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+        // --- الفلتر الافتراضي هو تاريخ اليوم ---
+        window.activeDateFilter = new Date().toISOString().split('T')[0];
+        window.activeMonthFilter = window.activeDateFilter.substring(0, 7);
+        window.activeFilterTab = 'projects';
 
         window.chartStatus = null;
         window.chartTopProjects = null;
@@ -2624,6 +2720,15 @@
         };
 
         window.staffByTeam = { "3D": ["نور الدين", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "Code": ["عبدالله"], "AI": ["صفوان"] };
+
+        // ألوان مميّزة لكل قسم (تُستخدم على البطاقة وعلى مخطط جانت)
+        window.teamColors = {
+            "3D": "#3BA4FE",            // أزرق
+            "unreal engine": "#a78bfa", // بنفسجي
+            "Code": "#34d399",          // أخضر
+            "AI": "#f97316"             // برتقالي
+        };
+        window.getTeamColor = (team) => window.teamColors[team] || "#8FA3BC";
 
         // ----------------------------------------------------
         // 2. إعدادات اللغة والثيم
@@ -3305,6 +3410,35 @@
             }
         };
 
+        window.renderOnlineUsers = () => {
+            const section = document.getElementById('onlineUsersSection');
+            const list = document.getElementById('onlineUsersList');
+            const countBadge = document.getElementById('onlineUsersCount');
+            if (!section || !list) return;
+
+            const usersData = window.allUsersData || {};
+            const online = [];
+
+            for (let email in window.whitelist) {
+                const safe = sanitizeEmail(email);
+                if (usersData[safe] && usersData[safe].online === true) {
+                    online.push({ name: window.whitelist[email].name, emailKey: safe });
+                }
+            }
+
+            if (online.length === 0) { section.style.display = 'none'; return; }
+            section.style.display = 'block';
+            if (countBadge) countBadge.innerText = online.length;
+
+            list.innerHTML = online.map(u => `
+                <div class="online-user-item">
+                    ${window.getAvatarHTML(u.name, u.emailKey)}
+                    <span>${u.name}</span>
+                    <span class="online-dot" title="متصل"></span>
+                </div>
+            `).join('');
+        };
+
         window.getAvatarHTML = (name, emailKey = null) => {
             if (!name) return '';
             if (!emailKey) {
@@ -3378,16 +3512,14 @@
                 return (a.createdAt || 0) - (b.createdAt || 0);
             });
 
-            // لون لكل مشروع
-            const projectColors = {};
-            const palette = ['#3BA4FE', '#f97316', '#34d399', '#a78bfa', '#fbbf24', '#f87171', '#88CFFD', '#818cf8'];
-            let colorIdx = 0;
+            // لون لكل قسم (تيم) — نفس ألوان البطاقات
+            const usedTeams = {};
             sorted.forEach(t => {
-                if (!projectColors[t.projectName]) {
-                    projectColors[t.projectName] = palette[colorIdx % palette.length];
-                    colorIdx++;
-                }
+                const team = t.team || 'أخرى';
+                if (!usedTeams[team]) usedTeams[team] = window.getTeamColor(team);
             });
+            // عدد المشاريع للملخص
+            const projectsCount = new Set(sorted.map(t => t.projectName)).size;
 
             // مجموعة معرّفات المهام الموجودة على المخطط (لتصفية التبعيات)
             const visibleIds = new Set(sorted.map(t => t._id));
@@ -3411,6 +3543,7 @@
                     ? t.dependsOn.filter(id => visibleIds.has(id)).join(',')
                     : '';
 
+                const teamKey = (t.team || 'أخرى').replace(/[^a-zA-Z0-9]/g, '_');
                 return {
                     id: t._id,
                     name: `${projTag}${teamTag}${t.title || 'مهمة'}`,
@@ -3418,21 +3551,23 @@
                     end: endDate,
                     progress: progress,
                     dependencies: deps,
-                    custom_class: 'gantt-color-' + Object.keys(projectColors).indexOf(t.projectName)
+                    custom_class: 'gantt-team-' + teamKey
                 };
             });
 
-            // إدخال أنماط الألوان ديناميكياً
+            // إدخال أنماط ألوان التيمات
             let styleEl = document.getElementById('ganttDynamicStyles');
             if (!styleEl) {
                 styleEl = document.createElement('style');
                 styleEl.id = 'ganttDynamicStyles';
                 document.head.appendChild(styleEl);
             }
-            styleEl.innerHTML = Object.keys(projectColors).map((p, i) =>
-                `.gantt .bar-wrapper.gantt-color-${i} .bar { fill: ${projectColors[p]}; }
-                 .gantt .bar-wrapper.gantt-color-${i} .bar-progress { fill: ${projectColors[p]}aa; }`
-            ).join('\n');
+            styleEl.innerHTML = Object.keys(usedTeams).map(team => {
+                const key = team.replace(/[^a-zA-Z0-9]/g, '_');
+                const color = usedTeams[team];
+                return `.gantt .bar-wrapper.gantt-team-${key} .bar { fill: ${color}; }
+                        .gantt .bar-wrapper.gantt-team-${key} .bar-progress { fill: ${color}aa; }`;
+            }).join('\n');
 
             container.innerHTML = '';
             window.ganttChartInst = new Gantt("#gantt-target", tasksForGantt, {
@@ -3454,11 +3589,15 @@
                     </div>`
             });
 
-            // ملخص في أعلى المخطط
+            // ملخص + Legend للألوان
             const summary = document.createElement('div');
-            summary.style.cssText = 'padding:8px 12px;color:var(--blue-grey);font-size:0.8rem;border-bottom:1px solid var(--border);margin-bottom:10px;';
-            summary.innerHTML = `📊 ${withDate.length} مهمة معروضة عبر ${Object.keys(projectColors).length} مشروع` +
-                (noDateCount > 0 ? ` <span style="color:var(--amber);">⚠️ ${noDateCount} مهمة بدون تاريخ تسليم (لا تظهر)</span>` : '');
+            summary.style.cssText = 'padding:8px 12px;color:var(--blue-grey);font-size:0.8rem;border-bottom:1px solid var(--border);margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;';
+            const legendHtml = Object.keys(usedTeams).map(team =>
+                `<span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:${usedTeams[team]};display:inline-block;"></span>${team}</span>`
+            ).join('');
+            summary.innerHTML = `<span>📊 ${withDate.length} مهمة عبر ${projectsCount} مشروع</span>
+                <span style="margin-inline-start:auto;display:flex;gap:10px;flex-wrap:wrap;">${legendHtml}</span>` +
+                (noDateCount > 0 ? `<span style="color:var(--amber);width:100%;">⚠️ ${noDateCount} مهمة بدون تاريخ تسليم (لا تظهر)</span>` : '');
             container.insertBefore(summary, container.firstChild);
         };
 
@@ -3476,32 +3615,71 @@
 
         window.handleSearch = () => { window.searchTerm = document.getElementById('searchInput').value.toLowerCase(); window.refreshAllViews(); };
         window.setProjectFilter = (projName) => { window.activeProjectFilter = projName === window.activeProjectFilter ? null : projName; window.refreshAllViews(); };
-        window.handleMonthFilterChange = () => { window.activeMonthFilter = document.getElementById('monthFilter').value; window.refreshAllViews(); };
+
+        window.handleDateFilterChange = () => {
+            const v = document.getElementById('dateFilter').value;
+            window.activeDateFilter = v;
+            window.activeMonthFilter = v ? v.substring(0, 7) : '';
+            window.refreshAllViews();
+        };
+
+        window.switchFilterTab = (tab) => {
+            window.activeFilterTab = tab;
+            document.querySelectorAll('.filter-tab').forEach(b => {
+                b.classList.toggle('active', b.dataset.tab === tab);
+            });
+            document.getElementById('project-filters-list').style.display = tab === 'projects' ? '' : 'none';
+            document.getElementById('task-filters-list').style.display = tab === 'tasks' ? '' : 'none';
+            window.renderProjectsSidebar();
+        };
 
         window.clearFilters = () => {
             window.activeProjectFilter = null; window.searchTerm = ""; document.getElementById('searchInput').value = "";
-            window.activeMonthFilter = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-            if (document.getElementById('monthFilter')) document.getElementById('monthFilter').value = window.activeMonthFilter;
+            window.activeDateFilter = new Date().toISOString().split('T')[0];
+            window.activeMonthFilter = window.activeDateFilter.substring(0, 7);
+            if (document.getElementById('dateFilter')) document.getElementById('dateFilter').value = window.activeDateFilter;
             window.refreshAllViews();
         };
 
         window.renderProjectsSidebar = () => {
-            const container = document.getElementById('project-filters-list');
-            if (!container) return;
-            const projCounts = {};
+            const projContainer = document.getElementById('project-filters-list');
+            const taskContainer = document.getElementById('task-filters-list');
+            if (!projContainer) return;
+
             const hasAdminRights = window.isManager || window.isTeamLead;
-            Object.values(window.allTasks).forEach(t => {
-                if (!t || !t.projectName) return;
+            const eligible = Object.values(window.allTasks).filter(t => {
+                if (!t || !t.projectName) return false;
                 let assignedToArray = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
-                if (!hasAdminRights && !assignedToArray.includes(window.currentUserName)) return;
-                if (hasAdminRights && !window.taskMatchesMonthFilter(t)) return;
-                projCounts[t.projectName] = (projCounts[t.projectName] || 0) + 1;
+                if (!hasAdminRights && !assignedToArray.includes(window.currentUserName)) return false;
+                if (hasAdminRights && !window.taskMatchesMonthFilter(t)) return false;
+                return true;
             });
-            container.innerHTML = '';
-            Object.keys(projCounts).forEach(p => {
+
+            // قائمة المشاريع
+            const projCounts = {};
+            eligible.forEach(t => { projCounts[t.projectName] = (projCounts[t.projectName] || 0) + 1; });
+            projContainer.innerHTML = '';
+            Object.keys(projCounts).sort((a, b) => a.localeCompare(b)).forEach(p => {
                 const isActive = p === window.activeProjectFilter ? 'active' : '';
-                container.innerHTML += `<div class="project-filter-item ${isActive}" onclick="window.setProjectFilter('${p.replace(/'/g, "\\'")}')"><span># ${p}</span><span class="count">${projCounts[p]}</span></div>`;
+                projContainer.innerHTML += `<div class="project-filter-item ${isActive}" onclick="window.setProjectFilter('${p.replace(/'/g, "\\'")}')"><span># ${p}</span><span class="count">${projCounts[p]}</span></div>`;
             });
+
+            // قائمة المهام
+            if (taskContainer) {
+                taskContainer.innerHTML = '';
+                const sortedTasks = eligible.slice().sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+                if (sortedTasks.length === 0) {
+                    taskContainer.innerHTML = '<div style="color:var(--blue-grey); font-size:0.8rem; padding:10px; text-align:center;">لا توجد مهام في هذا التاريخ.</div>';
+                } else {
+                    sortedTasks.forEach(t => {
+                        const safeTitle = (t.title || 'مهمة').replace(/"/g, '&quot;');
+                        taskContainer.innerHTML += `<div class="project-filter-item" onclick="window.openTaskDetailsModal('${t._id}')" title="افتح المهمة">
+                            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${safeTitle}</span>
+                            <span class="count" style="background:rgba(59,164,254,0.15); color:var(--accent);">${t.projectName}</span>
+                        </div>`;
+                    });
+                }
+            }
         };
 
         // دالة سحب الأعمدة وإعادة ترتيبها
@@ -3655,10 +3833,15 @@
                 card.setAttribute('ondragend', `window.dragEnd(event)`);
                 card.onclick = () => window.openTaskDetailsModal(card.dataset.taskId);
 
+                const priorityKeyMap = { low: 'priLow', medium: 'priMed', high: 'priHigh', urgent: 'priUrg' };
+                const priorityLabel = task.priority ? t(priorityKeyMap[task.priority] || 'priLow') : '';
+                const teamColor = task.team ? window.getTeamColor(task.team) : '';
+                const teamChipHtml = task.team ? `<div class="team-chip" style="background:${teamColor}22; color:${teamColor}; border:1px solid ${teamColor}55;">${task.team}</div>` : '';
                 card.innerHTML = `
-                <div class="card-top-row">
+                <div class="card-top-row" style="flex-wrap:wrap; gap:6px;">
                     <div class="project-chip"># ${task.projectName}</div>
-                    ${task.priority ? `<div class="priority-badge" style="color:var(--text);">${t('pri' + task.priority.charAt(0).toUpperCase() + task.priority.slice(1)) || ''}</div>` : ''}
+                    ${teamChipHtml}
+                    ${task.priority ? `<div class="priority-badge" style="color:var(--text); margin-inline-start:auto;">${priorityLabel}</div>` : ''}
                 </div>
                 ${dateHtml}
                 ${timeHtml}
@@ -3720,6 +3903,7 @@
         };
 
         window.saveNewTask = () => {
+            const today = new Date().toISOString().split('T')[0];
             const data = {
                 projectName: document.getElementById('pNameNew').value.replace('#', '').trim(),
                 title: document.getElementById('tTitleNew').value.trim(),
@@ -3728,7 +3912,7 @@
                 estHours: parseFloat(document.getElementById('eHoursNew').value) || 0,
                 priority: document.getElementById('tPriorityNew').value || 'low',
                 status: window.boardColumns[0].id,
-                createdAt: Date.now(), description: "", dueDate: "", comments: {}, checklist: {}
+                createdAt: Date.now(), description: "", startDate: today, dueDate: "", comments: {}, checklist: {}
             };
             if (!data.projectName || !data.title) return alert("Required data missing.");
 
@@ -3871,6 +4055,13 @@
             document.getElementById('dt-status-text').innerText = statusText;
 
             document.getElementById('dt-desc').value = task.description || "";
+
+            // تاريخ البداية: من task.startDate أو من createdAt أو اليوم
+            const startInput = document.getElementById('dt-startdate');
+            if (task.startDate) startInput.value = task.startDate;
+            else if (task.createdAt) startInput.value = new Date(task.createdAt).toISOString().split('T')[0];
+            else startInput.valueAsDate = new Date();
+
             if (!task.dueDate) document.getElementById('dt-duedate').valueAsDate = new Date();
             else document.getElementById('dt-duedate').value = task.dueDate;
 
@@ -3950,6 +4141,7 @@
             const updates = {
                 title: document.getElementById('dt-title-input').value.trim() || "Task",
                 description: document.getElementById('dt-desc').value,
+                startDate: document.getElementById('dt-startdate').value,
                 dueDate: document.getElementById('dt-duedate').value,
                 estHours: parseFloat(document.getElementById('dt-hours').value) || 0
             };
@@ -3994,11 +4186,12 @@
         };
 
         // حساب التقدم الزمني — دالة مشتركة للبطاقة والمودال
-        window.getTaskTimeInfo = (task, dueDateOverride) => {
+        window.getTaskTimeInfo = (task, dueDateOverride, startDateOverride) => {
             const dueDateStr = dueDateOverride || (task && task.dueDate);
             if (!task || !dueDateStr) return null;
 
-            const start = task.createdAt || Date.now();
+            const startDateStr = startDateOverride || (task && task.startDate);
+            const start = startDateStr ? new Date(startDateStr).getTime() : (task.createdAt || Date.now());
             const end = new Date(dueDateStr).getTime() + (24 * 60 * 60 * 1000) - 1;
             const now = Date.now();
             const total = Math.max(1, end - start);
@@ -4039,8 +4232,9 @@
             const taskId = document.getElementById('dt-id').value;
             const task = window.allTasks[taskId];
             const dueDateStr = document.getElementById('dt-duedate').value;
+            const startDateStr = document.getElementById('dt-startdate').value;
 
-            const info = window.getTaskTimeInfo(task, dueDateStr);
+            const info = window.getTaskTimeInfo(task, dueDateStr, startDateStr);
             if (!info) { dashboard.style.display = 'none'; return; }
             dashboard.style.display = 'block';
 
@@ -4346,14 +4540,32 @@
                     });
                     document.getElementById('dt-team').disabled = !hasAdminRights;
 
+                    const dateInput = document.getElementById('dateFilter');
+                    if (dateInput && !dateInput.value) dateInput.value = window.activeDateFilter;
+
+                    // إعداد حالة الاتصال (Presence)
+                    const { onDisconnect, serverTimestamp } = window.firebaseTools;
+                    const myStatusRef = ref(db, `users/${window.currentUserEmailSafe}/online`);
+                    const myLastSeenRef = ref(db, `users/${window.currentUserEmailSafe}/lastSeen`);
+                    const connectedRef = ref(db, '.info/connected');
+                    onValue(connectedRef, (snap) => {
+                        if (snap.val() === true) {
+                            onDisconnect(myStatusRef).set(false);
+                            onDisconnect(myLastSeenRef).set(serverTimestamp());
+                            set(myStatusRef, true);
+                        }
+                    });
+
                     onValue(ref(db, 'users'), (userSnap) => {
                         const usersData = userSnap.val() || {};
                         window.customAvatars = {};
                         for (let key in usersData) { if (usersData[key].avatar) window.customAvatars[key] = usersData[key].avatar; }
+                        window.allUsersData = usersData;
 
                         const avatarContainer = document.getElementById('user-avatar-main');
                         if (avatarContainer) { avatarContainer.outerHTML = window.getAvatarHTML(userData.name, window.currentUserEmailSafe).replace('class="avatar"', 'id="user-avatar-main" class="avatar avatar-lg"'); }
 
+                        window.renderOnlineUsers();
                         window.refreshAllViews();
                         if (document.getElementById('taskDetailsModal').classList.contains('active')) {
                             const activeId = document.getElementById('dt-id').value;
