@@ -253,19 +253,19 @@
             }
         }
 
-        /* نافذة الإشعارات */
+        /* نافذة الإشعارات — تنفتح تحت زر الجرس مباشرة */
         .notifications-panel {
-            position: absolute;
-            inset-inline-end: 260px;
-            top: 80px;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 320px;
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
             display: none;
             flex-direction: column;
-            z-index: 100;
+            z-index: 1000;
             max-height: 400px;
             overflow: hidden;
         }
@@ -3436,7 +3436,26 @@
         // --- الإشعارات (المتصفح + الويندوز) ---
         window.toggleNotifications = (e) => {
             e.stopPropagation();
-            document.getElementById('notifications-panel').classList.toggle('show');
+            const panel = document.getElementById('notifications-panel');
+            if (!panel) return;
+            if (panel.classList.contains('show')) {
+                panel.classList.remove('show');
+                return;
+            }
+            // حدد موضع البانل تحت زر الجرس مباشرة
+            const btn = e.currentTarget || (e.target && e.target.closest('.toggle-btn'));
+            if (btn) {
+                const rect = btn.getBoundingClientRect();
+                const panelWidth = 320;
+                const gap = 6;
+                // محاذاة الحافة اليمنى للبانل مع الحافة اليمنى للزر (مناسب لـ RTL)
+                let left = rect.right - panelWidth;
+                if (left < 8) left = 8;
+                if (left + panelWidth > window.innerWidth - 8) left = window.innerWidth - panelWidth - 8;
+                panel.style.top = (rect.bottom + gap) + 'px';
+                panel.style.left = left + 'px';
+            }
+            panel.classList.add('show');
         };
 
         document.addEventListener('click', (e) => {
@@ -5695,27 +5714,51 @@
             set(ref(db, 'settings/columns'), window.boardColumns);
         };
 
-        // دالة منفصلة لرسم آخر 6 مشاريع كـ hashtags — قابلة للاستدعاء من Firebase listener أيضاً
+        // رسم اقتراحات المشاريع — مشاريع المبيعات تظهر في قسم مميز فوق الكل
         window.refreshHashtagSuggestions = () => {
             const container = document.getElementById('hashtagContainerNew');
             if (!container) return;
+
+            // اجمع بيانات كل مشروع (آخر تاريخ + هل أُنشئ من المبيعات)
             const projMap = {};
             Object.values(window.allTasks).forEach(t => {
                 if (!t || !t.projectName) return;
-                if (!projMap[t.projectName] || (t.createdAt && t.createdAt > projMap[t.projectName])) {
-                    projMap[t.projectName] = t.createdAt || Date.now();
+                const name = t.projectName;
+                if (!projMap[name]) {
+                    projMap[name] = { createdAt: t.createdAt || 0, fromSales: t.createdByRole === 'sales' };
+                } else {
+                    if (t.createdAt && t.createdAt > projMap[name].createdAt) projMap[name].createdAt = t.createdAt;
+                    if (t.createdByRole === 'sales') projMap[name].fromSales = true;
                 }
             });
-            const sortedProjs = Object.keys(projMap).sort((a, b) => projMap[b] - projMap[a]);
-            // عرض 6 مشاريع بدل 4 — يضمن ظهور المشاريع الجديدة من المبيعات
-            const top6 = sortedProjs.slice(0, 6);
-            container.innerHTML = top6.map(p => {
+
+            const all = Object.entries(projMap);
+            const salesProjects = all.filter(([_, m]) => m.fromSales).sort((a, b) => b[1].createdAt - a[1].createdAt);
+            const otherProjects = all.filter(([_, m]) => !m.fromSales).sort((a, b) => b[1].createdAt - a[1].createdAt).slice(0, 6);
+
+            const makeChip = (p, salesStyle) => {
                 const safe = p.replace(/'/g, "\\'");
-                // المشاريع المُنشأة من قالب (من المبيعات) تظهر بشارة 🆕
-                const isFromSales = Object.values(window.allTasks).some(t => t && t.projectName === p && t.createdByRole === 'sales');
-                const badge = isFromSales ? '<span style="background:var(--green-success); color:#fff; font-size:0.6rem; padding:1px 5px; border-radius:8px; margin-inline-start:4px;">🆕 مبيعات</span>' : '';
-                return `<span class="project-hashtag" onclick="document.getElementById('pNameNew').value='${safe}'; document.getElementById('projectSuggestions').style.display='none';"># ${p}${badge}</span>`;
-            }).join('');
+                const style = salesStyle
+                    ? 'background:rgba(52,211,153,0.18); border:1.5px solid var(--green-success); color:var(--green-success); font-weight:700;'
+                    : '';
+                const badge = salesStyle
+                    ? '<span style="background:var(--green-success); color:#fff; font-size:0.6rem; padding:1px 5px; border-radius:8px; margin-inline-start:4px;">🆕 مبيعات</span>'
+                    : '';
+                return `<span class="project-hashtag" style="${style}" onclick="document.getElementById('pNameNew').value='${safe}'; document.getElementById('projectSuggestions').style.display='none';"># ${p}${badge}</span>`;
+            };
+
+            let html = '';
+            if (salesProjects.length > 0) {
+                html += `<div style="width:100%; font-size:0.72rem; color:var(--green-success); font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:6px;">🆕 مشاريع جديدة من فريق المبيعات <span style="background:var(--green-success); color:#fff; font-size:0.6rem; padding:1px 6px; border-radius:8px;">${salesProjects.length}</span></div>`;
+                html += `<div style="display:flex; flex-wrap:wrap; gap:6px; width:100%; margin-bottom:10px; padding-bottom:10px; border-bottom:1px dashed var(--border);">` + salesProjects.map(([p]) => makeChip(p, true)).join('') + `</div>`;
+            }
+            if (otherProjects.length > 0) {
+                if (salesProjects.length > 0) {
+                    html += `<div style="width:100%; font-size:0.7rem; color:var(--blue-grey); font-weight:600; margin-bottom:6px;">آخر المشاريع</div>`;
+                }
+                html += `<div style="display:flex; flex-wrap:wrap; gap:6px; width:100%;">` + otherProjects.map(([p]) => makeChip(p, false)).join('') + `</div>`;
+            }
+            container.innerHTML = html;
         };
 
         window.openAddModal = () => {
