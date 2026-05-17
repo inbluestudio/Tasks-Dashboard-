@@ -1775,6 +1775,98 @@
             padding-bottom: 20px;
         }
 
+        /* قسم القوالب */
+        #templates {
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+        .template-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: 0.2s;
+        }
+        .template-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+        .template-card h3 {
+            font-size: 1rem;
+            color: var(--text);
+            font-weight: 700;
+        }
+        .template-card .tpl-meta {
+            font-size: 0.72rem;
+            color: var(--blue-grey);
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 8px;
+        }
+        .template-card .tpl-items {
+            font-size: 0.82rem;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        .template-card .tpl-items div {
+            padding: 4px 8px;
+            background: var(--bg);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .template-card .tpl-items div::before {
+            content: '☑';
+            color: var(--accent);
+        }
+        .template-card .tpl-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+        .template-card .tpl-actions button {
+            flex: 1;
+            padding: 7px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border: 1px solid;
+            background: transparent;
+            transition: 0.2s;
+        }
+        .tpl-btn-edit { color: var(--accent); border-color: var(--accent); }
+        .tpl-btn-edit:hover { background: rgba(59,164,254,0.1); }
+        .tpl-btn-delete { color: var(--red-danger); border-color: var(--red-danger); }
+        .tpl-btn-delete:hover { background: rgba(248,113,113,0.1); }
+
+        .tpl-apply-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            color: var(--text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+            transition: 0.15s;
+        }
+        .tpl-apply-item:last-child { border-bottom: none; }
+        .tpl-apply-item:hover { background: rgba(59,164,254,0.1); color: var(--accent); }
+
         .reports-grid {
             display: flex;
             flex-direction: column;
@@ -2277,7 +2369,9 @@
             fill: var(--text);
         }
 
-        .admin-only {
+        .admin-only,
+        .creator-only,
+        .sales-or-admin-only {
             display: none;
         }
 
@@ -2441,6 +2535,9 @@
             <div class="nav-item admin-only" data-target="gantt">
                 <div class="nav-item-content"><span>📅</span> <span data-i18n="navGantt">مخطط المشاريع</span></div>
             </div>
+            <div class="nav-item sales-or-admin-only" data-target="templates">
+                <div class="nav-item-content"><span>📋</span> <span>قوالب المبيعات</span></div>
+            </div>
 
             <div class="settings-toggles">
                 <button class="toggle-btn" onclick="toggleNotifications(event)" title="Notifications">
@@ -2480,7 +2577,7 @@
                 <div class="kanban-layout">
                     <div class="projects-sidebar" style="width: 260px;">
 
-                        <button onclick="openAddModal()" class="btn-main admin-only"
+                        <button onclick="openAddModal()" class="btn-main creator-only"
                             style="width: 100%; justify-content: center; margin-bottom: 15px; padding: 12px; border-radius: 8px;">
                             <span style="font-size: 1.2rem; font-weight: bold; margin-inline-end: 5px;">+</span> <span
                                 data-i18n="addTaskTitle">إضافة مهمة جديدة</span>
@@ -2609,6 +2706,20 @@
                 </div>
             </section>
 
+            <section id="templates" class="section">
+                <div class="page-header">
+                    <div>
+                        <h1 style="margin-bottom: 5px;">📋 قوالب المبيعات</h1>
+                        <p style="font-size: 0.85rem; color: var(--blue-grey);">قوالب جاهزة لتطبيقها على المهام أو لإنشاء مشاريع كاملة بضغطة واحدة</p>
+                    </div>
+                    <button class="btn-main" onclick="window.openTemplateModal()">
+                        <span style="font-size: 1.2rem; font-weight: bold; margin-inline-end: 5px;">+</span>
+                        قالب جديد
+                    </button>
+                </div>
+                <div id="templates-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; padding-bottom: 20px;"></div>
+            </section>
+
             <section id="reports" class="section">
                 <div class="page-header">
                     <h1 style="margin-bottom: 0;" data-i18n="reportsTitle">التقارير الشاملة</h1>
@@ -2663,7 +2774,7 @@
 
     <div class="modal" id="addTaskModal">
         <div class="simple-modal">
-            <h2 style="margin-bottom: 25px; color: var(--text);" data-i18n="addTaskTitle">إضافة مهمة سريعة</h2>
+            <h2 style="margin-bottom: 20px; color: var(--text);" data-i18n="addTaskTitle">إضافة مهمة سريعة</h2>
 
             <div id="hashtagContainerNew" class="hashtag-area"></div>
 
@@ -2673,6 +2784,18 @@
                     style="margin-bottom: 0;">
                 <div id="projectSuggestions" class="autocomplete-suggestions"></div>
             </div>
+
+            <div class="sales-or-admin-only" style="background:rgba(59,164,254,0.06); border:1px dashed var(--accent); border-radius:10px; padding:12px 14px; margin-bottom:15px;">
+                <label style="font-size:0.8rem; color:var(--accent); font-weight:600; margin-bottom:8px; display:block;">📋 إنشاء عدة تاسكات من قالب جاهز <span style="font-weight:normal; color:var(--blue-grey);">(اختياري)</span></label>
+                <select id="tplSelectNew" style="width:100%; padding:10px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; margin-bottom:8px;">
+                    <option value="">— بدون قالب —</option>
+                </select>
+                <button type="button" class="btn-outline" onclick="window.applyTemplateAsMultipleTasks()" style="width:100%; padding:9px; font-size:0.82rem;">
+                    🚀 إنشاء كل تاسكات القالب الآن
+                </button>
+            </div>
+
+            <div style="font-size:0.75rem; color:var(--blue-grey); text-align:center; margin-bottom:10px;">— أو أنشئ مهمة واحدة يدوياً —</div>
 
             <input type="text" id="tTitleNew" data-i18n-placeholder="addTaskTitlePlh" placeholder="عنوان المهمة">
 
@@ -2700,6 +2823,28 @@
             <button onclick="document.getElementById('addTaskModal').classList.remove('active')"
                 style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:10px; cursor:pointer; font-family: inherit;"
                 data-i18n="cancelBtn">إلغاء</button>
+        </div>
+    </div>
+
+    <div class="modal" id="templateModal">
+        <div class="simple-modal" style="max-width: 560px;">
+            <h2 style="margin-bottom: 20px; color: var(--text);">📋 <span id="tpl-modal-title">قالب جديد</span></h2>
+
+            <input type="hidden" id="tpl-id">
+
+            <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:6px; display:block;">اسم القالب</label>
+            <input type="text" id="tpl-name" placeholder="مثال: تسليم Unreal أساسي" style="margin-bottom: 15px;">
+
+            <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:6px; display:block;">وصف مختصر <span style="opacity:0.6;">(اختياري)</span></label>
+            <input type="text" id="tpl-desc" placeholder="متى يُستخدم هذا القالب..." style="margin-bottom: 15px;">
+
+            <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:6px; display:block;">عناصر القالب — عنصر واحد في كل سطر</label>
+            <textarea id="tpl-items" placeholder="نمذجة المباني الخارجية&#10;إعداد الإضاءة الليلية&#10;Render تجريبي&#10;تصدير الفيديو النهائي" style="width:100%; min-height:160px; padding:12px; background:var(--bg); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:inherit; font-size:0.9rem; resize:vertical; margin-bottom: 8px; line-height:1.6;"></textarea>
+            <div style="font-size: 0.7rem; color: var(--blue-grey); margin-bottom: 20px;">💡 كل سطر يصبح إما بنداً في checklist أو تاسكاً مستقلاً (حسب طريقة التطبيق)</div>
+
+            <button class="btn-main" onclick="window.saveTemplate()" style="width: 100%;">💾 حفظ القالب</button>
+            <button onclick="document.getElementById('templateModal').classList.remove('active')"
+                style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:10px; cursor:pointer; font-family: inherit;">إلغاء</button>
         </div>
     </div>
 
@@ -2807,6 +2952,14 @@
                                 placeholder="ساعات فعلية" style="flex:1; min-width:100px;" min="0">
                             <button class="btn-main" style="padding: 10px 20px; width: auto;"
                                 onclick="addChecklistItem()" data-i18n="addBtn">إضافة</button>
+                        </div>
+
+                        <div class="sales-or-admin-only" style="position: relative; margin-top: 10px;">
+                            <button type="button" class="btn-outline" style="width: 100%; padding: 10px; font-size: 0.85rem; background: rgba(59,164,254,0.05);"
+                                onclick="window.toggleTemplateApplyDropdown()">
+                                📥 إضافة من قالب جاهز
+                            </button>
+                            <div id="tpl-apply-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:var(--card-bg); border:1px solid var(--accent); border-radius:10px; margin-top:5px; max-height:280px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.4); z-index:50;"></div>
                         </div>
                     </div>
 
@@ -2936,6 +3089,8 @@
 
         window.isManager = false;
         window.isTeamLead = false;
+        window.isSales = false; // فريق المبيعات: يدير قوالب التاسكات + ينشئ تاسكات
+        window.allTemplates = {};
         window.currentUserName = "";
         window.currentUserEmailSafe = "";
         window.isLoginMode = true;
@@ -2974,7 +3129,10 @@
             "laith.jebril@bluedesignstudio.com": { name: "ليث", role: "unreal engine", isLead: true },
             "dana.bojoq@bluedesignstudio.com": { name: "دانا", role: "unreal engine" },
             "baker.hasan@bluedesignstudio.com": { name: "بكر", role: "unreal engine" },
-            "abdullah.tekreeti@bluedesignstudio.com": { name: "عبدالله", role: "Code" }
+            "abdullah.tekreeti@bluedesignstudio.com": { name: "عبدالله", role: "Code" },
+            "afnan.saleh@bluedesignstudio.com": { name: "أفنان", role: "sales" },
+            "ahmad.alam@bluedesignstudio.com": { name: "أحمد", role: "sales" },
+            "fahid.khatib@bluedesignstudio.com": { name: "فهد", role: "sales" }
         };
 
         window.staffByTeam = { "3D": ["نور الدين", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر", "حسام بنات"], "Code": ["عبدالله"], "AI": ["صفوان"] };
@@ -3103,13 +3261,14 @@
 
         window.getFilteredTasks = (ignoreMonthFilter = false) => {
             const hasAdminRights = window.isManager || window.isTeamLead;
+            const seesAll = hasAdminRights || window.isSales; // المبيعات تشوف الكل أيضاً
             return Object.values(window.allTasks).filter(t => {
                 if (!t || !t.projectName) return false;
 
                 let assignedToArray = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
-                if (!hasAdminRights && !assignedToArray.includes(window.currentUserName)) return false;
+                if (!seesAll && !assignedToArray.includes(window.currentUserName)) return false;
 
-                if (!ignoreMonthFilter && hasAdminRights && !window.taskMatchesMonthFilter(t)) return false;
+                if (!ignoreMonthFilter && seesAll && !window.taskMatchesMonthFilter(t)) return false;
                 if (window.activeProjectFilter && t.projectName !== window.activeProjectFilter) return false;
                 if (window.searchTerm && !t.title.toLowerCase().includes(window.searchTerm) && !t.projectName.toLowerCase().includes(window.searchTerm)) return false;
 
@@ -3948,6 +4107,188 @@
             }
         };
 
+        // ═══════════════════════════════════════════════════════════
+        // قوالب المبيعات (Sales Templates)
+        //   Firebase: taskTemplates/{pushId} = { name, description, items[], createdBy, createdAt }
+        //   الصلاحية: مانيجر + مبيعات فقط
+        // ═══════════════════════════════════════════════════════════
+        window.renderTemplates = () => {
+            const container = document.getElementById('templates-list');
+            if (!container) return;
+            const list = Object.entries(window.allTemplates || {}).map(([id, t]) => ({ id, ...t }));
+
+            if (list.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 50px 20px; color: var(--blue-grey); border: 2px dashed var(--border); border-radius: 12px;">
+                    <div style="font-size: 2.5rem; margin-bottom: 10px;">📋</div>
+                    <div style="font-size: 1rem; margin-bottom: 8px;">لا توجد قوالب بعد</div>
+                    <div style="font-size: 0.85rem;">اضغط "قالب جديد" لإنشاء أول قالب لفريق المبيعات</div>
+                </div>`;
+                return;
+            }
+
+            list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+            container.innerHTML = list.map(tpl => {
+                const items = Array.isArray(tpl.items) ? tpl.items : (typeof tpl.items === 'string' ? tpl.items.split('\n').filter(s => s.trim()) : []);
+                const itemsHtml = items.slice(0, 8).map(it => `<div>${escapeHtml(it)}</div>`).join('') +
+                    (items.length > 8 ? `<div style="opacity:0.6; font-style:italic;">+ ${items.length - 8} عناصر إضافية...</div>` : '');
+                const createdDate = tpl.createdAt ? new Date(tpl.createdAt).toLocaleDateString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                return `<div class="template-card">
+                    <h3>📋 ${escapeHtml(tpl.name)}</h3>
+                    ${tpl.description ? `<div style="font-size:0.78rem; color:var(--blue-grey); font-style:italic;">${escapeHtml(tpl.description)}</div>` : ''}
+                    <div class="tpl-meta">
+                        <span>📊 ${items.length} عنصر</span>
+                        <span>👤 ${escapeHtml(tpl.createdBy || '-')} · ${createdDate}</span>
+                    </div>
+                    <div class="tpl-items">${itemsHtml || '<div style="opacity:0.5;">لا عناصر</div>'}</div>
+                    <div class="tpl-actions">
+                        <button class="tpl-btn-edit" onclick="window.openTemplateModal('${tpl.id}')">✏️ تعديل</button>
+                        <button class="tpl-btn-delete" onclick="window.deleteTemplate('${tpl.id}')">🗑️ حذف</button>
+                    </div>
+                </div>`;
+            }).join('');
+        };
+
+        window.openTemplateModal = (id = null) => {
+            const modal = document.getElementById('templateModal');
+            const title = document.getElementById('tpl-modal-title');
+            document.getElementById('tpl-id').value = id || '';
+            if (id && window.allTemplates[id]) {
+                const t = window.allTemplates[id];
+                title.innerText = 'تعديل القالب';
+                document.getElementById('tpl-name').value = t.name || '';
+                document.getElementById('tpl-desc').value = t.description || '';
+                const items = Array.isArray(t.items) ? t.items.join('\n') : (t.items || '');
+                document.getElementById('tpl-items').value = items;
+            } else {
+                title.innerText = 'قالب جديد';
+                document.getElementById('tpl-name').value = '';
+                document.getElementById('tpl-desc').value = '';
+                document.getElementById('tpl-items').value = '';
+            }
+            modal.classList.add('active');
+        };
+
+        window.saveTemplate = () => {
+            const id = document.getElementById('tpl-id').value;
+            const name = document.getElementById('tpl-name').value.trim();
+            const description = document.getElementById('tpl-desc').value.trim();
+            const itemsRaw = document.getElementById('tpl-items').value;
+            const items = itemsRaw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+
+            if (!name) return alert('يرجى إدخال اسم القالب');
+            if (items.length === 0) return alert('يرجى إضافة عنصر واحد على الأقل');
+
+            const { ref, push, update, db } = window.firebaseTools;
+            const payload = {
+                name, description, items,
+                createdBy: window.currentUserName,
+                updatedAt: Date.now()
+            };
+            if (id) {
+                update(ref(db, `taskTemplates/${id}`), payload).then(() => {
+                    document.getElementById('templateModal').classList.remove('active');
+                });
+            } else {
+                payload.createdAt = Date.now();
+                push(ref(db, 'taskTemplates'), payload).then(() => {
+                    document.getElementById('templateModal').classList.remove('active');
+                });
+            }
+        };
+
+        window.deleteTemplate = (id) => {
+            if (!confirm('حذف هذا القالب نهائياً؟')) return;
+            const { ref, remove, db } = window.firebaseTools;
+            remove(ref(db, `taskTemplates/${id}`));
+        };
+
+        // ───── تطبيق قالب على checklist لتاسك مفتوح ─────
+        window.applyTemplateToChecklist = (templateId) => {
+            const taskId = document.getElementById('dt-id').value;
+            if (!taskId) return;
+            const tpl = window.allTemplates[templateId];
+            if (!tpl) return alert('القالب غير موجود');
+            const items = Array.isArray(tpl.items) ? tpl.items : [];
+            if (items.length === 0) return alert('القالب فارغ');
+            if (!confirm(`ستتم إضافة ${items.length} عنصر من قالب "${tpl.name}" إلى الـ checklist. متابعة؟`)) return;
+
+            const { ref, push, db } = window.firebaseTools;
+            items.forEach(text => {
+                push(ref(db, `tasks/${taskId}/checklist`), {
+                    text, done: false,
+                    addedBy: window.currentUserName,
+                    actualHours: null,
+                    time: Date.now(),
+                    assignedToItem: null,
+                    note: '',
+                    fromTemplate: tpl.name
+                });
+            });
+            const dd = document.getElementById('tpl-apply-dropdown');
+            if (dd) dd.style.display = 'none';
+        };
+
+        window.toggleTemplateApplyDropdown = () => {
+            const dd = document.getElementById('tpl-apply-dropdown');
+            if (!dd) return;
+            const list = Object.entries(window.allTemplates || {});
+            if (list.length === 0) { alert('لا توجد قوالب بعد. أنشئ قالباً من صفحة "قوالب المبيعات".'); return; }
+            dd.innerHTML = list.map(([id, t]) => {
+                const itemsCount = Array.isArray(t.items) ? t.items.length : 0;
+                return `<div class="tpl-apply-item" onclick="window.applyTemplateToChecklist('${id}')">
+                    <span style="font-weight:600;">${escapeHtml(t.name)}</span>
+                    <span style="font-size:0.7rem; color:var(--blue-grey);">${itemsCount} عنصر</span>
+                </div>`;
+            }).join('');
+            dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+        };
+
+        // ───── تطبيق قالب لإنشاء تاسكات متعددة في مشروع ─────
+        window.applyTemplateAsMultipleTasks = () => {
+            const sel = document.getElementById('tplSelectNew');
+            const templateId = sel ? sel.value : '';
+            if (!templateId) return alert('يرجى اختيار قالب أولاً');
+            const tpl = window.allTemplates[templateId];
+            if (!tpl) return alert('القالب غير موجود');
+            const items = Array.isArray(tpl.items) ? tpl.items : [];
+            if (items.length === 0) return alert('القالب فارغ');
+
+            const projectName = document.getElementById('pNameNew').value.replace('#', '').trim();
+            if (!projectName) return alert('يرجى إدخال اسم المشروع');
+
+            if (!confirm(`ستتم إنشاء ${items.length} تاسك للمشروع "${projectName}" من قالب "${tpl.name}".\n\nالتاسكات ستظهر بدون قسم — التيم ليد سيوزّعها لاحقاً.\n\nمتابعة؟`)) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            const team = document.getElementById('tTypeNew').value || ''; // قد يكون فارغاً
+            const priority = document.getElementById('tPriorityNew').value || 'low';
+            const estHours = parseFloat(document.getElementById('eHoursNew').value) || 0;
+
+            const { ref, push, db } = window.firebaseTools;
+            items.forEach(itemText => {
+                push(ref(db, 'tasks'), {
+                    projectName,
+                    title: itemText,
+                    assignedTo: [],
+                    team,
+                    estHours,
+                    priority,
+                    status: window.boardColumns[0].id,
+                    createdAt: Date.now(),
+                    description: '',
+                    startDate: today,
+                    dueDate: '',
+                    comments: {},
+                    checklist: {},
+                    fromTemplate: tpl.name,
+                    createdByRole: window.isSales ? 'sales' : (window.isManager ? 'manager' : 'lead')
+                });
+            });
+
+            document.getElementById('addTaskModal').classList.remove('active');
+            alert(`✅ تم إنشاء ${items.length} تاسك في مشروع "${projectName}".`);
+        };
+
         // --- دوال مزامنة السلايدر العلوي للوحة المهام (معتمد على Observer) ---
         window.updateBoardNav = () => {
             const c = document.getElementById('boardContainer');
@@ -4542,19 +4883,21 @@
                         .gantt .bar-wrapper.${cls} .bar-progress { fill: ${teamColor}cc !important; }`;
             }).join('\n');
 
-            // حساب عرض العمود ديناميكياً ليتسع الجدول داخل الصفحة بدون scroll أفقي
+            // حساب عرض العمود ديناميكياً ليتسع الجدول داخل الصفحة، مع زيادة 40% لمزيد من التفاصيل
+            // (الـ overflow:auto على الـ wrapper يسمح بـ scroll أفقي إذا تجاوز عرض الشاشة)
             const minStart = Math.min(...tasksForGantt.map(t => new Date(t.start).getTime()));
             const maxEnd = Math.max(...tasksForGantt.map(t => new Date(t.end).getTime()));
             const spanDays = Math.max(1, (maxEnd - minStart) / dayMs);
             const wrapperEl = container.parentElement;
             const availableWidth = (wrapperEl ? wrapperEl.clientWidth : 1500) - 280; // 280 لعمود أسماء المهام
+            const WIDTH_BOOST = 1.4; // زيادة 40% بالعرض
             let dynColumnWidth;
             if (window.currentGanttMode === 'Month') {
                 const monthsCount = Math.max(1, Math.ceil(spanDays / 30));
-                dynColumnWidth = Math.max(50, Math.min(160, Math.floor(availableWidth / monthsCount)));
+                dynColumnWidth = Math.max(70, Math.min(224, Math.floor((availableWidth / monthsCount) * WIDTH_BOOST)));
             } else { // Week
                 const weeksCount = Math.max(1, Math.ceil(spanDays / 7));
-                dynColumnWidth = Math.max(28, Math.min(90, Math.floor(availableWidth / weeksCount)));
+                dynColumnWidth = Math.max(40, Math.min(126, Math.floor((availableWidth / weeksCount) * WIDTH_BOOST)));
             }
 
             container.innerHTML = '';
@@ -5021,6 +5364,17 @@
             document.getElementById('eHoursNew').value = "";
             document.getElementById('tPriorityNew').value = "low";
             document.getElementById('projectSuggestions').style.display = 'none';
+
+            // تعبئة dropdown القوالب (للمانيجر والمبيعات)
+            const tplSel = document.getElementById('tplSelectNew');
+            if (tplSel) {
+                const tpls = Object.entries(window.allTemplates || {});
+                tplSel.innerHTML = '<option value="">— بدون قالب —</option>' +
+                    tpls.map(([id, t]) => {
+                        const cnt = Array.isArray(t.items) ? t.items.length : 0;
+                        return `<option value="${id}">${(t.name || '').replace(/</g, '&lt;')} (${cnt} عنصر)</option>`;
+                    }).join('');
+            }
 
             const container = document.getElementById('hashtagContainerNew');
             if (container) {
@@ -5806,6 +6160,11 @@
                 window.allProjectReports = snap.val() || {};
             });
 
+            onValue(ref(db, 'taskTemplates'), (snap) => {
+                window.allTemplates = snap.val() || {};
+                if (document.getElementById('templates').classList.contains('active')) window.renderTemplates();
+            });
+
             window.handleAuth = async () => {
                 const e = document.getElementById('login-email').value.trim();
                 const p = document.getElementById('login-pass').value;
@@ -5846,18 +6205,21 @@
 
                     window.isManager = userData.role === "manager";
                     window.isTeamLead = userData.isLead === true;
+                    window.isSales = userData.role === "sales";
                     window.currentUserName = userData.name;
                     window.currentUserEmailSafe = sanitizeEmail(user.email);
 
                     document.getElementById('login-page').style.display = 'none';
                     document.getElementById('app-ui').style.display = 'flex';
                     document.getElementById('user-name').innerText = userData.name;
-                    document.getElementById('user-role').innerText = window.isManager ? "Manager" : (window.isTeamLead ? `Team Lead (${userData.role})` : `Team ${userData.role}`);
+                    document.getElementById('user-role').innerText = window.isManager ? "Manager" : (window.isTeamLead ? `Team Lead (${userData.role})` : (window.isSales ? "Sales" : `Team ${userData.role}`));
 
                     const hasAdminRights = window.isManager || window.isTeamLead;
-                    document.querySelectorAll('.admin-only').forEach(el => {
-                        if (!hasAdminRights) { el.style.display = 'none'; return; }
-                        // Restore appropriate display type based on element tag/class
+                    const canCreateTasks = hasAdminRights || window.isSales;
+                    const canManageTemplates = window.isManager || window.isSales;
+
+                    // helper موحّد لإظهار العنصر بحالة عرض مناسبة
+                    const showEl = (el) => {
                         if (el.tagName === 'BUTTON') {
                             el.style.display = el.classList.contains('btn-add-circle') || el.classList.contains('btn-add-fab') || el.classList.contains('col-drag-handle') ? 'flex' : 'inline-flex';
                         } else if (el.tagName === 'SELECT') {
@@ -5867,7 +6229,21 @@
                         } else {
                             el.style.display = 'flex';
                         }
+                    };
+
+                    // admin-only: مانيجر + تيم ليد فقط (تعديل التاسكات، الداش، التقارير، الجانت)
+                    document.querySelectorAll('.admin-only').forEach(el => {
+                        if (hasAdminRights) showEl(el); else el.style.display = 'none';
                     });
+                    // creator-only: من يقدر ينشئ تاسكات (مانيجر + تيم ليد + مبيعات)
+                    document.querySelectorAll('.creator-only').forEach(el => {
+                        if (canCreateTasks) showEl(el); else el.style.display = 'none';
+                    });
+                    // sales-or-admin-only: قوالب المبيعات (مانيجر + مبيعات فقط)
+                    document.querySelectorAll('.sales-or-admin-only').forEach(el => {
+                        if (canManageTemplates) showEl(el); else el.style.display = 'none';
+                    });
+
                     document.getElementById('dt-team').disabled = !hasAdminRights;
 
                     const monthInput = document.getElementById('monthFilter');
@@ -5995,6 +6371,9 @@
                     }
                     if (item.target === 'reports' || item.dataset.target === 'reports') {
                         if (window.isManager || window.isTeamLead) window.prepareReportData();
+                    }
+                    if (item.dataset.target === 'templates') {
+                        window.renderTemplates();
                     }
                 }
             });
