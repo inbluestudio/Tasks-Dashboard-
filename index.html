@@ -2977,7 +2977,7 @@
             "abdullah.tekreeti@bluedesignstudio.com": { name: "عبدالله", role: "Code" }
         };
 
-        window.staffByTeam = { "3D": ["نور الدين", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر"], "Code": ["عبدالله"], "AI": ["صفوان"] };
+        window.staffByTeam = { "3D": ["نور الدين", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر", "حسام بنات"], "Code": ["عبدالله"], "AI": ["صفوان"] };
 
         // ألوان مميّزة لكل قسم (تُستخدم على البطاقة وعلى مخطط جانت)
         window.teamColors = {
@@ -4563,10 +4563,10 @@
                 column_width: dynColumnWidth,
                 step: 24,
                 view_modes: ['Week', 'Month'],
-                bar_height: 24,
-                bar_corner_radius: 5,
+                bar_height: 32,
+                bar_corner_radius: 6,
                 arrow_curve: 5,
-                padding: 14,
+                padding: 20,
                 view_mode: window.currentGanttMode,
                 language: 'en',
                 custom_popup_html: (task) => `
@@ -4648,6 +4648,26 @@
                 // عرض الـ SVG الفعلي (وليس عرض الكونتينر)
                 const svgWidthVal = parseFloat(svgEl.getAttribute('width')) || svgEl.getBoundingClientRect().width;
 
+                // ───── جمع نقاط الـ Snap (بداية ونهاية كل تاسك) ─────
+                const parseDateStr = (s) => {
+                    if (!s) return null;
+                    const [y, m, d] = s.split('-').map(Number);
+                    return new Date(y, m - 1, d);
+                };
+                const snapPoints = [];
+                svgEl.querySelectorAll('.bar-wrapper').forEach(wrapper => {
+                    const bar = wrapper.querySelector('.bar');
+                    if (!bar) return;
+                    const barX = parseFloat(bar.getAttribute('x'));
+                    const barW = parseFloat(bar.getAttribute('width'));
+                    if (isNaN(barX) || isNaN(barW)) return;
+                    const taskId = wrapper.getAttribute('data-id');
+                    const taskObj = tasksForGantt.find(tt => tt.id === taskId);
+                    if (!taskObj) return;
+                    snapPoints.push({ x: barX, type: 'start', taskName: taskObj.name, date: parseDateStr(taskObj.start) });
+                    snapPoints.push({ x: barX + barW, type: 'end', taskName: taskObj.name, date: parseDateStr(taskObj.end) });
+                });
+
                 const dateAtX = (x) => {
                     if (!ganttStart || !ganttEnd) return null;
                     const totalMs = ganttEnd.getTime() - ganttStart.getTime();
@@ -4663,17 +4683,45 @@
                     if (x < 0 || x > rect.width) return;
                     // x في إحداثيات الـ SVG (مع مراعاة تكبير المتصفح والـ scroll)
                     const svgX = (x / rect.width) * svgWidthVal;
-                    hoverLine.setAttribute('x1', svgX);
-                    hoverLine.setAttribute('x2', svgX);
-                    hoverLine.style.opacity = '0.9';
 
-                    const d = dateAtX(svgX);
-                    if (d) {
-                        dateTooltip.innerText = '📅 ' + fmtDate(d);
-                        dateTooltip.style.left = (e.clientX + 16) + 'px';
-                        dateTooltip.style.top = (e.clientY + 16) + 'px';
-                        dateTooltip.style.opacity = '1';
+                    // ابحث عن أقرب نقطة snap (بداية/نهاية تاسك) ضمن 12px من المؤشر
+                    const SNAP_PX = 12;
+                    const snapThresholdSvg = SNAP_PX * (svgWidthVal / rect.width);
+                    let nearest = null;
+                    let minDist = snapThresholdSvg;
+                    snapPoints.forEach(p => {
+                        const d = Math.abs(svgX - p.x);
+                        if (d < minDist) { minDist = d; nearest = p; }
+                    });
+
+                    if (nearest && nearest.date) {
+                        // snap على حافة التاسك — خط أخضر + tooltip يبيّن البداية/النهاية
+                        hoverLine.setAttribute('x1', nearest.x);
+                        hoverLine.setAttribute('x2', nearest.x);
+                        hoverLine.setAttribute('stroke', '#34d399');
+                        hoverLine.setAttribute('stroke-width', '2');
+                        hoverLine.setAttribute('stroke-dasharray', '0');
+                        hoverLine.style.opacity = '1';
+
+                        const label = nearest.type === 'start' ? '🟢 بداية' : '🔴 نهاية';
+                        dateTooltip.innerHTML = `<div style="color:${nearest.type === 'start' ? '#34d399' : '#f87171'}; font-weight:700; margin-bottom:3px;">${label}</div>
+                            <div style="font-size:0.75rem; color:var(--blue-grey); margin-bottom:3px;">${nearest.taskName}</div>
+                            <div>📅 ${fmtDate(nearest.date)}</div>`;
+                    } else {
+                        // وضع عادي — خط أزرق متقطع + التاريخ التقريبي
+                        hoverLine.setAttribute('x1', svgX);
+                        hoverLine.setAttribute('x2', svgX);
+                        hoverLine.setAttribute('stroke', '#3BA4FE');
+                        hoverLine.setAttribute('stroke-width', '1.2');
+                        hoverLine.setAttribute('stroke-dasharray', '4,3');
+                        hoverLine.style.opacity = '0.9';
+
+                        const d = dateAtX(svgX);
+                        if (d) dateTooltip.innerHTML = '📅 ' + fmtDate(d);
                     }
+                    dateTooltip.style.left = (e.clientX + 16) + 'px';
+                    dateTooltip.style.top = (e.clientY + 16) + 'px';
+                    dateTooltip.style.opacity = '1';
                 };
                 const onLeave = () => {
                     hoverLine.style.opacity = '0';
