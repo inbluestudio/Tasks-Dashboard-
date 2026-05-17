@@ -1867,6 +1867,81 @@
         .tpl-apply-item:last-child { border-bottom: none; }
         .tpl-apply-item:hover { background: rgba(59,164,254,0.1); color: var(--accent); }
 
+        /* عناصر قائمة الميزات داخل مودال القالب */
+        .feature-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            color: var(--text);
+            transition: 0.15s;
+            user-select: none;
+        }
+        .feature-chip:hover { border-color: var(--accent); }
+        .feature-chip input[type="checkbox"] {
+            width: 15px; height: 15px;
+            accent-color: var(--accent);
+            margin: 0;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .feature-chip.checked {
+            background: rgba(59,164,254,0.08);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* بطاقة مشروع نشط (سيلز فقط) — تفاصيل قليلة */
+        .sales-project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .sales-project-card h3 {
+            font-size: 1rem;
+            color: var(--accent);
+            font-weight: 700;
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 8px;
+        }
+        .sales-project-card .sp-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+        .sales-project-card .sp-days {
+            font-weight: 700;
+        }
+        .sales-project-card .sp-pct {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .sales-project-card .sp-bar-bg {
+            width: 100%;
+            height: 12px;
+            background: var(--bg);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .sales-project-card .sp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--intel-blue));
+            transition: width 0.5s ease;
+        }
+
         .reports-grid {
             display: flex;
             flex-direction: column;
@@ -2523,7 +2598,7 @@
                 </div>
             </div>
 
-            <div class="nav-item active" data-target="kanban">
+            <div class="nav-item active not-sales" data-target="kanban">
                 <div class="nav-item-content"><span>📋</span> <span data-i18n="navTasks">المهام</span></div>
             </div>
             <div class="nav-item admin-only" data-target="dashboard">
@@ -2710,13 +2785,23 @@
                 <div class="page-header">
                     <div>
                         <h1 style="margin-bottom: 5px;">📋 قوالب المبيعات</h1>
-                        <p style="font-size: 0.85rem; color: var(--blue-grey);">قوالب جاهزة لتطبيقها على المهام أو لإنشاء مشاريع كاملة بضغطة واحدة</p>
+                        <p style="font-size: 0.85rem; color: var(--blue-grey);">قوالب جاهزة لتطبيقها كمشاريع بضغطة واحدة</p>
                     </div>
                     <button class="btn-main" onclick="window.openTemplateModal()">
                         <span style="font-size: 1.2rem; font-weight: bold; margin-inline-end: 5px;">+</span>
                         قالب جديد
                     </button>
                 </div>
+
+                <div id="sales-projects-section" style="display:none; margin-bottom: 24px;">
+                    <h3 style="font-size: 1rem; color: var(--text); margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
+                        📊 المشاريع النشطة التي أنشأتها
+                        <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;">— نظرة مبسّطة على التقدم</span>
+                    </h3>
+                    <div id="sales-projects-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;"></div>
+                </div>
+
+                <h3 id="templates-section-title" style="font-size: 1rem; color: var(--text); margin-bottom: 12px;">قوالبي:</h3>
                 <div id="templates-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; padding-bottom: 20px;"></div>
             </section>
 
@@ -2827,20 +2912,26 @@
     </div>
 
     <div class="modal" id="templateModal">
-        <div class="simple-modal" style="max-width: 560px;">
+        <div class="simple-modal" style="max-width: 640px; max-height: 90vh; overflow-y: auto;">
             <h2 style="margin-bottom: 20px; color: var(--text);">📋 <span id="tpl-modal-title">قالب جديد</span></h2>
 
             <input type="hidden" id="tpl-id">
 
             <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:6px; display:block;">اسم القالب</label>
-            <input type="text" id="tpl-name" placeholder="مثال: تسليم Unreal أساسي" style="margin-bottom: 15px;">
+            <input type="text" id="tpl-name" placeholder="مثال: باقة Premium للعميل X" style="margin-bottom: 15px;">
 
             <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:6px; display:block;">وصف مختصر <span style="opacity:0.6;">(اختياري)</span></label>
-            <input type="text" id="tpl-desc" placeholder="متى يُستخدم هذا القالب..." style="margin-bottom: 15px;">
+            <input type="text" id="tpl-desc" placeholder="ملاحظات عن العميل/الباقة..." style="margin-bottom: 15px;">
 
-            <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:6px; display:block;">عناصر القالب — عنصر واحد في كل سطر</label>
-            <textarea id="tpl-items" placeholder="نمذجة المباني الخارجية&#10;إعداد الإضاءة الليلية&#10;Render تجريبي&#10;تصدير الفيديو النهائي" style="width:100%; min-height:160px; padding:12px; background:var(--bg); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:inherit; font-size:0.9rem; resize:vertical; margin-bottom: 8px; line-height:1.6;"></textarea>
-            <div style="font-size: 0.7rem; color: var(--blue-grey); margin-bottom: 20px;">💡 كل سطر يصبح إما بنداً في checklist أو تاسكاً مستقلاً (حسب طريقة التطبيق)</div>
+            <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;">
+                <span>اختر الميزات المطلوبة:</span>
+                <span style="font-size:0.7rem; color:var(--accent);"><b id="tpl-selected-count">0</b> / ${window.SALES_FEATURES?.length || 24} مختارة</span>
+            </label>
+            <div id="tpl-features-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; padding:12px; background:var(--bg); border:1px solid var(--border); border-radius:10px; max-height:340px; overflow-y:auto; margin-bottom:8px;"></div>
+            <div style="display:flex; gap:8px; margin-bottom:18px;">
+                <button type="button" class="btn-outline" style="flex:1; padding:6px; font-size:0.75rem;" onclick="window.toggleAllFeatures(true)">✓ تحديد الكل</button>
+                <button type="button" class="btn-outline" style="flex:1; padding:6px; font-size:0.75rem; color:var(--blue-grey); border-color:var(--blue-grey);" onclick="window.toggleAllFeatures(false)">إلغاء التحديد</button>
+            </div>
 
             <button class="btn-main" onclick="window.saveTemplate()" style="width: 100%;">💾 حفظ القالب</button>
             <button onclick="document.getElementById('templateModal').classList.remove('active')"
@@ -3091,6 +3182,34 @@
         window.isTeamLead = false;
         window.isSales = false; // فريق المبيعات: يدير قوالب التاسكات + ينشئ تاسكات
         window.allTemplates = {};
+
+        // قائمة الميزات الجاهزة (المبيعات تختار منها فقط - لا كتابة حرّة)
+        window.SALES_FEATURES = [
+            "Orbit Viewer",
+            "Unit Selector and filtering system",
+            "Real-World Window Views",
+            "Dimensions (info)",
+            "Day & Night Time Slider",
+            "Season changer Slider",
+            "Language",
+            "Walkthrough Mode (Exterior only)",
+            "Compare Floor Plans",
+            "Amenity Viewer",
+            "High-Quality Render shots (10)",
+            "Cinematic video",
+            "Surroundings (Nearby)",
+            "Multiple Controller Options",
+            "Section View",
+            "2D Floor Plan Visualization",
+            "Crowd of People",
+            "Custom Branding",
+            "Free Revisions",
+            "Hosting",
+            "4K Resolution output",
+            "All projects in one platform",
+            "Real-time Data availability",
+            "Interior VR Tour"
+        ];
         window.currentUserName = "";
         window.currentUserEmailSafe = "";
         window.isLoginMode = true;
@@ -3327,8 +3446,9 @@
             notifArray.forEach(n => {
                 if (!n.read) unreadCount++;
                 const d = new Date(n.time).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                const isReport = !!n.projectReport;
-                const verb = isReport ? 'حدّث تقرير المشروع' : 'ذكرك في مهمة';
+                let verb = 'ذكرك في مهمة';
+                if (n.projectReport) verb = 'حدّث تقرير المشروع';
+                else if (n.salesProject) verb = 'أنشأ مشروعاً جديداً';
                 html += `
                 <div class="notif-item ${n.read ? '' : 'unread'}" onclick="window.handleNotifClick('${n.taskId || ''}', '${n.id}')">
                     <div><b>${n.from}</b> ${verb}: <span style="color:var(--intel-blue); font-weight:bold;">${n.taskName}</span></div>
@@ -3351,6 +3471,14 @@
             const notif = window.allNotifications && window.allNotifications[notifId];
             if (notif && notif.projectReport) {
                 window.openProjectReport(notif.projectReport);
+            } else if (notif && notif.salesProject) {
+                // فتح الكنبان مفلتراً على المشروع الجديد
+                const kanbanNav = document.querySelector('.nav-item[data-target="kanban"]');
+                if (kanbanNav) kanbanNav.click();
+                setTimeout(() => {
+                    window.activeProjectFilter = notif.salesProject;
+                    if (window.refreshAllViews) window.refreshAllViews();
+                }, 150);
             } else if (taskId && window.allTasks[taskId]) {
                 window.openTaskDetailsModal(taskId);
             }
@@ -4115,6 +4243,10 @@
         window.renderTemplates = () => {
             const container = document.getElementById('templates-list');
             if (!container) return;
+
+            // قسم المشاريع النشطة (للمبيعات فقط)
+            window.renderSalesActiveProjects();
+
             const list = Object.entries(window.allTemplates || {}).map(([id, t]) => ({ id, ...t }));
 
             if (list.length === 0) {
@@ -4137,16 +4269,188 @@
                     <h3>📋 ${escapeHtml(tpl.name)}</h3>
                     ${tpl.description ? `<div style="font-size:0.78rem; color:var(--blue-grey); font-style:italic;">${escapeHtml(tpl.description)}</div>` : ''}
                     <div class="tpl-meta">
-                        <span>📊 ${items.length} عنصر</span>
+                        <span>📊 ${items.length} ميزة</span>
                         <span>👤 ${escapeHtml(tpl.createdBy || '-')} · ${createdDate}</span>
                     </div>
                     <div class="tpl-items">${itemsHtml || '<div style="opacity:0.5;">لا عناصر</div>'}</div>
+                    <button class="btn-main" style="padding:9px; font-size:0.82rem;" onclick="window.applyTemplateFromCard('${tpl.id}')">🚀 تطبيق على مشروع جديد</button>
                     <div class="tpl-actions">
                         <button class="tpl-btn-edit" onclick="window.openTemplateModal('${tpl.id}')">✏️ تعديل</button>
                         <button class="tpl-btn-delete" onclick="window.deleteTemplate('${tpl.id}')">🗑️ حذف</button>
                     </div>
                 </div>`;
             }).join('');
+        };
+
+        // ───── بطاقات المشاريع النشطة (للمبيعات) — اسم + أيام متبقية + بروقرس ─────
+        window.renderSalesActiveProjects = () => {
+            const section = document.getElementById('sales-projects-section');
+            const list = document.getElementById('sales-projects-list');
+            if (!section || !list) return;
+
+            // المبيعات فقط — الأدمن والتيم ليد ما يحتاجون هاي البطاقات
+            if (!window.isSales) { section.style.display = 'none'; return; }
+
+            // اجمع المشاريع التي أنشأها هذا المستخدم من قالب (createdByRole = 'sales')
+            const projMap = {};
+            Object.values(window.allTasks || {}).forEach(t => {
+                if (!t || !t.projectName) return;
+                if (t.createdByRole !== 'sales' && !t.fromTemplate) return; // فلتر: تاسكات من قوالب فقط
+                if (!projMap[t.projectName]) projMap[t.projectName] = { tasks: [], earliest: null, latest: null };
+                projMap[t.projectName].tasks.push(t);
+            });
+
+            const projects = Object.entries(projMap);
+            if (projects.length === 0) {
+                section.style.display = 'block';
+                list.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--blue-grey); border:1px dashed var(--border); border-radius:10px; font-size:0.85rem;">لم تنشئ مشاريع بعد. اختر قالباً وطبّقه أدناه.</div>`;
+                return;
+            }
+
+            section.style.display = 'block';
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const dayMs = 86400000;
+
+            list.innerHTML = projects.map(([pName, info]) => {
+                let earliestStart = null, latestEnd = null;
+                let totalSub = 0, doneSub = 0;
+                let totalTasks = info.tasks.length, doneTasks = 0;
+
+                info.tasks.forEach(t => {
+                    if (t.startDate) {
+                        const [y, m, d] = t.startDate.split('-').map(Number);
+                        const ts = new Date(y, m - 1, d).getTime();
+                        if (!earliestStart || ts < earliestStart) earliestStart = ts;
+                    }
+                    if (t.dueDate) {
+                        const [y, m, d] = t.dueDate.split('-').map(Number);
+                        const ts = new Date(y, m - 1, d).getTime();
+                        if (!latestEnd || ts > latestEnd) latestEnd = ts;
+                    }
+                    if (t.status === 'completed') doneTasks++;
+                    if (t.checklist) {
+                        Object.values(t.checklist).forEach(it => {
+                            totalSub++;
+                            if (it.done) doneSub++;
+                        });
+                    }
+                });
+
+                // نسبة التقدم: تعتمد على الـ checklist إن وُجد، وإلا على حالة التاسكات
+                const pct = totalSub > 0 ? Math.round((doneSub / totalSub) * 100) : (totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0);
+
+                // أيام متبقية حتى آخر تاريخ تسليم
+                let daysLeftHtml = '<span style="color:var(--blue-grey);">— لم يُحدّد —</span>';
+                if (latestEnd) {
+                    const daysLeft = Math.round((latestEnd - today.getTime()) / dayMs);
+                    if (daysLeft < 0) {
+                        daysLeftHtml = `<span class="sp-days" style="color:var(--red-danger);">⚠️ متأخر ${Math.abs(daysLeft)} يوم</span>`;
+                    } else if (daysLeft === 0) {
+                        daysLeftHtml = `<span class="sp-days" style="color:var(--red-danger);">🔴 اليوم آخر موعد!</span>`;
+                    } else if (daysLeft <= 7) {
+                        daysLeftHtml = `<span class="sp-days" style="color:var(--amber);">🟠 ${daysLeft} يوم متبقي</span>`;
+                    } else {
+                        daysLeftHtml = `<span class="sp-days" style="color:var(--green-success);">🟢 ${daysLeft} يوم متبقي</span>`;
+                    }
+                }
+
+                return `<div class="sales-project-card">
+                    <h3># ${escapeHtml(pName)}</h3>
+                    <div class="sp-meta">
+                        ${daysLeftHtml}
+                        <span class="sp-pct">${pct}%</span>
+                    </div>
+                    <div class="sp-bar-bg"><div class="sp-bar-fill" style="width:${pct}%;"></div></div>
+                </div>`;
+            }).join('');
+        };
+
+        // تطبيق قالب من على بطاقته (سيلز + مانيجر) — يسأل عن اسم المشروع ثم ينشئ التاسكات
+        window.applyTemplateFromCard = (templateId) => {
+            const tpl = window.allTemplates[templateId];
+            if (!tpl) return;
+            const items = Array.isArray(tpl.items) ? tpl.items : [];
+            if (items.length === 0) return alert('القالب فارغ');
+
+            const projectName = prompt(`📂 اسم المشروع الجديد:\n\nسيتم إنشاء ${items.length} تاسك من قالب "${tpl.name}".`);
+            if (!projectName || !projectName.trim()) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            const { ref, push, db } = window.firebaseTools;
+
+            items.forEach(itemText => {
+                push(ref(db, 'tasks'), {
+                    projectName: projectName.trim(),
+                    title: itemText,
+                    assignedTo: [],
+                    team: '',
+                    estHours: 0,
+                    priority: 'low',
+                    status: window.boardColumns[0].id,
+                    createdAt: Date.now(),
+                    description: '',
+                    startDate: today,
+                    dueDate: '',
+                    comments: {},
+                    checklist: {},
+                    fromTemplate: tpl.name,
+                    createdByRole: window.isSales ? 'sales' : (window.isManager ? 'manager' : 'lead')
+                });
+            });
+
+            // إشعار التيم ليد للـ 3D والـ Unreal
+            const leadEmails = [];
+            for (let email in window.whitelist) {
+                const u = window.whitelist[email];
+                if (u.isLead === true) leadEmails.push(sanitizeEmail(email));
+            }
+            leadEmails.forEach(ek => {
+                if (ek === window.currentUserEmailSafe) return;
+                push(ref(db, `users/${ek}/notifications`), {
+                    from: window.currentUserName,
+                    taskId: '',
+                    taskName: `🆕 مشروع جديد من المبيعات: ${projectName.trim()} (${items.length} تاسك)`,
+                    time: Date.now(),
+                    read: false,
+                    salesProject: projectName.trim()
+                });
+            });
+
+            alert(`✅ تم إنشاء ${items.length} تاسك في مشروع "${projectName.trim()}" + إرسال إشعار لقادة الفرق.`);
+        };
+
+        // يرسم قائمة الـ checkboxes من window.SALES_FEATURES، ويختار العناصر المحددة مسبقاً
+        window.renderFeatureCheckboxes = (selectedItems = []) => {
+            const grid = document.getElementById('tpl-features-grid');
+            if (!grid) return;
+            const selSet = new Set(selectedItems);
+            grid.innerHTML = window.SALES_FEATURES.map((feat, idx) => {
+                const isChecked = selSet.has(feat);
+                return `<label class="feature-chip ${isChecked ? 'checked' : ''}" data-feat="${feat.replace(/"/g, '&quot;')}">
+                    <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="window.updateFeatureChipState(this)">
+                    <span>${feat}</span>
+                </label>`;
+            }).join('');
+            window.updateFeatureSelectedCount();
+        };
+
+        window.updateFeatureChipState = (cb) => {
+            const label = cb.closest('.feature-chip');
+            if (label) label.classList.toggle('checked', cb.checked);
+            window.updateFeatureSelectedCount();
+        };
+
+        window.updateFeatureSelectedCount = () => {
+            const count = document.querySelectorAll('#tpl-features-grid input[type="checkbox"]:checked').length;
+            const el = document.getElementById('tpl-selected-count');
+            if (el) el.innerText = count;
+        };
+
+        window.toggleAllFeatures = (checkAll) => {
+            document.querySelectorAll('#tpl-features-grid input[type="checkbox"]').forEach(cb => {
+                cb.checked = checkAll;
+                window.updateFeatureChipState(cb);
+            });
         };
 
         window.openTemplateModal = (id = null) => {
@@ -4158,13 +4462,13 @@
                 title.innerText = 'تعديل القالب';
                 document.getElementById('tpl-name').value = t.name || '';
                 document.getElementById('tpl-desc').value = t.description || '';
-                const items = Array.isArray(t.items) ? t.items.join('\n') : (t.items || '');
-                document.getElementById('tpl-items').value = items;
+                const items = Array.isArray(t.items) ? t.items : (typeof t.items === 'string' ? t.items.split('\n').filter(s => s.trim()) : []);
+                window.renderFeatureCheckboxes(items);
             } else {
                 title.innerText = 'قالب جديد';
                 document.getElementById('tpl-name').value = '';
                 document.getElementById('tpl-desc').value = '';
-                document.getElementById('tpl-items').value = '';
+                window.renderFeatureCheckboxes([]);
             }
             modal.classList.add('active');
         };
@@ -4173,11 +4477,11 @@
             const id = document.getElementById('tpl-id').value;
             const name = document.getElementById('tpl-name').value.trim();
             const description = document.getElementById('tpl-desc').value.trim();
-            const itemsRaw = document.getElementById('tpl-items').value;
-            const items = itemsRaw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+            const items = Array.from(document.querySelectorAll('#tpl-features-grid input[type="checkbox"]:checked'))
+                .map(cb => cb.closest('.feature-chip').getAttribute('data-feat'));
 
             if (!name) return alert('يرجى إدخال اسم القالب');
-            if (items.length === 0) return alert('يرجى إضافة عنصر واحد على الأقل');
+            if (items.length === 0) return alert('يرجى اختيار ميزة واحدة على الأقل');
 
             const { ref, push, update, db } = window.firebaseTools;
             const payload = {
@@ -4906,10 +5210,10 @@
                 column_width: dynColumnWidth,
                 step: 24,
                 view_modes: ['Week', 'Month'],
-                bar_height: 32,
-                bar_corner_radius: 6,
+                bar_height: 40,
+                bar_corner_radius: 7,
                 arrow_curve: 5,
-                padding: 20,
+                padding: 25,
                 view_mode: window.currentGanttMode,
                 language: 'en',
                 custom_popup_html: (task) => `
@@ -6243,6 +6547,21 @@
                     document.querySelectorAll('.sales-or-admin-only').forEach(el => {
                         if (canManageTemplates) showEl(el); else el.style.display = 'none';
                     });
+                    // not-sales: عناصر مخفية عن فريق المبيعات (الكنبان + بقية الصفحات)
+                    document.querySelectorAll('.not-sales').forEach(el => {
+                        if (window.isSales) el.style.display = 'none';
+                    });
+
+                    // المبيعات يبدأ على صفحة القوالب بدل الكنبان
+                    if (window.isSales) {
+                        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                        const tplNav = document.querySelector('.nav-item[data-target="templates"]');
+                        const tplSec = document.getElementById('templates');
+                        if (tplNav) tplNav.classList.add('active');
+                        if (tplSec) tplSec.classList.add('active');
+                        setTimeout(() => window.renderTemplates && window.renderTemplates(), 100);
+                    }
 
                     document.getElementById('dt-team').disabled = !hasAdminRights;
 
@@ -6325,6 +6644,11 @@
                             window.allTasks[k] = { ...rawData[k], _id: k };
                         });
                         window.refreshAllViews();
+
+                        // تحديث بطاقات المبيعات تلقائياً إذا كان تاب القوالب مفتوحاً
+                        if (window.isSales && document.getElementById('templates').classList.contains('active')) {
+                            window.renderSalesActiveProjects && window.renderSalesActiveProjects();
+                        }
 
                         if (document.getElementById('taskDetailsModal').classList.contains('active')) {
                             const activeId = document.getElementById('dt-id').value;
