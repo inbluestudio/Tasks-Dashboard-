@@ -1051,7 +1051,7 @@
             flex-wrap: wrap;
             gap: 8px;
             margin-bottom: 15px;
-            max-height: 80px;
+            max-height: 180px;
             overflow-y: auto;
             padding: 5px;
         }
@@ -5915,12 +5915,36 @@
 
             if (val.includes('#') || val.length >= 1) {
                 const query = val.replace('#', '').trim().toLowerCase();
-                const projects = [...new Set(Object.values(window.allTasks).filter(t => t && t.projectName).map(t => t.projectName))];
-                const matches = projects.filter(p => p.toLowerCase().includes(query)).slice(0, 5);
+                // اجمع المشاريع مع علم "أُنشئ من المبيعات" + آخر تاريخ
+                const projMap = {};
+                Object.values(window.allTasks).forEach(t => {
+                    if (!t || !t.projectName) return;
+                    const name = t.projectName;
+                    if (!projMap[name]) {
+                        projMap[name] = { createdAt: t.createdAt || 0, fromSales: t.createdByRole === 'sales' };
+                    } else {
+                        if (t.createdAt && t.createdAt > projMap[name].createdAt) projMap[name].createdAt = t.createdAt;
+                        if (t.createdByRole === 'sales') projMap[name].fromSales = true;
+                    }
+                });
+                const matches = Object.entries(projMap)
+                    .filter(([p]) => p.toLowerCase().includes(query))
+                    .sort((a, b) => {
+                        // مشاريع المبيعات أولاً، ثم الأحدث
+                        if (a[1].fromSales !== b[1].fromSales) return a[1].fromSales ? -1 : 1;
+                        return b[1].createdAt - a[1].createdAt;
+                    })
+                    .slice(0, 6);
 
                 if (matches.length > 0) {
-                    suggestionsBox.innerHTML = matches.map(p => `<div class="suggestion-item" onmousedown="document.getElementById('pNameNew').value='${p.replace(/'/g, "\\'")}';
-                        document.getElementById('projectSuggestions').style.display='none';"># ${p}</div>`).join('');
+                    suggestionsBox.innerHTML = matches.map(([p, m]) => {
+                        const safe = p.replace(/'/g, "\\'");
+                        const badge = m.fromSales
+                            ? '<span style="background:var(--green-success); color:#fff; font-size:0.6rem; padding:1px 6px; border-radius:8px; margin-inline-start:6px;">🆕 مبيعات</span>'
+                            : '';
+                        const style = m.fromSales ? 'color:var(--green-success); font-weight:700;' : '';
+                        return `<div class="suggestion-item" style="${style}" onmousedown="document.getElementById('pNameNew').value='${safe}'; document.getElementById('projectSuggestions').style.display='none';"># ${p}${badge}</div>`;
+                    }).join('');
                     suggestionsBox.style.display = 'block';
                 } else {
                     suggestionsBox.style.display = 'none';
