@@ -2194,6 +2194,45 @@
             border-radius: 6px;
         }
 
+        /* تابات المشاريع فوق الجانت */
+        .gantt-project-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 10px 0 12px;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 6px;
+        }
+        .gantt-proj-chip {
+            background: transparent;
+            border: 1.5px solid;
+            padding: 5px 14px;
+            border-radius: 16px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: 0.18s;
+            font-family: inherit;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .gantt-proj-chip:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-1px);
+        }
+        .gantt-proj-chip.active {
+            color: #fff !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        .gantt-proj-chip.all-chip {
+            border-color: var(--blue-grey);
+            color: var(--blue-grey);
+        }
+        .gantt-proj-chip.all-chip.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
         .gantt .grid-header {
             fill: var(--card-bg);
             stroke: var(--border);
@@ -2404,7 +2443,7 @@
             </div>
 
             <div class="settings-toggles">
-                <button class="toggle-btn admin-only" onclick="toggleNotifications(event)" title="Notifications">
+                <button class="toggle-btn" onclick="toggleNotifications(event)" title="Notifications">
                     🔔 <span data-i18n="notifBtn">التنبيهات</span>
                     <span id="notif-badge" class="badge">0</span>
                 </button>
@@ -2506,6 +2545,9 @@
                             style="background: var(--accent); color: #fff;">سنة (شهري)</button>
                     </div>
                 </div>
+
+                <div id="gantt-project-tabs" class="gantt-project-tabs"></div>
+
                 <div
                     style="background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); flex: 1; overflow: hidden; display: flex; flex-direction: column;">
                     <div style="flex: 1; overflow: auto; padding: 10px;">
@@ -2911,6 +2953,7 @@
         window.chartOverallComp = null;
         window.ganttChartInst = null;
         window.currentGanttMode = 'Month';
+        window.ganttProjectFilter = null; // null = كل المشاريع، أو اسم مشروع محدد
 
         window.customAvatars = {};
         window.projectReportData = [];
@@ -4338,6 +4381,28 @@
             window.renderGanttChart();
         };
 
+        // تحديد فلتر المشروع داخل الجانت (null = كل المشاريع)
+        window.setGanttProjectFilter = (projName) => {
+            window.ganttProjectFilter = (window.ganttProjectFilter === projName) ? null : projName;
+            window.renderGanttChart();
+        };
+
+        // رسم تابات المشاريع فوق الجانت
+        window.renderGanttProjectTabs = (allProjects) => {
+            const container = document.getElementById('gantt-project-tabs');
+            if (!container) return;
+            const allActive = window.ganttProjectFilter === null;
+            let html = `<button class="gantt-proj-chip all-chip ${allActive ? 'active' : ''}" onclick="window.setGanttProjectFilter(null)">📋 كل المشاريع</button>`;
+            Object.keys(allProjects).sort((a, b) => a.localeCompare(b)).forEach(proj => {
+                const color = allProjects[proj];
+                const isActive = window.ganttProjectFilter === proj;
+                const safeProj = proj.replace(/'/g, "\\'");
+                const styleActive = isActive ? `background:${color}; border-color:${color};` : `border-color:${color}; color:${color};`;
+                html += `<button class="gantt-proj-chip ${isActive ? 'active' : ''}" style="${styleActive}" onclick="window.setGanttProjectFilter('${safeProj}')"># ${proj}</button>`;
+            });
+            container.innerHTML = html;
+        };
+
         window.renderGanttChart = () => {
             const container = document.getElementById('gantt-target');
             if (!container) return;
@@ -4349,6 +4414,15 @@
             }
 
             const arr = window.getFilteredTasks(true);
+
+            // كل المشاريع الموجودة (قبل تطبيق فلتر التابات) — لرسم الـ tabs
+            const allProjectsMap = {};
+            arr.forEach(t => {
+                const p = t.projectName || 'أخرى';
+                if (!allProjectsMap[p]) allProjectsMap[p] = window.getProjectColor(p);
+            });
+            window.renderGanttProjectTabs(allProjectsMap);
+
             if (arr.length === 0) {
                 container.innerHTML = `<h3 style="color:var(--blue-grey);text-align:center;padding:50px;">لا توجد مهام في النظام بعد.</h3>`;
                 return;
@@ -4357,8 +4431,20 @@
             // مستوى المهمة: كل مهمة شريط مستقل
             const dayMs = 24 * 60 * 60 * 1000;
             const fmt = (ms) => new Date(ms).toISOString().split('T')[0];
-            const withDate = arr.filter(t => t.dueDate);
-            const noDateCount = arr.length - withDate.length;
+            // تطبيق فلتر التابات (إن وُجد)
+            const filteredByTab = window.ganttProjectFilter
+                ? arr.filter(t => t.projectName === window.ganttProjectFilter)
+                : arr;
+            const withDate = filteredByTab.filter(t => t.dueDate);
+            const noDateCount = filteredByTab.length - withDate.length;
+
+            if (withDate.length === 0 && window.ganttProjectFilter) {
+                container.innerHTML = `<h3 style="color:var(--blue-grey);text-align:center;padding:50px;">
+                    لا توجد مهام بتاريخ تسليم في مشروع <b style="color:var(--accent);">${window.ganttProjectFilter}</b>.<br>
+                    <span style="font-size:0.85rem;">جرّب اختيار مشروع آخر أو "كل المشاريع".</span>
+                </h3>`;
+                return;
+            }
 
             if (withDate.length === 0) {
                 container.innerHTML = `<h3 style="color:var(--blue-grey);text-align:center;padding:50px;">
@@ -4491,8 +4577,8 @@
                     </div>`
             });
 
-            // حقن SVG gradients — كل تاسك يحصل على linear-gradient ثنائي (تيم/مشروع)
-            // النصف الأعلى = لون التيم، النصف الأسفل = لون المشروع
+            // حقن SVG gradients — كل تاسك يحصل على linear-gradient ثنائي أفقي (مشروع | تيم)
+            // اليسار = لون المشروع، اليمين = لون التيم
             const svgEl = container.querySelector('svg');
             if (svgEl) {
                 let defs = svgEl.querySelector('defs');
@@ -4510,6 +4596,8 @@
                     s.setAttribute('stop-color', color);
                     return s;
                 };
+                // gradient أفقي: يسار = لون المشروع، يمين = لون التيم
+                // (الـ SVG مفروض LTR حسب CSS، فـ x=0 = اليسار البصري دائماً)
                 const seen = new Set();
                 tasksForGantt.forEach(t => {
                     if (seen.has(t.custom_class)) return;
@@ -4520,13 +4608,79 @@
                     lg.setAttribute('id', t.custom_class);
                     lg.setAttribute('class', 'gantt-bicolor');
                     lg.setAttribute('x1', '0'); lg.setAttribute('y1', '0');
-                    lg.setAttribute('x2', '0'); lg.setAttribute('y2', '1');
-                    lg.appendChild(mkStop('0%', teamColor));
-                    lg.appendChild(mkStop('50%', teamColor));
+                    lg.setAttribute('x2', '1'); lg.setAttribute('y2', '0');
+                    lg.appendChild(mkStop('0%', projColor));
                     lg.appendChild(mkStop('50%', projColor));
-                    lg.appendChild(mkStop('100%', projColor));
+                    lg.appendChild(mkStop('50%', teamColor));
+                    lg.appendChild(mkStop('100%', teamColor));
                     defs.appendChild(lg);
                 });
+            }
+
+            // ───── خط Hover عمودي + tooltip يبيّن التاريخ بالزبط ─────
+            // عنصر الـ tooltip في الـ body (مشترك بين كل التحديثات)
+            let dateTooltip = document.getElementById('gantt-date-tooltip');
+            if (!dateTooltip) {
+                dateTooltip = document.createElement('div');
+                dateTooltip.id = 'gantt-date-tooltip';
+                dateTooltip.style.cssText = 'position:fixed; background:var(--card-bg); border:1px solid var(--accent); border-radius:6px; padding:6px 12px; font-size:0.8rem; color:var(--text); pointer-events:none; z-index:10001; opacity:0; transition:opacity 0.12s; font-family:inherit; font-weight:600; box-shadow:0 4px 12px rgba(0,0,0,0.4); white-space:nowrap;';
+                document.body.appendChild(dateTooltip);
+            }
+
+            if (svgEl) {
+                // خط عمودي داخل الـ SVG
+                let hoverLine = svgEl.querySelector('.gantt-hover-line');
+                if (hoverLine) hoverLine.remove();
+                hoverLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                hoverLine.setAttribute('class', 'gantt-hover-line');
+                hoverLine.setAttribute('y1', '0');
+                hoverLine.setAttribute('y2', svgEl.getAttribute('height') || '1000');
+                hoverLine.setAttribute('stroke', '#3BA4FE');
+                hoverLine.setAttribute('stroke-width', '1.2');
+                hoverLine.setAttribute('stroke-dasharray', '4,3');
+                hoverLine.setAttribute('pointer-events', 'none');
+                hoverLine.style.opacity = '0';
+                svgEl.appendChild(hoverLine);
+
+                const ganttStart = window.ganttChartInst && window.ganttChartInst.gantt_start;
+                const ganttEnd = window.ganttChartInst && window.ganttChartInst.gantt_end;
+
+                // عرض الـ SVG الفعلي (وليس عرض الكونتينر)
+                const svgWidthVal = parseFloat(svgEl.getAttribute('width')) || svgEl.getBoundingClientRect().width;
+
+                const dateAtX = (x) => {
+                    if (!ganttStart || !ganttEnd) return null;
+                    const totalMs = ganttEnd.getTime() - ganttStart.getTime();
+                    const ratio = Math.max(0, Math.min(1, x / svgWidthVal));
+                    return new Date(ganttStart.getTime() + ratio * totalMs);
+                };
+
+                const fmtDate = (d) => d.toLocaleDateString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+                const onMove = (e) => {
+                    const rect = svgEl.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    if (x < 0 || x > rect.width) return;
+                    // x في إحداثيات الـ SVG (مع مراعاة تكبير المتصفح والـ scroll)
+                    const svgX = (x / rect.width) * svgWidthVal;
+                    hoverLine.setAttribute('x1', svgX);
+                    hoverLine.setAttribute('x2', svgX);
+                    hoverLine.style.opacity = '0.9';
+
+                    const d = dateAtX(svgX);
+                    if (d) {
+                        dateTooltip.innerText = '📅 ' + fmtDate(d);
+                        dateTooltip.style.left = (e.clientX + 16) + 'px';
+                        dateTooltip.style.top = (e.clientY + 16) + 'px';
+                        dateTooltip.style.opacity = '1';
+                    }
+                };
+                const onLeave = () => {
+                    hoverLine.style.opacity = '0';
+                    dateTooltip.style.opacity = '0';
+                };
+                svgEl.addEventListener('mousemove', onMove);
+                svgEl.addEventListener('mouseleave', onLeave);
             }
 
             // ملخص + Legend مزدوج (تيمات + مشاريع)
@@ -4541,12 +4695,12 @@
             ).join('');
 
             const exampleBarPreview = `
-                <span style="display:inline-flex; align-items:center; gap:5px;">
-                    <span style="display:inline-block; width:24px; height:14px; border-radius:3px; overflow:hidden; border:1px solid var(--border); position:relative;">
-                        <span style="position:absolute; inset:0 0 50% 0; background:#3BA4FE;"></span>
-                        <span style="position:absolute; inset:50% 0 0 0; background:#dc2626;"></span>
+                <span style="display:inline-flex; align-items:center; gap:5px; direction:ltr;">
+                    <span style="display:inline-block; width:32px; height:14px; border-radius:3px; overflow:hidden; border:1px solid var(--border); position:relative;">
+                        <span style="position:absolute; top:0; bottom:0; left:0; width:50%; background:#dc2626;"></span>
+                        <span style="position:absolute; top:0; bottom:0; right:0; width:50%; background:#3BA4FE;"></span>
                     </span>
-                    <span>كل بار: أعلى = القسم، أسفل = المشروع</span>
+                    <span style="direction:rtl;">كل بار: يسار = المشروع، يمين = القسم</span>
                 </span>`;
 
             summary.innerHTML = `
