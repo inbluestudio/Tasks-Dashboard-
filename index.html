@@ -1177,6 +1177,12 @@
             background: var(--bg);
         }
 
+        .editable-title[readonly] {
+            cursor: default;
+            border-color: transparent !important;
+            background: transparent !important;
+        }
+
         .trello-body {
             display: flex;
             flex: 1;
@@ -2398,7 +2404,7 @@
             </div>
 
             <div class="settings-toggles">
-                <button class="toggle-btn" onclick="toggleNotifications(event)" title="Notifications">
+                <button class="toggle-btn admin-only" onclick="toggleNotifications(event)" title="Notifications">
                     🔔 <span data-i18n="notifBtn">التنبيهات</span>
                     <span id="notif-badge" class="badge">0</span>
                 </button>
@@ -2938,6 +2944,20 @@
             "AI": "#f97316"             // برتقالي
         };
         window.getTeamColor = (team) => window.teamColors[team] || "#8FA3BC";
+
+        // لون ثابت لكل مشروع (deterministic hash) — لاستخدامه في مخطط جانت لتمييز المشاريع
+        // البالتة مختارة لتجنّب التصادم مع ألوان التيمات (أزرق/بنفسجي/أخضر/برتقالي)
+        window.projectColorCache = {};
+        window.getProjectColor = (projName) => {
+            if (!projName) return '#8FA3BC';
+            if (window.projectColorCache[projName]) return window.projectColorCache[projName];
+            const palette = ['#dc2626', '#ec4899', '#d946ef', '#0ea5e9', '#06b6d4', '#14b8a6', '#65a30d', '#eab308', '#f59e0b', '#b45309', '#7c3aed', '#9333ea', '#be185d', '#0891b2'];
+            let hash = 5381;
+            for (let i = 0; i < projName.length; i++) hash = ((hash << 5) + hash + projName.charCodeAt(i)) | 0;
+            const color = palette[Math.abs(hash) % palette.length];
+            window.projectColorCache[projName] = color;
+            return color;
+        };
 
         // ----------------------------------------------------
         // 2. إعدادات اللغة والثيم
@@ -4303,9 +4323,6 @@
 
         window.changeGanttView = (mode) => {
             window.currentGanttMode = mode;
-            if (window.ganttChartInst) {
-                window.ganttChartInst.change_view_mode(mode);
-            }
 
             document.querySelectorAll('.gantt-view-modes button').forEach(b => {
                 b.style.background = 'transparent';
@@ -4316,6 +4333,9 @@
                 activeBtn.style.background = 'var(--accent)';
                 activeBtn.style.color = '#fff';
             }
+
+            // إعادة الرسم الكامل للحفاظ على gradients ثنائية اللون (لون التيم + لون المشروع)
+            window.renderGanttChart();
         };
 
         window.renderGanttChart = () => {
@@ -4369,17 +4389,23 @@
                 return getDueTs(a) - getDueTs(b);
             });
 
-            // لون لكل قسم (تيم) — نفس ألوان البطاقات
+            // لون لكل قسم (تيم) ولكل مشروع
             const usedTeams = {};
+            const usedProjects = {};
             sorted.forEach(t => {
                 const team = t.team || 'أخرى';
                 if (!usedTeams[team]) usedTeams[team] = window.getTeamColor(team);
+                const proj = t.projectName || 'أخرى';
+                if (!usedProjects[proj]) usedProjects[proj] = window.getProjectColor(proj);
             });
-            // عدد المشاريع للملخص
-            const projectsCount = new Set(sorted.map(t => t.projectName)).size;
+            const projectsCount = Object.keys(usedProjects).length;
 
             // مجموعة معرّفات المهام الموجودة على المخطط (لتصفية التبعيات)
             const visibleIds = new Set(sorted.map(t => t._id));
+
+            // مفتاح فريد لكل (تيم × مشروع) لاستخدامه كاسم gradient
+            const keyOf = (s) => (s || '').replace(/[^a-zA-Z0-9]/g, '_').replace(/^$/, 'x');
+            const gradKey = (team, proj) => `gantt-grad-${keyOf(team)}__${keyOf(proj)}`;
 
             const tasksForGantt = sorted.map(t => {
                 const start = t.startDate ? new Date(t.startDate).getTime()
@@ -4401,7 +4427,8 @@
                     ? t.dependsOn.filter(id => visibleIds.has(id)).join(',')
                     : '';
 
-                const teamKey = (t.team || 'أخرى').replace(/[^a-zA-Z0-9]/g, '_');
+                const team = t.team || 'أخرى';
+                const proj = t.projectName || 'أخرى';
                 return {
                     id: t._id,
                     name: `${projTag}${teamTag}${t.title || 'مهمة'}`,
@@ -4409,22 +4436,24 @@
                     end: endDate,
                     progress: progress,
                     dependencies: deps,
-                    custom_class: 'gantt-team-' + teamKey
+                    custom_class: `${gradKey(team, proj)}`,
+                    _team: team,
+                    _proj: proj
                 };
             });
 
-            // إدخال أنماط ألوان التيمات
+            // CSS: نطبّق fill على .bar عبر url(#gradient) — تعريف الـ gradients يحدث بعد رسم الجانت
             let styleEl = document.getElementById('ganttDynamicStyles');
             if (!styleEl) {
                 styleEl = document.createElement('style');
                 styleEl.id = 'ganttDynamicStyles';
                 document.head.appendChild(styleEl);
             }
-            styleEl.innerHTML = Object.keys(usedTeams).map(team => {
-                const key = team.replace(/[^a-zA-Z0-9]/g, '_');
-                const color = usedTeams[team];
-                return `.gantt .bar-wrapper.gantt-team-${key} .bar { fill: ${color}; }
-                        .gantt .bar-wrapper.gantt-team-${key} .bar-progress { fill: ${color}aa; }`;
+            styleEl.innerHTML = tasksForGantt.map(t => {
+                const cls = t.custom_class;
+                const teamColor = usedTeams[t._team];
+                return `.gantt .bar-wrapper.${cls} .bar { fill: url(#${cls}) !important; }
+                        .gantt .bar-wrapper.${cls} .bar-progress { fill: ${teamColor}cc !important; }`;
             }).join('\n');
 
             // حساب عرض العمود ديناميكياً ليتسع الجدول داخل الصفحة بدون scroll أفقي
@@ -4462,15 +4491,76 @@
                     </div>`
             });
 
-            // ملخص + Legend للألوان
+            // حقن SVG gradients — كل تاسك يحصل على linear-gradient ثنائي (تيم/مشروع)
+            // النصف الأعلى = لون التيم، النصف الأسفل = لون المشروع
+            const svgEl = container.querySelector('svg');
+            if (svgEl) {
+                let defs = svgEl.querySelector('defs');
+                if (!defs) {
+                    defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                    svgEl.insertBefore(defs, svgEl.firstChild);
+                }
+                // إزالة gradients قديمة من تحديثات سابقة
+                defs.querySelectorAll('linearGradient.gantt-bicolor').forEach(g => g.remove());
+
+                const SVG_NS = 'http://www.w3.org/2000/svg';
+                const mkStop = (offset, color) => {
+                    const s = document.createElementNS(SVG_NS, 'stop');
+                    s.setAttribute('offset', offset);
+                    s.setAttribute('stop-color', color);
+                    return s;
+                };
+                const seen = new Set();
+                tasksForGantt.forEach(t => {
+                    if (seen.has(t.custom_class)) return;
+                    seen.add(t.custom_class);
+                    const teamColor = usedTeams[t._team];
+                    const projColor = usedProjects[t._proj];
+                    const lg = document.createElementNS(SVG_NS, 'linearGradient');
+                    lg.setAttribute('id', t.custom_class);
+                    lg.setAttribute('class', 'gantt-bicolor');
+                    lg.setAttribute('x1', '0'); lg.setAttribute('y1', '0');
+                    lg.setAttribute('x2', '0'); lg.setAttribute('y2', '1');
+                    lg.appendChild(mkStop('0%', teamColor));
+                    lg.appendChild(mkStop('50%', teamColor));
+                    lg.appendChild(mkStop('50%', projColor));
+                    lg.appendChild(mkStop('100%', projColor));
+                    defs.appendChild(lg);
+                });
+            }
+
+            // ملخص + Legend مزدوج (تيمات + مشاريع)
             const summary = document.createElement('div');
-            summary.style.cssText = 'padding:8px 12px;color:var(--blue-grey);font-size:0.8rem;border-bottom:1px solid var(--border);margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;';
-            const legendHtml = Object.keys(usedTeams).map(team =>
-                `<span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:${usedTeams[team]};display:inline-block;"></span>${team}</span>`
+            summary.style.cssText = 'padding:10px 14px;color:var(--blue-grey);font-size:0.8rem;border-bottom:1px solid var(--border);margin-bottom:10px;display:flex;flex-direction:column;gap:8px;';
+
+            const teamLegend = Object.keys(usedTeams).map(team =>
+                `<span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:14px;height:8px;border-radius:2px;background:${usedTeams[team]};display:inline-block;"></span>${team}</span>`
             ).join('');
-            summary.innerHTML = `<span>📊 ${withDate.length} مهمة عبر ${projectsCount} مشروع</span>
-                <span style="margin-inline-start:auto;display:flex;gap:10px;flex-wrap:wrap;">${legendHtml}</span>` +
-                (noDateCount > 0 ? `<span style="color:var(--amber);width:100%;">⚠️ ${noDateCount} مهمة بدون تاريخ تسليم (لا تظهر)</span>` : '');
+            const projLegend = Object.keys(usedProjects).map(proj =>
+                `<span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:14px;height:8px;border-radius:2px;background:${usedProjects[proj]};display:inline-block;"></span># ${proj}</span>`
+            ).join('');
+
+            const exampleBarPreview = `
+                <span style="display:inline-flex; align-items:center; gap:5px;">
+                    <span style="display:inline-block; width:24px; height:14px; border-radius:3px; overflow:hidden; border:1px solid var(--border); position:relative;">
+                        <span style="position:absolute; inset:0 0 50% 0; background:#3BA4FE;"></span>
+                        <span style="position:absolute; inset:50% 0 0 0; background:#dc2626;"></span>
+                    </span>
+                    <span>كل بار: أعلى = القسم، أسفل = المشروع</span>
+                </span>`;
+
+            summary.innerHTML = `
+                <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; align-items:center;">
+                    <span>📊 ${withDate.length} مهمة عبر ${projectsCount} مشروع</span>
+                    ${exampleBarPreview}
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center;">
+                    <b style="color:var(--text); margin-inline-end:4px;">الأقسام:</b>${teamLegend}
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center;">
+                    <b style="color:var(--text); margin-inline-end:4px;">المشاريع:</b>${projLegend}
+                </div>` +
+                (noDateCount > 0 ? `<div style="color:var(--amber);">⚠️ ${noDateCount} مهمة بدون تاريخ تسليم (لا تظهر)</div>` : '');
             container.insertBefore(summary, container.firstChild);
         };
 
@@ -4897,7 +4987,9 @@
             if (!task) { console.warn('openTaskDetailsModal: task not found for id:', id); return; }
             document.getElementById('dt-id').value = id;
             document.getElementById('dt-project').innerText = `# ${task.projectName}`;
-            document.getElementById('dt-title-input').value = task.title;
+            const titleInput = document.getElementById('dt-title-input');
+            titleInput.value = task.title;
+            titleInput.readOnly = !(window.isManager || window.isTeamLead);
 
             let statusObj = window.boardColumns.find(c => c.id === task.status);
             let statusText = statusObj ? (window.currentLang === 'en' && statusObj.titleEn ? statusObj.titleEn : statusObj.title) : task.status;
@@ -4990,13 +5082,14 @@
             const id = document.getElementById('dt-id').value;
             const hasAdminRights = window.isManager || window.isTeamLead;
             const updates = {
-                title: document.getElementById('dt-title-input').value.trim() || "Task",
                 description: document.getElementById('dt-desc').value,
                 startDate: document.getElementById('dt-startdate').value,
                 dueDate: document.getElementById('dt-duedate').value,
                 estHours: parseFloat(document.getElementById('dt-hours').value) || 0
             };
+            // عنوان التاسك يعدّله فقط الأدمن / التيم ليد
             if (hasAdminRights) {
+                updates.title = document.getElementById('dt-title-input').value.trim() || "Task";
                 updates.team = document.getElementById('dt-team').value;
                 const pri = document.getElementById('dt-priority');
                 if (pri) updates.priority = pri.value;
@@ -5222,14 +5315,25 @@
             container.innerHTML = '';
             if (!task) return;
 
-            const assignees = task.assignedTo ? (Array.isArray(task.assignedTo) ? task.assignedTo : [task.assignedTo]) : [];
-            if (assignees.length === 0) {
+            const allAssignees = task.assignedTo ? (Array.isArray(task.assignedTo) ? task.assignedTo : [task.assignedTo]) : [];
+            if (allAssignees.length === 0) {
                 container.innerHTML = `<div style="color:var(--blue-grey); font-size:0.8rem; padding:8px; text-align:center; background: rgba(136,207,253,0.05); border-radius:8px;">لا يوجد موظفون مكلّفون بعد — حدّد المسؤولين أولاً لتظهر حقول التقارير.</div>`;
                 return;
             }
 
             const reports = task.employeeReports || {};
             const hasAdminRights = window.isManager || window.isTeamLead;
+
+            // الموظف يشوف تقريره فقط؛ الأدمن/التيم ليد يشوفون تقارير كل المكلّفين
+            let assignees;
+            if (hasAdminRights) {
+                assignees = allAssignees;
+            } else if (allAssignees.includes(window.currentUserName)) {
+                assignees = [window.currentUserName];
+            } else {
+                container.innerHTML = `<div style="color:var(--blue-grey); font-size:0.8rem; padding:8px; text-align:center; background: rgba(136,207,253,0.05); border-radius:8px;">لست مكلفاً بهذه المهمة — لا يمكنك كتابة تقرير.</div>`;
+                return;
+            }
 
             assignees.forEach(emp => {
                 const safeKey = window.sanitizeEmpName(emp);
