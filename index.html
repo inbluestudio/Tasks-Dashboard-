@@ -1306,22 +1306,28 @@
 
         /* شريط التقدم الزمني على بطاقة المهمة */
         .card-time-bar {
-            margin-top: 8px;
-            margin-bottom: 2px;
+            margin-top: 10px;
+            margin-bottom: 4px;
+            padding: 6px 8px;
+            background: var(--bg);
+            border-radius: 6px;
+            border: 1px solid var(--border);
         }
 
         .card-time-header {
             display: flex;
             justify-content: space-between;
-            font-size: 0.7rem;
-            margin-bottom: 4px;
+            align-items: center;
+            font-size: 0.72rem;
+            font-weight: 600;
+            margin-bottom: 5px;
         }
 
         .card-time-bg {
             width: 100%;
             background: var(--border);
             border-radius: 3px;
-            height: 4px;
+            height: 6px;
             overflow: hidden;
         }
 
@@ -1851,6 +1857,145 @@
             overflow: hidden;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
+        }
+
+        /* ===== Project Report Tabs & Components ===== */
+        .pr-tab {
+            background: none;
+            border: none;
+            color: var(--blue-grey);
+            padding: 14px 18px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: 0.2s;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        .pr-tab:hover { color: var(--text); background: rgba(59,164,254,0.05); }
+        .pr-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .pr-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .pr-kpi {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .pr-kpi::before {
+            content: '';
+            position: absolute;
+            top: 0; inset-inline-start: 0;
+            width: 4px; height: 100%;
+            background: var(--accent);
+        }
+        .pr-kpi.danger::before { background: var(--red-danger); }
+        .pr-kpi.warn::before { background: var(--amber); }
+        .pr-kpi.success::before { background: var(--green-success); }
+        .pr-kpi .pr-kpi-lbl {
+            font-size: 0.72rem;
+            color: var(--blue-grey);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .pr-kpi .pr-kpi-val {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+        .pr-kpi .pr-kpi-sub {
+            font-size: 0.7rem;
+            color: var(--blue-grey);
+            margin-top: 4px;
+        }
+
+        .pr-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 18px;
+        }
+        .pr-section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pr-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+        .pr-table th {
+            background: var(--bg);
+            color: var(--blue-grey);
+            text-align: start;
+            padding: 10px 12px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+        .pr-table td {
+            padding: 10px 12px;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+        .pr-table tr:hover td { background: rgba(59,164,254,0.03); }
+
+        .pr-badge {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .pr-badge.pending { background: rgba(136,207,253,0.15); color: var(--intel-blue); }
+        .pr-badge.inprogress { background: rgba(251,191,36,0.15); color: var(--amber); }
+        .pr-badge.completed { background: rgba(74,222,128,0.15); color: var(--green-success); }
+        .pr-badge.overdue { background: rgba(248,113,113,0.15); color: var(--red-danger); }
+
+        .pr-chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 18px;
+        }
+        .pr-chart-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            min-height: 280px;
+        }
+        .pr-chart-card h4 {
+            color: var(--text);
+            font-size: 0.9rem;
+            margin-bottom: 14px;
+        }
+        .pr-chart-canvas-wrap {
+            position: relative;
+            height: 220px;
         }
 
         .report-header {
@@ -2511,50 +2656,51 @@
     </div>
 
     <div class="modal" id="projectReportModal">
-        <div class="report-modal">
-            <div class="report-header" style="border-bottom: none; padding-bottom: 10px;">
+        <div class="report-modal" style="max-width: 1200px; height: 92vh;">
+            <div class="report-header">
                 <div>
                     <h2 style="color: var(--text); font-size: 1.4rem; margin-bottom: 5px;">
-                        <span data-i18n="execReportLabel">ملفات مشروع:</span>
+                        📊 التقرير الشامل للمشروع:
                         <span id="pr-project-name" style="color: var(--accent);"></span>
                     </h2>
-                    <div style="font-size: 0.85rem; color: var(--blue-grey);"><span data-i18n="lastUpdatedBy">تاريخ
-                            الإضافة:</span> <span id="pr-last-updated">-</span></div>
+                    <div style="font-size: 0.8rem; color: var(--blue-grey);">
+                        آخر تحديث: <span id="pr-last-updated">-</span>
+                        · <span id="pr-task-count">0</span> مهمة
+                    </div>
                 </div>
-                <div style="display: flex; gap: 15px; align-items: center;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div style="position: relative;">
+                        <button class="btn-main" id="pr-export-btn" style="padding: 8px 16px; font-size: 0.85rem;" onclick="window.togglePrExportMenu(event)">
+                            📥 تصدير ▾
+                        </button>
+                        <div id="pr-export-menu" style="display:none; position:absolute; top:110%; inset-inline-end:0; background:var(--card-bg); border:1px solid var(--border); border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.4); z-index:50; min-width:180px;">
+                            <button onclick="window.exportProjectExcel()" style="display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; color:var(--text); padding:12px 16px; cursor:pointer; font-size:0.85rem; text-align:start;">📊 Excel (متعدد الصفحات)</button>
+                            <button onclick="window.exportProjectPDF()" style="display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; color:var(--text); padding:12px 16px; cursor:pointer; font-size:0.85rem; text-align:start; border-top:1px solid var(--border);">📄 PDF (تقرير منسق)</button>
+                        </div>
+                    </div>
                     <button onclick="closeProjectReport()"
                         style="background: none; border: none; font-size: 1.8rem; color: var(--blue-grey); cursor: pointer;">✖</button>
                 </div>
             </div>
 
-            <div class="embed-toolbar">
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <button class="btn-outline"
-                        style="border-color: var(--amber); color: var(--amber); padding: 6px 12px; font-size: 0.85rem;"
-                        onclick="openEmbedExternal()" data-i18n="openExtBtn">🔗 فتح في نافذة جديدة</button>
-                    <button class="editor-btn zoom-btn" onclick="zoomIframe(-0.1)" title="تصغير">➖</button>
-                    <button class="editor-btn zoom-btn" onclick="zoomIframe(0.1)" title="تكبير">➕</button>
-                </div>
-
-                <div class="admin-only embed-url-wrapper" id="urlWrapper">
-                    <button class="link-icon-btn" onclick="openLinkInput()"
-                        title="إضافة أو تعديل رابط الملف">📄</button>
-                    <input type="url" id="embed-url-input" class="embed-url-input"
-                        placeholder="ضع رابط جوجل شيت أو درايف واضغط Enter..." onkeydown="handleEmbedEnter(event)"
-                        onblur="closeLinkInput()">
-                </div>
+            <div id="pr-tabs" style="display:flex; gap:4px; padding: 0 20px; background:var(--bg); border-bottom:1px solid var(--border); overflow-x:auto;">
+                <button class="pr-tab active" data-tab="overview" onclick="window.switchPrTab('overview')">📌 نظرة عامة</button>
+                <button class="pr-tab" data-tab="dashboard" onclick="window.switchPrTab('dashboard')">📈 الداش بورد</button>
+                <button class="pr-tab" data-tab="lead" onclick="window.switchPrTab('lead')">👤 تقرير التيم ليد</button>
+                <button class="pr-tab" data-tab="tasks" onclick="window.switchPrTab('tasks')">✅ التاسكات</button>
+                <button class="pr-tab" data-tab="notes" onclick="window.switchPrTab('notes')">💬 الملاحظات</button>
+                <button class="pr-tab" data-tab="issues" onclick="window.switchPrTab('issues')">⚠️ المشاكل</button>
+                <button class="pr-tab" data-tab="time" onclick="window.switchPrTab('time')">⏱️ تحليل الوقت</button>
             </div>
 
-            <div class="embed-container-body" style="padding: 0; position: relative;">
-                <div id="iframe-zoom-wrapper">
-                    <iframe id="pr-iframe" class="iframe-container" src=""
-                        style="border:none; border-radius: 0; box-shadow: none; display:none;"></iframe>
-                </div>
-                <div id="pr-empty-state"
-                    style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--blue-grey); font-size: 1.1rem; background: var(--card-bg);"
-                    data-i18n="typeReportHere">
-                    لم يتم إضافة ملف بعد. يرجى الضغط على الأيقونة 📄 في الأعلى لتبدأ.
-                </div>
+            <div id="pr-body" style="flex:1; overflow-y:auto; padding: 24px; background:var(--bg);">
+                <div class="pr-tab-content" data-tab-content="overview"></div>
+                <div class="pr-tab-content" data-tab-content="dashboard" style="display:none;"></div>
+                <div class="pr-tab-content" data-tab-content="lead" style="display:none;"></div>
+                <div class="pr-tab-content" data-tab-content="tasks" style="display:none;"></div>
+                <div class="pr-tab-content" data-tab-content="notes" style="display:none;"></div>
+                <div class="pr-tab-content" data-tab-content="issues" style="display:none;"></div>
+                <div class="pr-tab-content" data-tab-content="time" style="display:none;"></div>
             </div>
         </div>
     </div>
@@ -2609,13 +2755,33 @@
                         <div class="checklist-input-wrap">
                             <input type="text" id="dt-new-checklist-item" data-i18n-placeholder="checkItemPlh"
                                 placeholder="إضافة خطوة فرعية..." style="flex:2; min-width:200px;">
-                            <select id="dt-new-checklist-assignee" style="flex:1; min-width:120px;">
-                                <option value="" data-i18n="assignedToPlh">-- موجه لـ --</option>
-                            </select>
                             <input type="number" id="dt-new-checklist-hours" data-i18n-placeholder="actHrsPlh"
                                 placeholder="ساعات فعلية" style="flex:1; min-width:100px;" min="0">
                             <button class="btn-main" style="padding: 10px 20px; width: auto;"
                                 onclick="addChecklistItem()" data-i18n="addBtn">إضافة</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="trello-section-title">📋 <span>تقرير الموظف على هذه المهمة</span>
+                            <span style="font-size: 0.75rem; color: var(--blue-grey); font-weight: normal; margin-inline-start: auto;">(كل موظف يكتب تقريره الخاص)</span>
+                        </div>
+                        <div id="dt-employee-reports" style="display: flex; flex-direction: column; gap: 12px;"></div>
+                    </div>
+
+                    <div>
+                        <div class="trello-section-title">⚠️ <span>المشاكل والعقبات</span>
+                            <span style="font-size: 0.75rem; color: var(--blue-grey); font-weight: normal; margin-inline-start: auto;">(سجّل أي مشكلة واجهت هذه المهمة)</span>
+                        </div>
+                        <div id="dt-issues-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
+                        <div class="checklist-input-wrap">
+                            <input type="text" id="dt-new-issue" placeholder="وصف المشكلة..." style="flex:2; min-width:200px;">
+                            <select id="dt-new-issue-severity" style="flex:1; min-width:120px; padding: 10px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text);">
+                                <option value="low">🔵 بسيطة</option>
+                                <option value="medium" selected>🟡 متوسطة</option>
+                                <option value="high">🔴 حرجة</option>
+                            </select>
+                            <button class="btn-main" style="padding: 10px 20px; width: auto;" onclick="window.addIssue()">إضافة</button>
                         </div>
                     </div>
 
@@ -2681,7 +2847,6 @@
                         <div class="time-progress-bg">
                             <div id="dt-time-progress-fill" class="time-progress-fill"></div>
                         </div>
-                        <div id="dt-time-dates" class="time-dashboard-dates"></div>
                     </div>
 
                     <label>🔗 يعتمد على (مهام يجب إنجازها أولاً):</label>
@@ -2940,9 +3105,11 @@
             notifArray.forEach(n => {
                 if (!n.read) unreadCount++;
                 const d = new Date(n.time).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const isReport = !!n.projectReport;
+                const verb = isReport ? 'حدّث تقرير المشروع' : 'ذكرك في مهمة';
                 html += `
-                <div class="notif-item ${n.read ? '' : 'unread'}" onclick="window.handleNotifClick('${n.taskId}', '${n.id}')">
-                    <div><b>${n.from}</b> ذكرك في مهمة: <span style="color:var(--intel-blue); font-weight:bold;">${n.taskName}</span></div>
+                <div class="notif-item ${n.read ? '' : 'unread'}" onclick="window.handleNotifClick('${n.taskId || ''}', '${n.id}')">
+                    <div><b>${n.from}</b> ${verb}: <span style="color:var(--intel-blue); font-weight:bold;">${n.taskName}</span></div>
                     <div class="notif-time">${d}</div>
                 </div>
             `;
@@ -2959,7 +3126,12 @@
             const { ref, update, db } = window.firebaseTools;
             update(ref(db, `users/${window.currentUserEmailSafe}/notifications/${notifId}`), { read: true });
             document.getElementById('notifications-panel').classList.remove('show');
-            if (window.allTasks[taskId]) window.openTaskDetailsModal(taskId);
+            const notif = window.allNotifications && window.allNotifications[notifId];
+            if (notif && notif.projectReport) {
+                window.openProjectReport(notif.projectReport);
+            } else if (taskId && window.allTasks[taskId]) {
+                window.openTaskDetailsModal(taskId);
+            }
         };
 
         window.clearNotifications = () => {
@@ -2986,110 +3158,731 @@
             });
         };
 
-        // --- نافذة عرض الملفات ---
-        window.openLinkInput = () => {
-            const wrapper = document.getElementById('urlWrapper');
-            const input = document.getElementById('embed-url-input');
-            wrapper.classList.add('expanded');
-            setTimeout(() => input.focus(), 50);
-        };
+        // ═══════════════════════════════════════════════════════════
+        // ╔═══════════════════════════════════════════════════════╗
+        // ║   نظام التقارير الشامل للمشاريع                       ║
+        // ║   - تحليل تلقائي لكل بيانات المشروع                   ║
+        // ║   - tabs: نظرة عامة, داشبورد, تيم ليد, تاسكات,        ║
+        // ║          ملاحظات, مشاكل, تحليل وقت                    ║
+        // ║   - تصدير Excel (multi-sheet) + PDF (احترافي)        ║
+        // ╚═══════════════════════════════════════════════════════╝
+        // ═══════════════════════════════════════════════════════════
 
-        window.closeLinkInput = () => {
-            document.getElementById('urlWrapper').classList.remove('expanded');
-        };
+        window.prCharts = {}; // مرجع الـ Chart instances لتدميرها عند الإغلاق
+        window.currentProjectReport = null;
 
-        window.handleEmbedEnter = (e) => {
-            if (e.key === 'Enter') {
-                const url = e.target.value.trim();
-                const iframe = document.getElementById('pr-iframe');
-                const emptyState = document.getElementById('pr-empty-state');
+        // ───── محلّل المشروع: يحوّل كل tasks المشروع لكائن منظّم ─────
+        window.analyzeProject = (projectName) => {
+            const tasks = Object.values(window.allTasks).filter(t => t && t.projectName === projectName);
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const dayMs = 86400000;
 
-                if (url) {
-                    iframe.src = url;
-                    iframe.style.display = 'block';
-                    emptyState.style.display = 'none';
-                } else {
-                    iframe.src = '';
-                    iframe.style.display = 'none';
-                    emptyState.style.display = 'flex';
+            const toLocalDate = (s) => {
+                if (!s) return null;
+                const p = s.split('-').map(Number);
+                if (p.length !== 3) return null;
+                return new Date(p[0], p[1] - 1, p[2]);
+            };
+
+            const a = {
+                projectName: projectName,
+                totalTasks: tasks.length,
+                statusBreakdown: { pending: 0, inprogress: 0, completed: 0, other: 0 },
+                teamBreakdown: {},
+                employeeBreakdown: {},
+                priorityBreakdown: { low: 0, medium: 0, high: 0, urgent: 0 },
+                overdueTasks: [],
+                noDeadlineTasks: [],
+                noAssigneeTasks: [],
+                hoursOverrunTasks: [],
+                completedOnTime: 0,
+                completedLate: 0,
+                criticalTasks: [],
+                totalEstHours: 0,
+                totalActHours: 0,
+                allNotes: [],
+                allComments: [],
+                allIssues: [],
+                allEmployeeReports: [],
+                tasks: tasks,
+                projectStart: null,
+                projectEnd: null,
+                avgCompletionDays: 0
+            };
+
+            let completionDaysTotal = 0;
+            let completionDaysCount = 0;
+
+            tasks.forEach(t => {
+                // Status
+                if (a.statusBreakdown[t.status] !== undefined) a.statusBreakdown[t.status]++;
+                else a.statusBreakdown.other++;
+
+                // Priority
+                const pri = t.priority || 'low';
+                if (a.priorityBreakdown[pri] !== undefined) a.priorityBreakdown[pri]++;
+
+                // Team
+                const tm = t.team || 'بدون قسم';
+                a.teamBreakdown[tm] = (a.teamBreakdown[tm] || 0) + 1;
+
+                // Assignees
+                const assignees = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+                if (assignees.length === 0) a.noAssigneeTasks.push(t);
+                assignees.forEach(emp => {
+                    if (!a.employeeBreakdown[emp]) a.employeeBreakdown[emp] = { name: emp, tasks: 0, estHours: 0, actHours: 0, completed: 0 };
+                    a.employeeBreakdown[emp].tasks++;
+                    a.employeeBreakdown[emp].estHours += (t.estHours || 0) / assignees.length;
+                    if (t.status === 'completed') a.employeeBreakdown[emp].completed++;
+                });
+
+                // Hours
+                a.totalEstHours += (t.estHours || 0);
+                let taskActHours = 0;
+                if (t.checklist) {
+                    Object.values(t.checklist).forEach(it => {
+                        taskActHours += parseFloat(it.actualHours) || 0;
+                        // Notes
+                        if (it.note) {
+                            a.allNotes.push({
+                                taskTitle: t.title,
+                                taskId: t._id,
+                                checklistText: it.text || '',
+                                note: it.note,
+                                by: it.noteBy || '-',
+                                time: it.noteTime || 0
+                            });
+                        }
+                    });
                 }
-                window.closeLinkInput();
-                window.saveProjectReport();
+                a.totalActHours += taskActHours;
+
+                // Hours overrun
+                if (t.estHours && taskActHours > t.estHours) {
+                    a.hoursOverrunTasks.push({
+                        ...t, actHours: taskActHours,
+                        overrun: taskActHours - t.estHours,
+                        overrunPct: Math.round(((taskActHours - t.estHours) / t.estHours) * 100)
+                    });
+                }
+                assignees.forEach(emp => { if (a.employeeBreakdown[emp]) a.employeeBreakdown[emp].actHours += taskActHours / assignees.length; });
+
+                // Deadline analysis
+                if (!t.dueDate) a.noDeadlineTasks.push(t);
+                else {
+                    const due = toLocalDate(t.dueDate);
+                    if (due && t.status !== 'completed' && due < today) {
+                        a.overdueTasks.push({ ...t, daysOverdue: Math.round((today - due) / dayMs) });
+                    }
+                    if (t.completedAt) {
+                        const compDate = new Date(t.completedAt); compDate.setHours(0, 0, 0, 0);
+                        if (due) {
+                            if (compDate <= due) a.completedOnTime++;
+                            else a.completedLate++;
+                        }
+                        const start = t.startDate ? toLocalDate(t.startDate) : (t.createdAt ? new Date(t.createdAt) : null);
+                        if (start) {
+                            start.setHours(0, 0, 0, 0);
+                            completionDaysTotal += (compDate - start) / dayMs;
+                            completionDaysCount++;
+                        }
+                    }
+                }
+
+                // Critical
+                if ((pri === 'high' || pri === 'urgent') && t.status !== 'completed') {
+                    const due = toLocalDate(t.dueDate);
+                    if (!due || due < today || (due - today) / dayMs <= 3) a.criticalTasks.push(t);
+                }
+
+                // Comments
+                if (t.comments) {
+                    Object.values(t.comments).forEach(c => {
+                        a.allComments.push({ taskTitle: t.title, taskId: t._id, text: c.text || '', user: c.user || '-', time: c.time || 0 });
+                    });
+                }
+
+                // Issues
+                if (t.issues) {
+                    Object.values(t.issues).forEach(iss => {
+                        a.allIssues.push({ taskTitle: t.title, taskId: t._id, ...iss });
+                    });
+                }
+
+                // Employee reports
+                if (t.employeeReports) {
+                    Object.values(t.employeeReports).forEach(er => {
+                        if (er.text) a.allEmployeeReports.push({ taskTitle: t.title, taskId: t._id, ...er });
+                    });
+                }
+
+                // Project span
+                const s = t.startDate ? toLocalDate(t.startDate) : null;
+                const e = t.dueDate ? toLocalDate(t.dueDate) : null;
+                if (s && (!a.projectStart || s < a.projectStart)) a.projectStart = s;
+                if (e && (!a.projectEnd || e > a.projectEnd)) a.projectEnd = e;
+            });
+
+            a.avgCompletionDays = completionDaysCount > 0 ? Math.round(completionDaysTotal / completionDaysCount) : 0;
+            a.completionRate = a.totalTasks > 0 ? Math.round((a.statusBreakdown.completed / a.totalTasks) * 100) : 0;
+            a.hoursVariance = a.totalActHours - a.totalEstHours;
+
+            // Project timeline progress
+            if (a.projectStart && a.projectEnd) {
+                const totalDays = Math.max(1, Math.round((a.projectEnd - a.projectStart) / dayMs));
+                const elapsedDays = Math.max(0, Math.round((today - a.projectStart) / dayMs));
+                a.timePct = Math.round(Math.min(100, (elapsedDays / totalDays) * 100));
+                a.daysLeft = Math.round((a.projectEnd - today) / dayMs);
+                a.totalProjectDays = totalDays;
             }
+
+            return a;
         };
 
-        window.openEmbedExternal = () => {
-            const url = document.getElementById('embed-url-input').value.trim();
-            if (url) window.open(url, '_blank');
-            else alert("يرجى إدخال وحفظ رابط أولاً.");
-        };
-
-        window.zoomIframe = (step) => {
-            window.currentZoom += step;
-            if (window.currentZoom < 0.5) window.currentZoom = 0.5;
-            if (window.currentZoom > 3) window.currentZoom = 3;
-
-            const wrapper = document.getElementById('iframe-zoom-wrapper');
-            wrapper.style.transform = `scale(${window.currentZoom})`;
-            wrapper.style.width = `${100 / window.currentZoom}%`;
-            wrapper.style.height = `${100 / window.currentZoom}%`;
-        };
-
+        // ───── فتح المودال ─────
         window.openProjectReport = (projectName) => {
+            const a = window.analyzeProject(projectName);
+            window.currentProjectReport = a;
             const safeKey = sanitizeProjName(projectName);
-            const reportData = window.allProjectReports[safeKey];
+            const reportData = window.allProjectReports[safeKey] || {};
 
             document.getElementById('pr-project-name').innerText = projectName;
             document.getElementById('pr-project-name').setAttribute('data-raw-name', projectName);
+            document.getElementById('pr-task-count').innerText = a.totalTasks;
+            document.getElementById('pr-last-updated').innerText = reportData.lastUpdatedAt
+                ? new Date(reportData.lastUpdatedAt).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                : '—';
 
-            const urlInput = document.getElementById('embed-url-input');
-            const iframe = document.getElementById('pr-iframe');
-            const emptyState = document.getElementById('pr-empty-state');
-            const wrapper = document.getElementById('urlWrapper');
+            // Render all tabs upfront (faster switching, easier PDF capture)
+            window.renderPrOverview(a);
+            window.renderPrDashboard(a);
+            window.renderPrLeadReport(a, reportData);
+            window.renderPrTasks(a);
+            window.renderPrNotes(a);
+            window.renderPrIssues(a);
+            window.renderPrTime(a);
 
-            window.currentZoom = 1;
-            const zoomWrapper = document.getElementById('iframe-zoom-wrapper');
-            zoomWrapper.style.transform = `scale(1)`;
-            zoomWrapper.style.width = `100%`;
-            zoomWrapper.style.height = `100%`;
-
-            wrapper.classList.remove('expanded');
-
-            if (reportData && reportData.embedUrl) {
-                urlInput.value = reportData.embedUrl;
-                iframe.src = reportData.embedUrl;
-                iframe.style.display = 'block';
-                emptyState.style.display = 'none';
-                const d = new Date(reportData.lastUpdatedAt).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                document.getElementById('pr-last-updated').innerText = `${d}`;
-            } else {
-                urlInput.value = '';
-                iframe.src = '';
-                iframe.style.display = 'none';
-                emptyState.style.display = 'flex';
-                document.getElementById('pr-last-updated').innerText = '-';
-            }
-
+            window.switchPrTab('overview');
             document.getElementById('projectReportModal').classList.add('active');
         };
 
         window.closeProjectReport = () => {
-            const modal = document.getElementById('projectReportModal');
-            modal.classList.remove('active');
-            document.getElementById('pr-iframe').src = '';
+            document.getElementById('projectReportModal').classList.remove('active');
+            Object.keys(window.prCharts).forEach(k => { try { window.prCharts[k].destroy(); } catch (e) {} });
+            window.prCharts = {};
+            const menu = document.getElementById('pr-export-menu');
+            if (menu) menu.style.display = 'none';
         };
 
-        window.saveProjectReport = () => {
-            const rawName = document.getElementById('pr-project-name').getAttribute('data-raw-name');
-            const safeKey = sanitizeProjName(rawName);
-            const embedUrl = document.getElementById('embed-url-input').value.trim();
-            const { ref, update, db } = window.firebaseTools;
+        window.switchPrTab = (tabName) => {
+            document.querySelectorAll('.pr-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+            document.querySelectorAll('.pr-tab-content').forEach(c => c.style.display = c.dataset.tabContent === tabName ? 'block' : 'none');
+        };
 
-            update(ref(db, `projectReports/${safeKey}`), {
-                embedUrl: embedUrl,
+        window.togglePrExportMenu = (e) => {
+            e.stopPropagation();
+            const menu = document.getElementById('pr-export-menu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+            const closeFn = (ev) => { if (!ev.target.closest('#pr-export-menu') && !ev.target.closest('#pr-export-btn')) { menu.style.display = 'none'; document.removeEventListener('click', closeFn); } };
+            setTimeout(() => document.addEventListener('click', closeFn), 10);
+        };
+
+        const escapeHtml = (s) => (s == null ? '' : String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'));
+
+        // ───── Tab 1: نظرة عامة ─────
+        window.renderPrOverview = (a) => {
+            const el = document.querySelector('[data-tab-content="overview"]');
+            const fmt = (d) => d ? d.toLocaleDateString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+            const timeBar = (a.timePct != null) ? `
+                <div class="pr-section">
+                    <div class="pr-section-title">⏳ الجدول الزمني للمشروع</div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.82rem; color:var(--blue-grey); margin-bottom:6px;">
+                        <span>البداية: <b style="color:var(--text);">${fmt(a.projectStart)}</b></span>
+                        <span>${a.daysLeft >= 0 ? `متبقي <b style="color:var(--accent);">${a.daysLeft} يوم</b>` : `متأخر <b style="color:var(--red-danger);">${Math.abs(a.daysLeft)} يوم</b>`}</span>
+                        <span>التسليم: <b style="color:var(--text);">${fmt(a.projectEnd)}</b></span>
+                    </div>
+                    <div style="background:var(--bg); height:14px; border-radius:7px; overflow:hidden; border:1px solid var(--border);">
+                        <div style="width:${a.timePct}%; height:100%; background:linear-gradient(90deg, var(--accent), var(--intel-blue)); transition:0.3s;"></div>
+                    </div>
+                    <div style="text-align:center; margin-top:8px; font-size:0.8rem; color:var(--blue-grey);">انقضى <b style="color:var(--text);">${a.timePct}%</b> من المدة الكلية (${a.totalProjectDays} يوم)</div>
+                </div>` : '';
+
+            el.innerHTML = `
+                <div class="pr-kpi-grid">
+                    <div class="pr-kpi"><div class="pr-kpi-lbl">إجمالي المهام</div><div class="pr-kpi-val">${a.totalTasks}</div><div class="pr-kpi-sub">في هذا المشروع</div></div>
+                    <div class="pr-kpi success"><div class="pr-kpi-lbl">مكتملة</div><div class="pr-kpi-val">${a.statusBreakdown.completed}</div><div class="pr-kpi-sub">${a.completionRate}% من الإجمالي</div></div>
+                    <div class="pr-kpi"><div class="pr-kpi-lbl">قيد التنفيذ</div><div class="pr-kpi-val">${a.statusBreakdown.inprogress}</div><div class="pr-kpi-sub">يعمل عليها الفريق</div></div>
+                    <div class="pr-kpi warn"><div class="pr-kpi-lbl">انتظار</div><div class="pr-kpi-val">${a.statusBreakdown.pending}</div><div class="pr-kpi-sub">لم تبدأ بعد</div></div>
+                    <div class="pr-kpi danger"><div class="pr-kpi-lbl">متأخرة</div><div class="pr-kpi-val">${a.overdueTasks.length}</div><div class="pr-kpi-sub">تجاوزت تاريخ التسليم</div></div>
+                    <div class="pr-kpi danger"><div class="pr-kpi-lbl">حرجة</div><div class="pr-kpi-val">${a.criticalTasks.length}</div><div class="pr-kpi-sub">أولوية عالية / عاجلة</div></div>
+                    <div class="pr-kpi"><div class="pr-kpi-lbl">ساعات مخططة</div><div class="pr-kpi-val">${a.totalEstHours}</div><div class="pr-kpi-sub">تقدير ساعات العمل</div></div>
+                    <div class="pr-kpi ${a.hoursVariance > 0 ? 'danger' : 'success'}"><div class="pr-kpi-lbl">ساعات فعلية</div><div class="pr-kpi-val">${a.totalActHours.toFixed(1)}</div><div class="pr-kpi-sub">${a.hoursVariance > 0 ? '+' : ''}${a.hoursVariance.toFixed(1)} عن المخطط</div></div>
+                </div>
+                ${timeBar}
+                <div class="pr-section">
+                    <div class="pr-section-title">⚡ تنبيهات</div>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px;">
+                        ${a.overdueTasks.length > 0 ? `<div style="padding:12px; background:rgba(248,113,113,0.1); border-inline-start:3px solid var(--red-danger); border-radius:8px; font-size:0.85rem;">🔴 <b>${a.overdueTasks.length}</b> مهمة متأخرة</div>` : ''}
+                        ${a.hoursOverrunTasks.length > 0 ? `<div style="padding:12px; background:rgba(251,191,36,0.1); border-inline-start:3px solid var(--amber); border-radius:8px; font-size:0.85rem;">🟡 <b>${a.hoursOverrunTasks.length}</b> مهمة تجاوزت الساعات المخططة</div>` : ''}
+                        ${a.noAssigneeTasks.length > 0 ? `<div style="padding:12px; background:rgba(136,207,253,0.1); border-inline-start:3px solid var(--intel-blue); border-radius:8px; font-size:0.85rem;">⚪ <b>${a.noAssigneeTasks.length}</b> مهمة بدون مسؤول</div>` : ''}
+                        ${a.noDeadlineTasks.length > 0 ? `<div style="padding:12px; background:rgba(136,207,253,0.1); border-inline-start:3px solid var(--intel-blue); border-radius:8px; font-size:0.85rem;">📅 <b>${a.noDeadlineTasks.length}</b> مهمة بدون تاريخ تسليم</div>` : ''}
+                        ${a.allIssues.length > 0 ? `<div style="padding:12px; background:rgba(248,113,113,0.1); border-inline-start:3px solid var(--red-danger); border-radius:8px; font-size:0.85rem;">⚠️ <b>${a.allIssues.length}</b> مشكلة مسجّلة</div>` : ''}
+                        ${a.overdueTasks.length === 0 && a.hoursOverrunTasks.length === 0 && a.allIssues.length === 0 ? `<div style="padding:12px; background:rgba(74,222,128,0.1); border-inline-start:3px solid var(--green-success); border-radius:8px; font-size:0.85rem;">✅ المشروع يسير بشكل ممتاز — لا توجد تنبيهات</div>` : ''}
+                    </div>
+                </div>`;
+        };
+
+        // ───── Tab 2: داشبورد (Chart.js) ─────
+        window.renderPrDashboard = (a) => {
+            const el = document.querySelector('[data-tab-content="dashboard"]');
+            el.innerHTML = `
+                <div class="pr-chart-grid">
+                    <div class="pr-chart-card"><h4>📊 توزيع حالات المهام</h4><div class="pr-chart-canvas-wrap"><canvas id="pr-chart-status"></canvas></div></div>
+                    <div class="pr-chart-card"><h4>👥 التوزيع حسب القسم</h4><div class="pr-chart-canvas-wrap"><canvas id="pr-chart-team"></canvas></div></div>
+                    <div class="pr-chart-card"><h4>🎯 توزيع الأولوية</h4><div class="pr-chart-canvas-wrap"><canvas id="pr-chart-priority"></canvas></div></div>
+                    <div class="pr-chart-card"><h4>⏱️ مقارنة الساعات (مخطط vs فعلي)</h4><div class="pr-chart-canvas-wrap"><canvas id="pr-chart-hours"></canvas></div></div>
+                </div>`;
+
+            // Destroy old charts first
+            ['status', 'team', 'priority', 'hours'].forEach(k => { if (window.prCharts[k]) { try { window.prCharts[k].destroy(); } catch (e) {} } });
+
+            setTimeout(() => {
+                const textColor = getComputedStyle(document.body).getPropertyValue('--text').trim() || '#fff';
+                const baseOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: textColor, font: { size: 11 } } }, datalabels: { color: textColor, font: { weight: 'bold', size: 11 } } } };
+
+                // Status
+                window.prCharts.status = new Chart(document.getElementById('pr-chart-status'), {
+                    type: 'doughnut',
+                    data: { labels: ['انتظار', 'تنفيذ', 'مكتملة', 'أخرى'], datasets: [{ data: [a.statusBreakdown.pending, a.statusBreakdown.inprogress, a.statusBreakdown.completed, a.statusBreakdown.other], backgroundColor: ['#88cffd', '#fbbf24', '#4ade80', '#94a3b8'], borderWidth: 0 }] },
+                    options: baseOpts
+                });
+
+                // Team
+                const teamLbls = Object.keys(a.teamBreakdown);
+                window.prCharts.team = new Chart(document.getElementById('pr-chart-team'), {
+                    type: 'bar',
+                    data: { labels: teamLbls, datasets: [{ label: 'عدد المهام', data: teamLbls.map(k => a.teamBreakdown[k]), backgroundColor: '#3ba4fe', borderRadius: 6 }] },
+                    options: { ...baseOpts, scales: { y: { ticks: { color: textColor }, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { ticks: { color: textColor }, grid: { display: false } } }, plugins: { ...baseOpts.plugins, legend: { display: false } } }
+                });
+
+                // Priority
+                window.prCharts.priority = new Chart(document.getElementById('pr-chart-priority'), {
+                    type: 'doughnut',
+                    data: { labels: ['عادي', 'متوسط', 'هام', 'عاجل'], datasets: [{ data: [a.priorityBreakdown.low, a.priorityBreakdown.medium, a.priorityBreakdown.high, a.priorityBreakdown.urgent], backgroundColor: ['#3b82f6', '#fbbf24', '#fb923c', '#dc2626'], borderWidth: 0 }] },
+                    options: baseOpts
+                });
+
+                // Hours
+                window.prCharts.hours = new Chart(document.getElementById('pr-chart-hours'), {
+                    type: 'bar',
+                    data: { labels: ['مخطط', 'فعلي'], datasets: [{ data: [a.totalEstHours, a.totalActHours], backgroundColor: ['#3ba4fe', a.hoursVariance > 0 ? '#dc2626' : '#4ade80'], borderRadius: 6 }] },
+                    options: { ...baseOpts, scales: { y: { ticks: { color: textColor }, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { ticks: { color: textColor }, grid: { display: false } } }, plugins: { ...baseOpts.plugins, legend: { display: false } } }
+                });
+            }, 100);
+        };
+
+        // ───── Tab 3: تقرير التيم ليد ─────
+        window.renderPrLeadReport = (a, reportData) => {
+            const el = document.querySelector('[data-tab-content="lead"]');
+            const canEdit = window.isManager || window.isTeamLead;
+            const txt = reportData.leadReport || '';
+            const summary = reportData.leadSummary || '';
+            const achievements = reportData.leadAchievements || '';
+            const challenges = reportData.leadChallenges || '';
+            const recommendations = reportData.leadRecommendations || '';
+            const updatedBy = reportData.lastUpdatedBy || '—';
+            const updatedAt = reportData.lastUpdatedAt ? new Date(reportData.lastUpdatedAt).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+
+            el.innerHTML = `
+                <div class="pr-section">
+                    <div class="pr-section-title">👤 تقرير التيم ليد على المشروع</div>
+                    ${!canEdit ? '<div style="padding:10px; background:rgba(136,207,253,0.08); border-radius:8px; font-size:0.8rem; color:var(--blue-grey); margin-bottom:14px;">🔒 هذا التقرير للقراءة فقط — يكتبه التيم ليد أو المدير.</div>' : ''}
+
+                    <label style="display:block; margin-bottom:6px; font-size:0.85rem; color:var(--blue-grey);">📌 الملخص التنفيذي</label>
+                    <textarea id="pr-lead-summary" ${canEdit ? '' : 'disabled'} placeholder="نظرة عامة موجزة على المشروع..." style="width:100%; min-height:70px; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:0.85rem; resize:vertical; margin-bottom:14px;">${escapeHtml(summary)}</textarea>
+
+                    <label style="display:block; margin-bottom:6px; font-size:0.85rem; color:var(--blue-grey);">✅ الإنجازات الرئيسية</label>
+                    <textarea id="pr-lead-achievements" ${canEdit ? '' : 'disabled'} placeholder="أهم ما تحقق خلال هذه الفترة..." style="width:100%; min-height:70px; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:0.85rem; resize:vertical; margin-bottom:14px;">${escapeHtml(achievements)}</textarea>
+
+                    <label style="display:block; margin-bottom:6px; font-size:0.85rem; color:var(--blue-grey);">⚠️ التحديات والعقبات</label>
+                    <textarea id="pr-lead-challenges" ${canEdit ? '' : 'disabled'} placeholder="المشاكل التي واجهها الفريق..." style="width:100%; min-height:70px; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:0.85rem; resize:vertical; margin-bottom:14px;">${escapeHtml(challenges)}</textarea>
+
+                    <label style="display:block; margin-bottom:6px; font-size:0.85rem; color:var(--blue-grey);">💡 التوصيات والخطوات القادمة</label>
+                    <textarea id="pr-lead-recommendations" ${canEdit ? '' : 'disabled'} placeholder="ما هو المطلوب في الفترة القادمة..." style="width:100%; min-height:70px; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:0.85rem; resize:vertical; margin-bottom:14px;">${escapeHtml(recommendations)}</textarea>
+
+                    <label style="display:block; margin-bottom:6px; font-size:0.85rem; color:var(--blue-grey);">📝 ملاحظات إضافية</label>
+                    <textarea id="pr-lead-general" ${canEdit ? '' : 'disabled'} placeholder="أي معلومات أخرى..." style="width:100%; min-height:60px; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:0.85rem; resize:vertical; margin-bottom:14px;">${escapeHtml(txt)}</textarea>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                        <div style="font-size:0.75rem; color:var(--blue-grey);">آخر تعديل: <b style="color:var(--text);">${updatedBy}</b> · ${updatedAt}</div>
+                        ${canEdit ? '<button class="btn-main" style="padding:10px 24px; font-size:0.85rem;" onclick="window.saveLeadReport()">💾 حفظ وإشعار الفريق</button>' : ''}
+                    </div>
+                </div>`;
+        };
+
+        window.saveLeadReport = () => {
+            const a = window.currentProjectReport;
+            if (!a) return;
+            const safeKey = sanitizeProjName(a.projectName);
+            const { ref, update, push, db } = window.firebaseTools;
+
+            const payload = {
+                leadSummary: document.getElementById('pr-lead-summary').value.trim(),
+                leadAchievements: document.getElementById('pr-lead-achievements').value.trim(),
+                leadChallenges: document.getElementById('pr-lead-challenges').value.trim(),
+                leadRecommendations: document.getElementById('pr-lead-recommendations').value.trim(),
+                leadReport: document.getElementById('pr-lead-general').value.trim(),
                 lastUpdatedBy: window.currentUserName,
                 lastUpdatedAt: Date.now()
-            }).catch(err => console.log(err));
+            };
+
+            update(ref(db, `projectReports/${safeKey}`), payload).then(() => {
+                // إشعار كل أعضاء المشروع
+                const members = new Set();
+                a.tasks.forEach(t => {
+                    const assignees = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+                    assignees.forEach(n => members.add(n));
+                });
+
+                // تحويل الأسماء لـ emailKeys
+                const emailKeys = [];
+                for (let email in window.whitelist) {
+                    if (members.has(window.whitelist[email].name)) emailKeys.push(sanitizeEmail(email));
+                }
+
+                emailKeys.forEach(ek => {
+                    if (ek === window.currentUserEmailSafe) return;
+                    push(ref(db, `users/${ek}/notifications`), {
+                        from: window.currentUserName,
+                        taskId: '',
+                        taskName: `📊 تقرير جديد على مشروع: ${a.projectName}`,
+                        time: Date.now(),
+                        read: false,
+                        projectReport: a.projectName
+                    });
+                });
+
+                alert(`✅ تم حفظ التقرير وإرسال إشعار لـ ${emailKeys.length} موظف.`);
+            }).catch(err => alert('خطأ في الحفظ: ' + err.message));
+        };
+
+        // ───── Tab 4: تفاصيل التاسكات ─────
+        window.renderPrTasks = (a) => {
+            const el = document.querySelector('[data-tab-content="tasks"]');
+            const statusBadge = (s) => {
+                const map = { pending: ['انتظار', 'pending'], inprogress: ['تنفيذ', 'inprogress'], completed: ['مكتمل', 'completed'] };
+                const m = map[s] || [s || '-', 'pending'];
+                return `<span class="pr-badge ${m[1]}">${m[0]}</span>`;
+            };
+            const priIcon = (p) => ({ low: '🔵', medium: '🟡', high: '🟠', urgent: '🔴' }[p || 'low']);
+
+            let rows = '';
+            a.tasks.forEach(t => {
+                const assignees = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+                const actHours = t.checklist ? Object.values(t.checklist).reduce((s, it) => s + (parseFloat(it.actualHours) || 0), 0) : 0;
+                const overrunHtml = (t.estHours && actHours > t.estHours) ? ` <span style="color:var(--red-danger); font-size:0.7rem;">▲${(actHours - t.estHours).toFixed(1)}</span>` : '';
+                const today = new Date(); today.setHours(0, 0, 0, 0);
+                const dueDateObj = t.dueDate ? new Date(t.dueDate) : null;
+                const isOverdue = dueDateObj && t.status !== 'completed' && dueDateObj < today;
+                rows += `
+                    <tr>
+                        <td><b>${escapeHtml(t.title)}</b><div style="font-size:0.7rem; color:var(--blue-grey); margin-top:3px;">${escapeHtml(t.team || '-')}</div></td>
+                        <td>${assignees.length > 0 ? assignees.map(e => escapeHtml(e)).join('<br>') : '<span style="color:var(--blue-grey);">—</span>'}</td>
+                        <td>${statusBadge(t.status)}</td>
+                        <td>${priIcon(t.priority)}</td>
+                        <td>${t.startDate || '—'}</td>
+                        <td>${t.dueDate ? `<span style="${isOverdue ? 'color:var(--red-danger); font-weight:600;' : ''}">${t.dueDate}</span>` : '—'}</td>
+                        <td>${t.estHours || 0}</td>
+                        <td>${actHours.toFixed(1)}${overrunHtml}</td>
+                    </tr>`;
+            });
+
+            let empReportsHtml = '';
+            if (a.allEmployeeReports.length > 0) {
+                empReportsHtml = `
+                <div class="pr-section">
+                    <div class="pr-section-title">📋 تقارير الموظفين على المهام (${a.allEmployeeReports.length})</div>
+                    ${a.allEmployeeReports.map(r => `
+                        <div style="border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:10px; background:var(--bg);">
+                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; font-size:0.8rem;">
+                                <span><b style="color:var(--accent);">${escapeHtml(r.empName || '-')}</b> · على مهمة: <span style="color:var(--text);">${escapeHtml(r.taskTitle)}</span></span>
+                                <span style="color:var(--blue-grey); font-size:0.7rem;">${r.updatedAt ? new Date(r.updatedAt).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' }) : ''}</span>
+                            </div>
+                            <div style="font-size:0.85rem; color:var(--text); white-space:pre-wrap; line-height:1.5;">${escapeHtml(r.text)}</div>
+                        </div>`).join('')}
+                </div>`;
+            }
+
+            el.innerHTML = `
+                <div class="pr-section">
+                    <div class="pr-section-title">✅ جدول التاسكات (${a.totalTasks})</div>
+                    <div style="overflow-x:auto;">
+                        <table class="pr-table">
+                            <thead><tr><th>المهمة</th><th>المسؤول</th><th>الحالة</th><th>أولوية</th><th>البداية</th><th>التسليم</th><th>مخطط</th><th>فعلي</th></tr></thead>
+                            <tbody>${rows || '<tr><td colspan="8" style="text-align:center; color:var(--blue-grey);">لا توجد مهام</td></tr>'}</tbody>
+                        </table>
+                    </div>
+                </div>
+                ${empReportsHtml}`;
+        };
+
+        // ───── Tab 5: الملاحظات والتعليقات ─────
+        window.renderPrNotes = (a) => {
+            const el = document.querySelector('[data-tab-content="notes"]');
+            const notesHtml = a.allNotes.length === 0 ? '<div style="color:var(--blue-grey); padding:20px; text-align:center;">لا توجد ملاحظات</div>' :
+                a.allNotes.map(n => `
+                    <div style="padding:12px; background:var(--bg); border-radius:8px; margin-bottom:8px; border-inline-start:3px solid var(--amber);">
+                        <div style="font-size:0.75rem; color:var(--blue-grey); margin-bottom:4px;">📋 <b style="color:var(--text);">${escapeHtml(n.taskTitle)}</b> → ${escapeHtml(n.checklistText)}</div>
+                        <div style="font-size:0.85rem; color:var(--text);"><b style="color:var(--accent);">${escapeHtml(n.by)}:</b> ${escapeHtml(n.note)}</div>
+                    </div>`).join('');
+
+            const commentsHtml = a.allComments.length === 0 ? '<div style="color:var(--blue-grey); padding:20px; text-align:center;">لا توجد تعليقات</div>' :
+                a.allComments.sort((x, y) => (y.time || 0) - (x.time || 0)).map(c => `
+                    <div style="padding:12px; background:var(--bg); border-radius:8px; margin-bottom:8px; border-inline-start:3px solid var(--intel-blue);">
+                        <div style="font-size:0.75rem; color:var(--blue-grey); margin-bottom:4px;">💬 على: <b style="color:var(--text);">${escapeHtml(c.taskTitle)}</b> · ${c.time ? new Date(c.time).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}</div>
+                        <div style="font-size:0.85rem; color:var(--text);"><b style="color:var(--accent);">${escapeHtml(c.user)}:</b> ${escapeHtml(c.text)}</div>
+                    </div>`).join('');
+
+            el.innerHTML = `
+                <div class="pr-section">
+                    <div class="pr-section-title">📝 ملاحظات الـ Checklist (${a.allNotes.length})</div>
+                    ${notesHtml}
+                </div>
+                <div class="pr-section">
+                    <div class="pr-section-title">💬 التعليقات الميدانية (${a.allComments.length})</div>
+                    ${commentsHtml}
+                </div>`;
+        };
+
+        // ───── Tab 6: المشاكل ─────
+        window.renderPrIssues = (a) => {
+            const el = document.querySelector('[data-tab-content="issues"]');
+            const sevColor = (s) => s === 'high' ? 'var(--red-danger)' : (s === 'medium' ? 'var(--amber)' : 'var(--intel-blue)');
+            const sevLabel = (s) => s === 'high' ? '🔴 حرجة' : (s === 'medium' ? '🟡 متوسطة' : '🔵 بسيطة');
+
+            const overdueHtml = a.overdueTasks.length === 0 ? '<div style="color:var(--blue-grey); padding:14px; text-align:center;">✅ لا توجد مهام متأخرة</div>' : `
+                <table class="pr-table"><thead><tr><th>المهمة</th><th>المسؤول</th><th>التسليم</th><th>التأخر</th></tr></thead><tbody>
+                ${a.overdueTasks.map(t => {
+                    const assignees = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+                    return `<tr><td><b>${escapeHtml(t.title)}</b></td><td>${assignees.join(', ') || '-'}</td><td>${t.dueDate}</td><td style="color:var(--red-danger); font-weight:700;">${t.daysOverdue} يوم</td></tr>`;
+                }).join('')}
+                </tbody></table>`;
+
+            const issuesHtml = a.allIssues.length === 0 ? '<div style="color:var(--blue-grey); padding:14px; text-align:center;">✅ لم تُسجّل أي مشكلة</div>' :
+                a.allIssues.sort((x, y) => (y.time || 0) - (x.time || 0)).map(iss => `
+                    <div style="padding:12px; background:var(--bg); border-radius:8px; margin-bottom:8px; border-inline-start:3px solid ${sevColor(iss.severity)};">
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--blue-grey); margin-bottom:4px;">
+                            <span>على: <b style="color:var(--text);">${escapeHtml(iss.taskTitle)}</b></span>
+                            <span style="color:${sevColor(iss.severity)}; font-weight:600;">${sevLabel(iss.severity)}</span>
+                        </div>
+                        <div style="font-size:0.85rem; color:var(--text); margin-bottom:4px;">${escapeHtml(iss.text)}</div>
+                        <div style="font-size:0.7rem; color:var(--blue-grey);">سجّلها <b>${escapeHtml(iss.by || '-')}</b> · ${iss.time ? new Date(iss.time).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' }) : ''}</div>
+                    </div>`).join('');
+
+            el.innerHTML = `
+                <div class="pr-section">
+                    <div class="pr-section-title">🔴 المهام المتأخرة (${a.overdueTasks.length})</div>
+                    ${overdueHtml}
+                </div>
+                <div class="pr-section">
+                    <div class="pr-section-title">⚠️ المشاكل المسجّلة (${a.allIssues.length})</div>
+                    ${issuesHtml}
+                </div>`;
+        };
+
+        // ───── Tab 7: تحليل الوقت ─────
+        window.renderPrTime = (a) => {
+            const el = document.querySelector('[data-tab-content="time"]');
+
+            const overrunRows = a.hoursOverrunTasks.length === 0 ? '<tr><td colspan="5" style="text-align:center; color:var(--green-success); padding:14px;">✅ لا توجد مهام تجاوزت ساعاتها المخططة</td></tr>' :
+                a.hoursOverrunTasks.sort((x, y) => y.overrun - x.overrun).map(t => `
+                    <tr>
+                        <td><b>${escapeHtml(t.title)}</b></td>
+                        <td>${(t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : []).join(', ') || '-'}</td>
+                        <td>${t.estHours}</td>
+                        <td style="color:var(--red-danger); font-weight:700;">${t.actHours.toFixed(1)}</td>
+                        <td style="color:var(--red-danger);">+${t.overrun.toFixed(1)} (${t.overrunPct}%)</td>
+                    </tr>`).join('');
+
+            const empRows = Object.values(a.employeeBreakdown).sort((x, y) => y.actHours - x.actHours).map(e => `
+                <tr>
+                    <td><b>${escapeHtml(e.name)}</b></td>
+                    <td>${e.tasks}</td>
+                    <td>${e.completed}/${e.tasks}</td>
+                    <td>${e.estHours.toFixed(1)}</td>
+                    <td>${e.actHours.toFixed(1)}</td>
+                    <td>${e.tasks > 0 ? Math.round((e.completed / e.tasks) * 100) : 0}%</td>
+                </tr>`).join('') || '<tr><td colspan="6" style="text-align:center; color:var(--blue-grey);">لا توجد بيانات</td></tr>';
+
+            el.innerHTML = `
+                <div class="pr-kpi-grid">
+                    <div class="pr-kpi"><div class="pr-kpi-lbl">إجمالي مخطط</div><div class="pr-kpi-val">${a.totalEstHours}</div><div class="pr-kpi-sub">ساعة</div></div>
+                    <div class="pr-kpi ${a.hoursVariance > 0 ? 'danger' : 'success'}"><div class="pr-kpi-lbl">إجمالي فعلي</div><div class="pr-kpi-val">${a.totalActHours.toFixed(1)}</div><div class="pr-kpi-sub">ساعة</div></div>
+                    <div class="pr-kpi success"><div class="pr-kpi-lbl">سُلِّمت في موعدها</div><div class="pr-kpi-val">${a.completedOnTime}</div></div>
+                    <div class="pr-kpi danger"><div class="pr-kpi-lbl">سُلِّمت متأخرة</div><div class="pr-kpi-val">${a.completedLate}</div></div>
+                    <div class="pr-kpi"><div class="pr-kpi-lbl">متوسط مدة الإنجاز</div><div class="pr-kpi-val">${a.avgCompletionDays}</div><div class="pr-kpi-sub">يوم</div></div>
+                </div>
+                <div class="pr-section">
+                    <div class="pr-section-title">⚠️ مهام تجاوزت الساعات المخططة (${a.hoursOverrunTasks.length})</div>
+                    <table class="pr-table"><thead><tr><th>المهمة</th><th>المسؤول</th><th>مخطط</th><th>فعلي</th><th>الزيادة</th></tr></thead><tbody>${overrunRows}</tbody></table>
+                </div>
+                <div class="pr-section">
+                    <div class="pr-section-title">👥 توزيع العمل على الموظفين</div>
+                    <table class="pr-table"><thead><tr><th>الموظف</th><th>المهام</th><th>مكتمل/إجمالي</th><th>ساعات مخططة</th><th>ساعات فعلية</th><th>معدل الإنجاز</th></tr></thead><tbody>${empRows}</tbody></table>
+                </div>`;
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // تصدير Excel — متعدد الـ Sheets
+        // ═══════════════════════════════════════════════════════════
+        window.exportProjectExcel = () => {
+            const a = window.currentProjectReport;
+            if (!a) return alert('لا يوجد تقرير محمّل');
+            if (typeof XLSX === 'undefined') return alert('XLSX library not loaded');
+
+            const safeKey = sanitizeProjName(a.projectName);
+            const reportData = window.allProjectReports[safeKey] || {};
+            const wb = XLSX.utils.book_new();
+
+            // Sheet 1: Overview
+            const overview = [
+                ['تقرير المشروع', a.projectName],
+                ['تاريخ التصدير', new Date().toLocaleString('ar-EG')],
+                [],
+                ['المؤشر', 'القيمة'],
+                ['إجمالي المهام', a.totalTasks],
+                ['مكتملة', a.statusBreakdown.completed],
+                ['قيد التنفيذ', a.statusBreakdown.inprogress],
+                ['انتظار', a.statusBreakdown.pending],
+                ['متأخرة', a.overdueTasks.length],
+                ['حرجة', a.criticalTasks.length],
+                ['ساعات مخططة', a.totalEstHours],
+                ['ساعات فعلية', a.totalActHours.toFixed(1)],
+                ['نسبة الإنجاز', a.completionRate + '%'],
+                ['متوسط مدة الإنجاز (أيام)', a.avgCompletionDays],
+                ['مهام بدون مسؤول', a.noAssigneeTasks.length],
+                ['مهام بدون تاريخ تسليم', a.noDeadlineTasks.length]
+            ];
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(overview), 'نظرة عامة');
+
+            // Sheet 2: Tasks
+            const taskRows = [['المهمة', 'القسم', 'المسؤول', 'الحالة', 'الأولوية', 'البداية', 'التسليم', 'ساعات مخططة', 'ساعات فعلية', 'الوصف']];
+            a.tasks.forEach(t => {
+                const assignees = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+                const actH = t.checklist ? Object.values(t.checklist).reduce((s, it) => s + (parseFloat(it.actualHours) || 0), 0) : 0;
+                taskRows.push([t.title || '', t.team || '', assignees.join(', '), t.status || '', t.priority || '', t.startDate || '', t.dueDate || '', t.estHours || 0, actH.toFixed(1), t.description || '']);
+            });
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(taskRows), 'المهام');
+
+            // Sheet 3: Lead Report
+            const leadRows = [
+                ['تقرير التيم ليد', ''],
+                ['آخر تحديث بواسطة', reportData.lastUpdatedBy || '-'],
+                [],
+                ['الملخص التنفيذي', reportData.leadSummary || ''],
+                ['الإنجازات', reportData.leadAchievements || ''],
+                ['التحديات', reportData.leadChallenges || ''],
+                ['التوصيات', reportData.leadRecommendations || ''],
+                ['ملاحظات عامة', reportData.leadReport || '']
+            ];
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(leadRows), 'تقرير التيم ليد');
+
+            // Sheet 4: Employee Reports
+            const empReportRows = [['الموظف', 'المهمة', 'التقرير', 'تاريخ التحديث']];
+            a.allEmployeeReports.forEach(r => empReportRows.push([r.empName || '', r.taskTitle, r.text, r.updatedAt ? new Date(r.updatedAt).toLocaleString('ar-EG') : '']));
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(empReportRows), 'تقارير الموظفين');
+
+            // Sheet 5: Notes & Comments
+            const notesRows = [['النوع', 'المهمة', 'الكاتب', 'النص', 'التاريخ']];
+            a.allNotes.forEach(n => notesRows.push(['ملاحظة', n.taskTitle, n.by, n.note, n.time ? new Date(n.time).toLocaleString('ar-EG') : '']));
+            a.allComments.forEach(c => notesRows.push(['تعليق', c.taskTitle, c.user, c.text, c.time ? new Date(c.time).toLocaleString('ar-EG') : '']));
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(notesRows), 'الملاحظات والتعليقات');
+
+            // Sheet 6: Issues
+            const issueRows = [['المهمة', 'المشكلة', 'الخطورة', 'سجّلها', 'التاريخ']];
+            a.allIssues.forEach(i => issueRows.push([i.taskTitle, i.text, i.severity, i.by, i.time ? new Date(i.time).toLocaleString('ar-EG') : '']));
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(issueRows), 'المشاكل');
+
+            // Sheet 7: Time Analysis
+            const timeRows = [['الموظف', 'المهام', 'مكتمل', 'ساعات مخططة', 'ساعات فعلية']];
+            Object.values(a.employeeBreakdown).forEach(e => timeRows.push([e.name, e.tasks, e.completed, e.estHours.toFixed(1), e.actHours.toFixed(1)]));
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(timeRows), 'تحليل الوقت');
+
+            XLSX.writeFile(wb, `تقرير_${a.projectName}_${new Date().toISOString().split('T')[0]}.xlsx`);
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // تصدير PDF — يلتقط كل تاب كصورة (لدعم العربية)
+        // ═══════════════════════════════════════════════════════════
+        window.exportProjectPDF = async () => {
+            const a = window.currentProjectReport;
+            if (!a) return alert('لا يوجد تقرير محمّل');
+            if (typeof window.jspdf === 'undefined' || typeof html2canvas === 'undefined') return alert('PDF libraries not loaded');
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            const pageW = pdf.internal.pageSize.getWidth();
+            const pageH = pdf.internal.pageSize.getHeight();
+            const margin = 10;
+            const contentW = pageW - margin * 2;
+
+            const tabs = [
+                { id: 'overview', title: 'نظرة عامة' },
+                { id: 'dashboard', title: 'الداش بورد' },
+                { id: 'lead', title: 'تقرير التيم ليد' },
+                { id: 'tasks', title: 'تفاصيل التاسكات' },
+                { id: 'notes', title: 'الملاحظات والتعليقات' },
+                { id: 'issues', title: 'المشاكل والتأخيرات' },
+                { id: 'time', title: 'تحليل الوقت' }
+            ];
+
+            const btn = document.getElementById('pr-export-btn');
+            const originalBtn = btn.innerText;
+            btn.innerText = '⏳ جاري التحضير...';
+            btn.disabled = true;
+
+            try {
+                const bgColor = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#0d1117';
+                let isFirstPage = true;
+
+                for (let i = 0; i < tabs.length; i++) {
+                    btn.innerText = `⏳ ${i + 1}/${tabs.length}: ${tabs[i].title}`;
+                    window.switchPrTab(tabs[i].id);
+                    await new Promise(r => setTimeout(r, 450)); // ينتظر رسم الـ charts
+
+                    const el = document.querySelector(`[data-tab-content="${tabs[i].id}"]`);
+                    if (!el || el.innerHTML.trim() === '') continue;
+
+                    const canvas = await html2canvas(el, { backgroundColor: bgColor, scale: 2, useCORS: true, logging: false });
+                    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+                    const imgH = (canvas.height * contentW) / canvas.width;
+
+                    // عنوان القسم
+                    if (!isFirstPage) pdf.addPage();
+                    isFirstPage = false;
+
+                    let heightLeft = imgH;
+                    let position = margin;
+                    pdf.addImage(imgData, 'JPEG', margin, position, contentW, imgH);
+                    heightLeft -= (pageH - margin * 2);
+
+                    while (heightLeft > 0) {
+                        pdf.addPage();
+                        position = heightLeft - imgH + margin;
+                        pdf.addImage(imgData, 'JPEG', margin, position, contentW, imgH);
+                        heightLeft -= (pageH - margin * 2);
+                    }
+                }
+
+                pdf.save(`تقرير_${a.projectName}_${new Date().toISOString().split('T')[0]}.pdf`);
+            } catch (err) {
+                console.error('PDF export error:', err);
+                alert('حدث خطأ أثناء تصدير الـ PDF: ' + err.message);
+            } finally {
+                btn.innerText = originalBtn;
+                btn.disabled = false;
+                window.switchPrTab('overview');
+            }
         };
 
         // --- دوال مزامنة السلايدر العلوي للوحة المهام (معتمد على Observer) ---
@@ -3858,7 +4651,7 @@
                         timeHtml = `<div class="card-time-bar">
                             <div class="card-time-header">
                                 <span style="color:${ti.color}; font-weight:700;">${ti.shortText}</span>
-                                <span style="color:var(--blue-grey);">${ti.pct}%</span>
+                                <span style="color:${ti.color}; font-weight:700;">${ti.pct}%</span>
                             </div>
                             <div class="card-time-bg"><div class="card-time-fill" style="width:${ti.pct}%; background:${ti.color};"></div></div>
                         </div>`;
@@ -4132,6 +4925,8 @@
 
             window.renderComments(task.comments);
             window.renderChecklist(task.checklist);
+            window.renderEmployeeReports(task);
+            window.renderIssues(task.issues);
             window.updateTaskTimeProgress();
             window.populateDependsOnList(id, task);
 
@@ -4241,32 +5036,55 @@
             reader.readAsDataURL(file);
         };
 
-        // حساب التقدم الزمني — دالة مشتركة للبطاقة والمودال
+        // ═══════════════════════════════════════════════════════════
+        // حساب التقدم الزمني للمهمة — مُعاد بناؤه من الصفر (بسيط ومباشر)
+        //
+        //   تاريخ البداية ──────[ اليوم ]──────── تاريخ التسليم
+        //                  ← منقضي →        ← متبقي →
+        //                  ←─────── المدة الكلية ───────→
+        //
+        //   النسبة % = (المنقضي ÷ المدة الكلية) × 100
+        //   اللون    = حسب عدد الأيام المتبقية
+        // ═══════════════════════════════════════════════════════════
         window.getTaskTimeInfo = (task, dueDateOverride, startDateOverride) => {
             const dueDateStr = dueDateOverride || (task && task.dueDate);
             if (!task || !dueDateStr) return null;
 
-            // تحويل "YYYY-MM-DD" إلى تاريخ محلي عند منتصف الليل (يتجنّب مشاكل المنطقة الزمنية)
-            const parseLocalDate = (s) => {
-                const [y, m, d] = s.split('-').map(Number);
-                return new Date(y, m - 1, d);
+            // تحويل YYYY-MM-DD → تاريخ محلي عند منتصف الليل (يتجنّب الـ timezone)
+            const toLocalDate = (s) => {
+                if (!s) return null;
+                const parts = s.split('-').map(Number);
+                if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return null;
+                return new Date(parts[0], parts[1] - 1, parts[2]);
             };
 
-            const startDateStr = startDateOverride || (task && task.startDate);
-            let startD;
-            if (startDateStr) startD = parseLocalDate(startDateStr);
-            else if (task.createdAt) { startD = new Date(task.createdAt); startD.setHours(0, 0, 0, 0); }
-            else { startD = new Date(); startD.setHours(0, 0, 0, 0); }
+            // البداية: من الإدخال → من task.startDate → من createdAt → اليوم
+            const startStrFinal = startDateOverride || (task && task.startDate);
+            let startDate = toLocalDate(startStrFinal);
+            if (!startDate && task.createdAt) {
+                startDate = new Date(task.createdAt);
+                startDate.setHours(0, 0, 0, 0);
+            }
+            if (!startDate) {
+                startDate = new Date();
+                startDate.setHours(0, 0, 0, 0);
+            }
 
-            const endD = parseLocalDate(dueDateStr);
-            const todayD = new Date(); todayD.setHours(0, 0, 0, 0);
+            const endDate = toLocalDate(dueDateStr);
+            if (!endDate) return null;
 
-            const dayMs = 1000 * 60 * 60 * 24;
-            const totalDays = Math.max(1, (endD - startD) / dayMs);
-            const elapsedDays = (todayD - startD) / dayMs;
-            const pct = Math.min(100, Math.max(0, (elapsedDays / totalDays) * 100));
-            const daysLeft = Math.round((endD - todayD) / dayMs);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
 
+            const DAY_MS = 86400000;
+            const totalDays = Math.max(1, Math.round((endDate - startDate) / DAY_MS));
+            const elapsedDays = Math.max(0, Math.round((today - startDate) / DAY_MS));
+            const daysLeft = Math.round((endDate - today) / DAY_MS);
+
+            // المعادلة الأساسية: نسبة المنقضي من المدة الكلية
+            const pct = Math.round(Math.min(100, Math.max(0, (elapsedDays / totalDays) * 100)));
+
+            // اللون حسب الأيام المتبقية فعلياً
             let color, statusText, shortText;
             if (task.status === 'completed') {
                 color = 'var(--green-success)';
@@ -4280,11 +5098,11 @@
                 color = 'var(--red-danger)';
                 statusText = '🔴 اليوم آخر موعد!';
                 shortText = '🔴 اليوم!';
-            } else if (pct >= 80) {
+            } else if (daysLeft <= 3) {
                 color = 'var(--red-danger)';
                 statusText = `🔴 ${daysLeft} يوم متبقي`;
                 shortText = `🔴 ${daysLeft}ي`;
-            } else if (pct >= 50) {
+            } else if (daysLeft <= 7) {
                 color = 'var(--amber)';
                 statusText = `🟠 ${daysLeft} يوم متبقي`;
                 shortText = `🟠 ${daysLeft}ي`;
@@ -4295,12 +5113,15 @@
             }
 
             return {
-                pct: Math.round(pct),
-                color, statusText, shortText, daysLeft,
-                totalDays: Math.round(totalDays),
-                elapsedDays: Math.max(0, Math.round(elapsedDays)),
-                start: startD.getTime(),
-                end: endD.getTime()
+                pct,
+                color,
+                statusText,
+                shortText,
+                daysLeft,
+                totalDays,
+                elapsedDays,
+                start: startDate.getTime(),
+                end: endDate.getTime()
             };
         };
 
@@ -4320,11 +5141,7 @@
             const fmt = (ms) => new Date(ms).toLocaleDateString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' });
 
             document.getElementById('dt-time-status').innerText = info.statusText;
-            document.getElementById('dt-time-elapsed-pct').innerText = `${info.pct}%`;
-            document.getElementById('dt-time-dates').innerHTML =
-                `<span>البداية: <b>${fmt(info.start)}</b></span>
-                 <span style="color:var(--accent);">المدة: <b>${info.totalDays} يوم</b></span>
-                 <span>التسليم: <b>${fmt(info.end)}</b></span>`;
+            document.getElementById('dt-time-elapsed-pct').innerHTML = `<b style="color:${info.color};">${info.pct}%</b>`;
 
             const fill = document.getElementById('dt-time-progress-fill');
             fill.style.width = `${info.pct}%`;
@@ -4390,6 +5207,132 @@
                 </div>
             `;
             });
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // تقارير الموظفين على التاسك — حقل منفصل لكل assignee
+        //   مسار التخزين: tasks/{id}/employeeReports/{safeName} = { text, updatedAt }
+        //   الصلاحية: الموظف المعني يعدّل تقريره فقط؛ المدير/التيم ليد يعدّلون الكل
+        // ═══════════════════════════════════════════════════════════
+        window.sanitizeEmpName = (name) => (name || '').replace(/[\.\#\$\[\]\/]/g, '_').replace(/\s+/g, '_');
+
+        window.renderEmployeeReports = (task) => {
+            const container = document.getElementById('dt-employee-reports');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!task) return;
+
+            const assignees = task.assignedTo ? (Array.isArray(task.assignedTo) ? task.assignedTo : [task.assignedTo]) : [];
+            if (assignees.length === 0) {
+                container.innerHTML = `<div style="color:var(--blue-grey); font-size:0.8rem; padding:8px; text-align:center; background: rgba(136,207,253,0.05); border-radius:8px;">لا يوجد موظفون مكلّفون بعد — حدّد المسؤولين أولاً لتظهر حقول التقارير.</div>`;
+                return;
+            }
+
+            const reports = task.employeeReports || {};
+            const hasAdminRights = window.isManager || window.isTeamLead;
+
+            assignees.forEach(emp => {
+                const safeKey = window.sanitizeEmpName(emp);
+                const rep = reports[safeKey] || {};
+                const text = rep.text || '';
+                const updatedAt = rep.updatedAt ? new Date(rep.updatedAt).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                const isMine = emp === window.currentUserName;
+                const canEdit = hasAdminRights || isMine;
+                const disabled = canEdit ? '' : 'disabled';
+                const borderColor = isMine ? 'var(--accent)' : 'var(--border)';
+
+                container.innerHTML += `
+                <div style="border: 1px solid ${borderColor}; border-radius: 10px; padding: 12px; background: var(--card-bg);">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                        ${window.getAvatarHTML(emp)}
+                        <span style="font-weight:600; color:var(--text); font-size:0.9rem;">${emp}</span>
+                        ${isMine ? '<span style="font-size:0.7rem; color:var(--accent); background:rgba(59,164,254,0.15); padding:2px 8px; border-radius:6px;">أنت</span>' : ''}
+                        <span style="font-size:0.7rem; color:var(--blue-grey); margin-inline-start:auto;">${updatedAt ? '🕒 ' + updatedAt : ''}</span>
+                    </div>
+                    <textarea id="empreport-${safeKey}" placeholder="${canEdit ? 'اكتب تقريرك على هذه المهمة...' : 'لا تملك صلاحية تعديل تقرير هذا الموظف'}" ${disabled}
+                        style="width:100%; min-height:70px; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:0.85rem; resize:vertical; font-family:inherit;">${text}</textarea>
+                    ${canEdit ? `<button class="btn-outline" style="margin-top:8px; padding:6px 14px; font-size:0.8rem;" onclick="window.saveEmployeeReport('${safeKey}', '${emp.replace(/'/g, "\\'")}')">💾 حفظ تقريري</button>` : ''}
+                </div>`;
+            });
+        };
+
+        window.saveEmployeeReport = (safeKey, empName) => {
+            const taskId = document.getElementById('dt-id').value;
+            if (!taskId) return;
+            const txt = document.getElementById(`empreport-${safeKey}`).value.trim();
+            const { ref, update, db } = window.firebaseTools;
+            update(ref(db, `tasks/${taskId}/employeeReports/${safeKey}`), {
+                text: txt,
+                empName: empName,
+                updatedAt: Date.now(),
+                updatedBy: window.currentUserName
+            }).then(() => {
+                const btn = event.target;
+                const old = btn.innerText;
+                btn.innerText = '✔️ محفوظ';
+                btn.style.background = 'var(--green-success)';
+                btn.style.color = '#fff';
+                setTimeout(() => { btn.innerText = old; btn.style.background = ''; btn.style.color = ''; }, 1500);
+            }).catch(err => console.error('Error saving employee report:', err));
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // مشاكل التاسك (Issues)
+        //   مسار: tasks/{id}/issues/{pushId} = { text, by, time, severity }
+        // ═══════════════════════════════════════════════════════════
+        window.renderIssues = (issues) => {
+            const list = document.getElementById('dt-issues-list');
+            if (!list) return;
+            list.innerHTML = '';
+            if (!issues || Object.keys(issues).length === 0) {
+                list.innerHTML = `<div style="color:var(--blue-grey); font-size:0.8rem; padding:8px; text-align:center;">لم تُسجَّل أي مشكلة بعد ✅</div>`;
+                return;
+            }
+            const hasAdminRights = window.isManager || window.isTeamLead;
+            const sorted = Object.keys(issues).sort((a, b) => (issues[b].time || 0) - (issues[a].time || 0));
+            sorted.forEach(key => {
+                const iss = issues[key];
+                const sev = iss.severity || 'medium';
+                const sevColor = sev === 'high' ? 'var(--red-danger)' : (sev === 'medium' ? 'var(--amber)' : 'var(--intel-blue)');
+                const sevLabel = sev === 'high' ? '🔴 حرجة' : (sev === 'medium' ? '🟡 متوسطة' : '🔵 بسيطة');
+                const d = iss.time ? new Date(iss.time).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                const canDelete = hasAdminRights || iss.by === window.currentUserName;
+                list.innerHTML += `
+                <div style="display:flex; align-items:flex-start; gap:10px; padding:10px; background: var(--bg); border-inline-start: 3px solid ${sevColor}; border-radius:6px;">
+                    <div style="flex:1;">
+                        <div style="font-size:0.9rem; color:var(--text); margin-bottom:4px;">${iss.text || ''}</div>
+                        <div style="font-size:0.7rem; color:var(--blue-grey);">
+                            <span style="color:${sevColor}; font-weight:600;">${sevLabel}</span> ·
+                            <b>${iss.by || '-'}</b> · ${d}
+                        </div>
+                    </div>
+                    ${canDelete ? `<button onclick="window.deleteIssue('${key}')" style="background:none; border:none; color:var(--red-danger); cursor:pointer; font-size:0.9rem;" title="حذف">🗑️</button>` : ''}
+                </div>`;
+            });
+        };
+
+        window.addIssue = () => {
+            const taskId = document.getElementById('dt-id').value;
+            if (!taskId) return;
+            const input = document.getElementById('dt-new-issue');
+            const sevSel = document.getElementById('dt-new-issue-severity');
+            const text = input.value.trim();
+            if (!text) return;
+            const { ref, push, db } = window.firebaseTools;
+            push(ref(db, `tasks/${taskId}/issues`), {
+                text: text,
+                by: window.currentUserName,
+                severity: sevSel.value,
+                time: Date.now()
+            }).then(() => { input.value = ''; sevSel.value = 'medium'; });
+        };
+
+        window.deleteIssue = (issueId) => {
+            const taskId = document.getElementById('dt-id').value;
+            if (!taskId || !issueId) return;
+            if (!confirm('حذف هذه المشكلة؟')) return;
+            const { ref, remove, db } = window.firebaseTools;
+            remove(ref(db, `tasks/${taskId}/issues/${issueId}`));
         };
 
         window.renderComments = (comments) => {
@@ -4706,6 +5649,8 @@
                             if (activeId && window.allTasks[activeId]) {
                                 window.renderComments(window.allTasks[activeId].comments);
                                 window.renderChecklist(window.allTasks[activeId].checklist);
+                                window.renderEmployeeReports(window.allTasks[activeId]);
+                                window.renderIssues(window.allTasks[activeId].issues);
                             }
                         }
                     });
