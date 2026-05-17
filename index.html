@@ -2444,6 +2444,16 @@
             fill: var(--text);
         }
 
+        /* بارات حدّ السنة (مخفية بصرياً، تجبر المخطط على عرض السنة كاملة) */
+        .gantt .bar-wrapper.gantt-yr-boundary { pointer-events: none; }
+        .gantt .bar-wrapper.gantt-yr-boundary .bar,
+        .gantt .bar-wrapper.gantt-yr-boundary .bar-progress,
+        .gantt .bar-wrapper.gantt-yr-boundary .bar-label,
+        .gantt .bar-wrapper.gantt-yr-boundary .handle-group {
+            display: none !important;
+            opacity: 0 !important;
+        }
+
         .admin-only,
         .creator-only,
         .sales-or-admin-only {
@@ -4398,13 +4408,13 @@
                 });
             });
 
-            // إشعار التيم ليد للـ 3D والـ Unreal
-            const leadEmails = [];
+            // إشعار التيم ليد + المانيجر (3D و Unreal والمدراء)
+            const adminEmails = [];
             for (let email in window.whitelist) {
                 const u = window.whitelist[email];
-                if (u.isLead === true) leadEmails.push(sanitizeEmail(email));
+                if (u.isLead === true || u.role === 'manager') adminEmails.push(sanitizeEmail(email));
             }
-            leadEmails.forEach(ek => {
+            adminEmails.forEach(ek => {
                 if (ek === window.currentUserEmailSafe) return;
                 push(ref(db, `users/${ek}/notifications`), {
                     from: window.currentUserName,
@@ -4416,7 +4426,7 @@
                 });
             });
 
-            alert(`✅ تم إنشاء ${items.length} تاسك في مشروع "${projectName.trim()}" + إرسال إشعار لقادة الفرق.`);
+            alert(`✅ تم إنشاء ${items.length} تاسك في مشروع "${projectName.trim()}" + إرسال إشعار للمدراء وقادة الفرق.`);
         };
 
         // يرسم قائمة الـ checkboxes من window.SALES_FEATURES، ويختار العناصر المحددة مسبقاً
@@ -5173,6 +5183,27 @@
                 };
             });
 
+            // ───── سلوك التكبير حسب الفلتر ─────
+            // - "كل المشاريع": إضافة حدود السنة الكاملة (Jan 1 → Dec 31) لإجبار المخطط على عرضها كلها
+            // - مشروع محدد: المخطط ينضغط طبيعياً على مداه الزمني (zoom-in تلقائي)
+            if (!window.ganttProjectFilter) {
+                const yr = new Date().getFullYear();
+                tasksForGantt.unshift({
+                    id: '__yr_start__', name: '',
+                    start: `${yr}-01-01`, end: `${yr}-01-02`,
+                    progress: 0, dependencies: '',
+                    custom_class: 'gantt-yr-boundary',
+                    _team: '__boundary__', _proj: '__boundary__'
+                });
+                tasksForGantt.push({
+                    id: '__yr_end__', name: '',
+                    start: `${yr}-12-30`, end: `${yr}-12-31`,
+                    progress: 0, dependencies: '',
+                    custom_class: 'gantt-yr-boundary',
+                    _team: '__boundary__', _proj: '__boundary__'
+                });
+            }
+
             // CSS: نطبّق fill على .bar عبر url(#gradient) — تعريف الـ gradients يحدث بعد رسم الجانت
             let styleEl = document.getElementById('ganttDynamicStyles');
             if (!styleEl) {
@@ -5187,8 +5218,9 @@
                         .gantt .bar-wrapper.${cls} .bar-progress { fill: ${teamColor}cc !important; }`;
             }).join('\n');
 
-            // حساب عرض العمود ديناميكياً ليتسع الجدول داخل الصفحة، مع زيادة 40% لمزيد من التفاصيل
-            // (الـ overflow:auto على الـ wrapper يسمح بـ scroll أفقي إذا تجاوز عرض الشاشة)
+            // حساب عرض العمود: المخطط يملأ المساحة المتاحة (zoom طبيعي حسب الفلتر)
+            // عند فلترة مشروع → المدى الزمني ضيق → الأعمدة تتمدد لتملأ الشاشة (تكبير)
+            // عند "كل المشاريع" → السنة كاملة (12 شهر) → الأعمدة بعرض معقول
             const minStart = Math.min(...tasksForGantt.map(t => new Date(t.start).getTime()));
             const maxEnd = Math.max(...tasksForGantt.map(t => new Date(t.end).getTime()));
             const spanDays = Math.max(1, (maxEnd - minStart) / dayMs);
@@ -5198,10 +5230,11 @@
             let dynColumnWidth;
             if (window.currentGanttMode === 'Month') {
                 const monthsCount = Math.max(1, Math.ceil(spanDays / 30));
-                dynColumnWidth = Math.max(70, Math.min(224, Math.floor((availableWidth / monthsCount) * WIDTH_BOOST)));
+                // الحد الأدنى 80px؛ بدون حد أقصى لأن "zoom on filter" يحتاج أعمدة عريضة جداً للمشاريع القصيرة
+                dynColumnWidth = Math.max(80, Math.floor((availableWidth * WIDTH_BOOST) / monthsCount));
             } else { // Week
                 const weeksCount = Math.max(1, Math.ceil(spanDays / 7));
-                dynColumnWidth = Math.max(40, Math.min(126, Math.floor((availableWidth / weeksCount) * WIDTH_BOOST)));
+                dynColumnWidth = Math.max(40, Math.floor((availableWidth * WIDTH_BOOST) / weeksCount));
             }
 
             container.innerHTML = '';
@@ -5662,6 +5695,29 @@
             set(ref(db, 'settings/columns'), window.boardColumns);
         };
 
+        // دالة منفصلة لرسم آخر 6 مشاريع كـ hashtags — قابلة للاستدعاء من Firebase listener أيضاً
+        window.refreshHashtagSuggestions = () => {
+            const container = document.getElementById('hashtagContainerNew');
+            if (!container) return;
+            const projMap = {};
+            Object.values(window.allTasks).forEach(t => {
+                if (!t || !t.projectName) return;
+                if (!projMap[t.projectName] || (t.createdAt && t.createdAt > projMap[t.projectName])) {
+                    projMap[t.projectName] = t.createdAt || Date.now();
+                }
+            });
+            const sortedProjs = Object.keys(projMap).sort((a, b) => projMap[b] - projMap[a]);
+            // عرض 6 مشاريع بدل 4 — يضمن ظهور المشاريع الجديدة من المبيعات
+            const top6 = sortedProjs.slice(0, 6);
+            container.innerHTML = top6.map(p => {
+                const safe = p.replace(/'/g, "\\'");
+                // المشاريع المُنشأة من قالب (من المبيعات) تظهر بشارة 🆕
+                const isFromSales = Object.values(window.allTasks).some(t => t && t.projectName === p && t.createdByRole === 'sales');
+                const badge = isFromSales ? '<span style="background:var(--green-success); color:#fff; font-size:0.6rem; padding:1px 5px; border-radius:8px; margin-inline-start:4px;">🆕 مبيعات</span>' : '';
+                return `<span class="project-hashtag" onclick="document.getElementById('pNameNew').value='${safe}'; document.getElementById('projectSuggestions').style.display='none';"># ${p}${badge}</span>`;
+            }).join('');
+        };
+
         window.openAddModal = () => {
             document.getElementById('pNameNew').value = window.activeProjectFilter || "";
             document.getElementById('tTitleNew').value = "";
@@ -5680,18 +5736,7 @@
                     }).join('');
             }
 
-            const container = document.getElementById('hashtagContainerNew');
-            if (container) {
-                const projMap = {};
-                Object.values(window.allTasks).forEach(t => {
-                    if (!t || !t.projectName) return;
-                    if (!projMap[t.projectName] || (t.createdAt && t.createdAt > projMap[t.projectName])) projMap[t.projectName] = t.createdAt || Date.now();
-                });
-                const sortedProjs = Object.keys(projMap).sort((a, b) => projMap[b] - projMap[a]);
-                const top4 = sortedProjs.slice(0, 4);
-                container.innerHTML = top4.map(p => `<span class="project-hashtag" onclick="window.document.getElementById('pNameNew').value='${p.replace(/'/g, "\\'")}'; window.document.getElementById('projectSuggestions').style.display='none';"># ${p}</span>`).join('');
-            }
-
+            window.refreshHashtagSuggestions();
             document.getElementById('addTaskModal').classList.add('active');
         };
 
@@ -6648,6 +6693,11 @@
                         // تحديث بطاقات المبيعات تلقائياً إذا كان تاب القوالب مفتوحاً
                         if (window.isSales && document.getElementById('templates').classList.contains('active')) {
                             window.renderSalesActiveProjects && window.renderSalesActiveProjects();
+                        }
+
+                        // تحديث hashtags داخل "إضافة مهمة" إذا كان مفتوحاً (يضمن ظهور مشاريع المبيعات فوراً)
+                        if (document.getElementById('addTaskModal').classList.contains('active')) {
+                            window.refreshHashtagSuggestions && window.refreshHashtagSuggestions();
                         }
 
                         if (document.getElementById('taskDetailsModal').classList.contains('active')) {
