@@ -4876,26 +4876,25 @@
             }).join('');
         };
 
-        // ───── بطاقات المشاريع النشطة من قوالب المبيعات — تظهر للمدير + التيم ليد + المبيعات ─────
+        // ───── بطاقات المشاريع النشطة من قوالب المبيعات — تظهر للمدير + التيم ليد فقط ─────
+        //   ملاحظة: فريق المبيعات يشوف التقدم مدمجاً داخل بطاقة القالب نفسها (قسم "🚀 المشاريع الناتجة")،
+        //   فلا حاجة لقسم منفصل عندهم — يبقى فقط للمدير/التيم ليد كنظرة شاملة سريعة.
         window.renderSalesActiveProjects = () => {
             const section = document.getElementById('sales-projects-section');
             const list = document.getElementById('sales-projects-list');
             const title = document.getElementById('sales-projects-title');
             if (!section || !list) return;
 
-            // إذا الموظف العادي (مش مدير/تيم ليد/مبيعات) → أخفِ القسم
-            if (!window.isManager && !window.isTeamLead && !window.isSales) {
+            // فريق المبيعات: أخفِ القسم — البروقرس مدمج داخل بطاقة القالب
+            // الموظف العادي: أخفِ أيضاً
+            if (window.isSales || (!window.isManager && !window.isTeamLead)) {
                 section.style.display = 'none';
                 return;
             }
 
-            // عنوان مخصّص حسب الدور
+            // المدير + التيم ليد: عنوان شامل
             if (title) {
-                if (window.isSales) {
-                    title.innerHTML = '📊 المشاريع النشطة التي أنشأتها <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;">— نظرة مبسّطة على التقدم</span>';
-                } else {
-                    title.innerHTML = '📊 جميع المشاريع النشطة من قوالب المبيعات <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;">— نظرة شاملة للمدير وقادة الفرق</span>';
-                }
+                title.innerHTML = '📊 جميع المشاريع النشطة من قوالب المبيعات <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;">— نظرة شاملة للمدير وقادة الفرق</span>';
             }
 
             // اجمع المشاريع التي أُنشئت من قالب (fromTemplate موجود) أو createdByRole = sales
