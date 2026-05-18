@@ -1076,24 +1076,52 @@
 
         /* انيمشن لفت النظر للمشاريع الجديدة من المبيعات */
         @keyframes salesSlideIn {
-            0% { opacity: 0; transform: translateY(-8px) scale(0.9); }
-            60% { opacity: 1; transform: translateY(0) scale(1.05); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
+            0% {
+                opacity: 0;
+                transform: translateY(-8px) scale(0.9);
+            }
+
+            60% {
+                opacity: 1;
+                transform: translateY(0) scale(1.05);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
+
         @keyframes salesGlow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.55); }
-            50% { box-shadow: 0 0 0 6px rgba(52,211,153,0); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(52, 211, 153, 0);
+            }
         }
+
         @keyframes salesHeaderShimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
         }
+
         .sales-section-anim {
             animation: salesSlideIn 0.45s ease-out;
         }
+
         .sales-chip-anim {
             animation: salesSlideIn 0.45s ease-out backwards, salesGlow 2.2s ease-in-out 0.5s infinite;
         }
+
         .sales-header-anim {
             background: linear-gradient(90deg, var(--green-success) 0%, #6ee7b7 25%, var(--green-success) 50%, #6ee7b7 75%, var(--green-success) 100%);
             background-size: 200% 100%;
@@ -1809,6 +1837,7 @@
             overflow-y: auto;
             padding-bottom: 20px;
         }
+
         .template-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
@@ -1819,15 +1848,18 @@
             gap: 10px;
             transition: 0.2s;
         }
+
         .template-card:hover {
             border-color: var(--accent);
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
         }
+
         .template-card h3 {
             font-size: 1rem;
             color: var(--text);
             font-weight: 700;
         }
+
         .template-card .tpl-meta {
             font-size: 0.72rem;
             color: var(--blue-grey);
@@ -1836,6 +1868,7 @@
             border-bottom: 1px dashed var(--border);
             padding-bottom: 8px;
         }
+
         .template-card .tpl-items {
             font-size: 0.82rem;
             color: var(--text);
@@ -1845,6 +1878,7 @@
             max-height: 180px;
             overflow-y: auto;
         }
+
         .template-card .tpl-items div {
             padding: 4px 8px;
             background: var(--bg);
@@ -1853,10 +1887,12 @@
             align-items: center;
             gap: 6px;
         }
+
         .template-card .tpl-items div::before {
             content: '☑';
             color: var(--accent);
         }
+
         .template-card .tpl-actions {
             display: flex;
             gap: 8px;
@@ -1864,6 +1900,7 @@
             padding-top: 10px;
             border-top: 1px solid var(--border);
         }
+
         .template-card .tpl-actions button {
             flex: 1;
             padding: 7px;
@@ -1876,10 +1913,24 @@
             background: transparent;
             transition: 0.2s;
         }
-        .tpl-btn-edit { color: var(--accent); border-color: var(--accent); }
-        .tpl-btn-edit:hover { background: rgba(59,164,254,0.1); }
-        .tpl-btn-delete { color: var(--red-danger); border-color: var(--red-danger); }
-        .tpl-btn-delete:hover { background: rgba(248,113,113,0.1); }
+
+        .tpl-btn-edit {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .tpl-btn-edit:hover {
+            background: rgba(59, 164, 254, 0.1);
+        }
+
+        .tpl-btn-delete {
+            color: var(--red-danger);
+            border-color: var(--red-danger);
+        }
+
+        .tpl-btn-delete:hover {
+            background: rgba(248, 113, 113, 0.1);
+        }
 
         .tpl-apply-item {
             padding: 10px 14px;
@@ -1893,8 +1944,15 @@
             font-size: 0.85rem;
             transition: 0.15s;
         }
-        .tpl-apply-item:last-child { border-bottom: none; }
-        .tpl-apply-item:hover { background: rgba(59,164,254,0.1); color: var(--accent); }
+
+        .tpl-apply-item:last-child {
+            border-bottom: none;
+        }
+
+        .tpl-apply-item:hover {
+            background: rgba(59, 164, 254, 0.1);
+            color: var(--accent);
+        }
 
         /* عناصر قائمة الميزات داخل مودال القالب */
         .feature-chip {
@@ -1911,16 +1969,22 @@
             transition: 0.15s;
             user-select: none;
         }
-        .feature-chip:hover { border-color: var(--accent); }
+
+        .feature-chip:hover {
+            border-color: var(--accent);
+        }
+
         .feature-chip input[type="checkbox"] {
-            width: 15px; height: 15px;
+            width: 15px;
+            height: 15px;
             accent-color: var(--accent);
             margin: 0;
             cursor: pointer;
             flex-shrink: 0;
         }
+
         .feature-chip.checked {
-            background: rgba(59,164,254,0.08);
+            background: rgba(59, 164, 254, 0.08);
             border-color: var(--accent);
             color: var(--accent);
             font-weight: 600;
@@ -1936,6 +2000,7 @@
             flex-direction: column;
             gap: 10px;
         }
+
         .sales-project-card h3 {
             font-size: 1rem;
             color: var(--accent);
@@ -1943,20 +2008,24 @@
             border-bottom: 1px dashed var(--border);
             padding-bottom: 8px;
         }
+
         .sales-project-card .sp-meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 0.8rem;
         }
+
         .sales-project-card .sp-days {
             font-weight: 700;
         }
+
         .sales-project-card .sp-pct {
             font-size: 0.85rem;
             font-weight: 700;
             color: var(--accent);
         }
+
         .sales-project-card .sp-bar-bg {
             width: 100%;
             height: 12px;
@@ -1965,6 +2034,7 @@
             overflow: hidden;
             border: 1px solid var(--border);
         }
+
         .sales-project-card .sp-bar-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--accent), var(--intel-blue));
@@ -2075,7 +2145,12 @@
             white-space: nowrap;
             font-family: inherit;
         }
-        .pr-tab:hover { color: var(--text); background: rgba(59,164,254,0.05); }
+
+        .pr-tab:hover {
+            color: var(--text);
+            background: rgba(59, 164, 254, 0.05);
+        }
+
         .pr-tab.active {
             color: var(--accent);
             border-bottom-color: var(--accent);
@@ -2087,6 +2162,7 @@
             gap: 14px;
             margin-bottom: 24px;
         }
+
         .pr-kpi {
             background: var(--card-bg);
             border: 1px solid var(--border);
@@ -2095,16 +2171,29 @@
             position: relative;
             overflow: hidden;
         }
+
         .pr-kpi::before {
             content: '';
             position: absolute;
-            top: 0; inset-inline-start: 0;
-            width: 4px; height: 100%;
+            top: 0;
+            inset-inline-start: 0;
+            width: 4px;
+            height: 100%;
             background: var(--accent);
         }
-        .pr-kpi.danger::before { background: var(--red-danger); }
-        .pr-kpi.warn::before { background: var(--amber); }
-        .pr-kpi.success::before { background: var(--green-success); }
+
+        .pr-kpi.danger::before {
+            background: var(--red-danger);
+        }
+
+        .pr-kpi.warn::before {
+            background: var(--amber);
+        }
+
+        .pr-kpi.success::before {
+            background: var(--green-success);
+        }
+
         .pr-kpi .pr-kpi-lbl {
             font-size: 0.72rem;
             color: var(--blue-grey);
@@ -2112,12 +2201,14 @@
             letter-spacing: 0.5px;
             margin-bottom: 6px;
         }
+
         .pr-kpi .pr-kpi-val {
             font-size: 1.6rem;
             font-weight: 700;
             color: var(--text);
             line-height: 1.2;
         }
+
         .pr-kpi .pr-kpi-sub {
             font-size: 0.7rem;
             color: var(--blue-grey);
@@ -2131,6 +2222,7 @@
             padding: 20px;
             margin-bottom: 18px;
         }
+
         .pr-section-title {
             font-size: 1rem;
             font-weight: 700;
@@ -2148,6 +2240,7 @@
             border-collapse: collapse;
             font-size: 0.82rem;
         }
+
         .pr-table th {
             background: var(--bg);
             color: var(--blue-grey);
@@ -2158,13 +2251,17 @@
             text-transform: uppercase;
             border-bottom: 1px solid var(--border);
         }
+
         .pr-table td {
             padding: 10px 12px;
             color: var(--text);
             border-bottom: 1px solid var(--border);
             vertical-align: top;
         }
-        .pr-table tr:hover td { background: rgba(59,164,254,0.03); }
+
+        .pr-table tr:hover td {
+            background: rgba(59, 164, 254, 0.03);
+        }
 
         .pr-badge {
             display: inline-block;
@@ -2173,16 +2270,33 @@
             font-size: 0.72rem;
             font-weight: 600;
         }
-        .pr-badge.pending { background: rgba(136,207,253,0.15); color: var(--intel-blue); }
-        .pr-badge.inprogress { background: rgba(251,191,36,0.15); color: var(--amber); }
-        .pr-badge.completed { background: rgba(74,222,128,0.15); color: var(--green-success); }
-        .pr-badge.overdue { background: rgba(248,113,113,0.15); color: var(--red-danger); }
+
+        .pr-badge.pending {
+            background: rgba(136, 207, 253, 0.15);
+            color: var(--intel-blue);
+        }
+
+        .pr-badge.inprogress {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--amber);
+        }
+
+        .pr-badge.completed {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--green-success);
+        }
+
+        .pr-badge.overdue {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--red-danger);
+        }
 
         .pr-chart-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 18px;
         }
+
         .pr-chart-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
@@ -2190,11 +2304,13 @@
             padding: 18px;
             min-height: 280px;
         }
+
         .pr-chart-card h4 {
             color: var(--text);
             font-size: 0.9rem;
             margin-bottom: 14px;
         }
+
         .pr-chart-canvas-wrap {
             position: relative;
             height: 220px;
@@ -2400,6 +2516,7 @@
             border-bottom: 1px solid var(--border);
             margin-bottom: 6px;
         }
+
         .gantt-proj-chip {
             background: transparent;
             border: 1.5px solid;
@@ -2412,18 +2529,22 @@
             font-weight: 600;
             white-space: nowrap;
         }
+
         .gantt-proj-chip:hover {
             background: rgba(255, 255, 255, 0.05);
             transform: translateY(-1px);
         }
+
         .gantt-proj-chip.active {
             color: #fff !important;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
+
         .gantt-proj-chip.all-chip {
             border-color: var(--blue-grey);
             color: var(--blue-grey);
         }
+
         .gantt-proj-chip.all-chip.active {
             background: var(--accent);
             border-color: var(--accent);
@@ -2474,7 +2595,10 @@
         }
 
         /* بارات حدّ السنة (مخفية بصرياً، تجبر المخطط على عرض السنة كاملة) */
-        .gantt .bar-wrapper.gantt-yr-boundary { pointer-events: none; }
+        .gantt .bar-wrapper.gantt-yr-boundary {
+            pointer-events: none;
+        }
+
         .gantt .bar-wrapper.gantt-yr-boundary .bar,
         .gantt .bar-wrapper.gantt-yr-boundary .bar-progress,
         .gantt .bar-wrapper.gantt-yr-boundary .bar-label,
@@ -2485,8 +2609,99 @@
 
         .admin-only,
         .creator-only,
-        .sales-or-admin-only {
+        .sales-or-admin-only,
+        .real-manager-only {
             display: none;
+        }
+
+        /* ═══ وضع المعاينة (View As) ═══ */
+        .view-as-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, #fbbf24, #f97316);
+            color: #1a1a1a;
+            padding: 9px 20px;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+            font-weight: 700;
+            font-size: 0.88rem;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        body.view-as-active {
+            padding-top: 44px;
+        }
+
+        body.view-as-active .view-as-banner {
+            display: flex;
+        }
+
+        body.view-as-active .notifications-panel {
+            top: 44px;
+        }
+
+        .view-as-banner button {
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.78rem;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .view-as-banner .va-back {
+            background: #fff;
+            color: #1a1a1a;
+            border: none;
+        }
+
+        .view-as-banner .va-back:hover {
+            background: #f3f4f6;
+        }
+
+        .view-as-banner .va-toggle {
+            background: rgba(0, 0, 0, 0.18);
+            color: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+        }
+
+        .view-as-banner .va-toggle:hover {
+            background: rgba(0, 0, 0, 0.28);
+        }
+
+        /* وضع القراءة فقط — تعطيل أزرار الحفظ/الإضافة/الحذف بصرياً وعملياً */
+        body.view-as-readonly .btn-save-big,
+        body.view-as-readonly .creator-only,
+        body.view-as-readonly [onclick*="saveNewTask"],
+        body.view-as-readonly [onclick*="saveTaskDetails"],
+        body.view-as-readonly [onclick*="saveTemplate"],
+        body.view-as-readonly [onclick*="saveLeadReport"],
+        body.view-as-readonly [onclick*="saveEmployeeReport"],
+        body.view-as-readonly [onclick*="addChecklistItem"],
+        body.view-as-readonly [onclick*="addComment"],
+        body.view-as-readonly [onclick*="addIssue"],
+        body.view-as-readonly [onclick*="applyTemplate"],
+        body.view-as-readonly [onclick*="deleteTask"],
+        body.view-as-readonly [onclick*="deleteIssue"],
+        body.view-as-readonly [onclick*="deleteColumn"],
+        body.view-as-readonly [onclick*="deleteTemplate"],
+        body.view-as-readonly [onclick*="deleteChecklistItem"],
+        body.view-as-readonly [onclick*="addNewColumn"],
+        body.view-as-readonly [onclick*="openAddModal"],
+        body.view-as-readonly [onclick*="openTemplateModal"] {
+            opacity: 0.4 !important;
+            pointer-events: none !important;
+            cursor: not-allowed !important;
+        }
+
+        body.view-as-readonly .card {
+            cursor: pointer;
         }
 
         .manager-lock {
@@ -2606,6 +2821,33 @@
         </div>
     </div>
 
+    <div id="viewAsBanner" class="view-as-banner">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span>👁️ تعرض حالياً كـ: <b id="viewAsName">—</b></span>
+            <span id="viewAsReadStatus"
+                style="font-size:0.78rem; opacity:0.85; padding:2px 8px; background:rgba(0,0,0,0.15); border-radius:5px;">🔒
+                قراءة فقط</span>
+        </div>
+        <div style="display:flex; gap:8px;">
+            <button class="va-toggle" id="viewAsEditToggle" onclick="window.toggleViewAsEditMode()">🔓 السماح
+                بالتعديل</button>
+            <button class="va-back" onclick="window.stopViewAs()">← الرجوع لحسابي</button>
+        </div>
+    </div>
+
+    <div class="modal" id="viewAsModal">
+        <div class="simple-modal" style="max-width: 500px;">
+            <h2 style="color: var(--text); margin-bottom: 6px;">👁️ معاينة كموظف</h2>
+            <p style="color: var(--blue-grey); font-size:0.82rem; margin-bottom: 18px;">اختر موظفاً لتشاهد الواجهة من
+                منظوره. حسابك الفعلي لن يتغيّر، والتنبيهات تبقى لك.</p>
+            <div id="viewAsUserList"
+                style="max-height: 400px; overflow-y: auto; display:flex; flex-direction:column; gap:6px; margin-bottom:18px;">
+            </div>
+            <button onclick="document.getElementById('viewAsModal').classList.remove('active')"
+                style="background:transparent; color:var(--blue-grey); border:1px solid var(--border); width:100%; padding:10px; border-radius:8px; cursor:pointer; font-family:inherit; font-size:0.85rem;">إلغاء</button>
+        </div>
+    </div>
+
     <div id="notifications-panel" class="notifications-panel">
         <div class="notif-header">
             <span data-i18n="notifTitle">الإشعارات</span>
@@ -2654,6 +2896,10 @@
             </div>
 
             <div class="settings-toggles">
+                <button class="toggle-btn real-manager-only" onclick="window.openViewAsModal()" title="معاينة كموظف"
+                    style="color: var(--amber); border-color: rgba(249,115,22,0.4);">
+                    👁️ <span>معاينة كموظف</span>
+                </button>
                 <button class="toggle-btn" onclick="toggleNotifications(event)" title="Notifications">
                     🔔 <span data-i18n="notifBtn">التنبيهات</span>
                     <span id="notif-badge" class="badge">0</span>
@@ -2824,7 +3070,8 @@
                 <div class="page-header">
                     <div>
                         <h1 style="margin-bottom: 5px;">📋 قوالب المبيعات</h1>
-                        <p style="font-size: 0.85rem; color: var(--blue-grey);">قوالب جاهزة لتطبيقها كمشاريع بضغطة واحدة</p>
+                        <p style="font-size: 0.85rem; color: var(--blue-grey);">قوالب جاهزة لتطبيقها كمشاريع بضغطة واحدة
+                        </p>
                     </div>
                     <button class="btn-main" onclick="window.openTemplateModal()">
                         <span style="font-size: 1.2rem; font-weight: bold; margin-inline-end: 5px;">+</span>
@@ -2833,15 +3080,22 @@
                 </div>
 
                 <div id="sales-projects-section" style="display:none; margin-bottom: 24px;">
-                    <h3 style="font-size: 1rem; color: var(--text); margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
+                    <h3
+                        style="font-size: 1rem; color: var(--text); margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
                         📊 المشاريع النشطة التي أنشأتها
-                        <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;">— نظرة مبسّطة على التقدم</span>
+                        <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;">— نظرة مبسّطة على
+                            التقدم</span>
                     </h3>
-                    <div id="sales-projects-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;"></div>
+                    <div id="sales-projects-list"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;">
+                    </div>
                 </div>
 
-                <h3 id="templates-section-title" style="font-size: 1rem; color: var(--text); margin-bottom: 12px;">قوالبي:</h3>
-                <div id="templates-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; padding-bottom: 20px;"></div>
+                <h3 id="templates-section-title" style="font-size: 1rem; color: var(--text); margin-bottom: 12px;">
+                    قوالبي:</h3>
+                <div id="templates-list"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; padding-bottom: 20px;">
+                </div>
             </section>
 
             <section id="reports" class="section">
@@ -2909,17 +3163,24 @@
                 <div id="projectSuggestions" class="autocomplete-suggestions"></div>
             </div>
 
-            <div class="sales-or-admin-only" style="background:rgba(59,164,254,0.06); border:1px dashed var(--accent); border-radius:10px; padding:12px 14px; margin-bottom:15px;">
-                <label style="font-size:0.8rem; color:var(--accent); font-weight:600; margin-bottom:8px; display:block;">📋 إنشاء عدة تاسكات من قالب جاهز <span style="font-weight:normal; color:var(--blue-grey);">(اختياري)</span></label>
-                <select id="tplSelectNew" style="width:100%; padding:10px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; margin-bottom:8px;">
+            <div class="sales-or-admin-only"
+                style="background:rgba(59,164,254,0.06); border:1px dashed var(--accent); border-radius:10px; padding:12px 14px; margin-bottom:15px;">
+                <label
+                    style="font-size:0.8rem; color:var(--accent); font-weight:600; margin-bottom:8px; display:block;">📋
+                    إنشاء عدة تاسكات من قالب جاهز <span
+                        style="font-weight:normal; color:var(--blue-grey);">(اختياري)</span></label>
+                <select id="tplSelectNew"
+                    style="width:100%; padding:10px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; margin-bottom:8px;">
                     <option value="">— بدون قالب —</option>
                 </select>
-                <button type="button" class="btn-outline" onclick="window.applyTemplateAsMultipleTasks()" style="width:100%; padding:9px; font-size:0.82rem;">
+                <button type="button" class="btn-outline" onclick="window.applyTemplateAsMultipleTasks()"
+                    style="width:100%; padding:9px; font-size:0.82rem;">
                     🚀 إنشاء كل تاسكات القالب الآن
                 </button>
             </div>
 
-            <div style="font-size:0.75rem; color:var(--blue-grey); text-align:center; margin-bottom:10px;">— أو أنشئ مهمة واحدة يدوياً —</div>
+            <div style="font-size:0.75rem; color:var(--blue-grey); text-align:center; margin-bottom:10px;">— أو أنشئ
+                مهمة واحدة يدوياً —</div>
 
             <input type="text" id="tTitleNew" data-i18n-placeholder="addTaskTitlePlh" placeholder="عنوان المهمة">
 
@@ -2956,20 +3217,29 @@
 
             <input type="hidden" id="tpl-id">
 
-            <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:6px; display:block;">اسم القالب</label>
+            <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:6px; display:block;">اسم
+                القالب</label>
             <input type="text" id="tpl-name" placeholder="مثال: باقة Premium للعميل X" style="margin-bottom: 15px;">
 
-            <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:6px; display:block;">وصف مختصر <span style="opacity:0.6;">(اختياري)</span></label>
+            <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:6px; display:block;">وصف مختصر <span
+                    style="opacity:0.6;">(اختياري)</span></label>
             <input type="text" id="tpl-desc" placeholder="ملاحظات عن العميل/الباقة..." style="margin-bottom: 15px;">
 
-            <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;">
+            <label
+                style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;">
                 <span>اختر الميزات المطلوبة:</span>
-                <span style="font-size:0.7rem; color:var(--accent);"><b id="tpl-selected-count">0</b> / ${window.SALES_FEATURES?.length || 24} مختارة</span>
+                <span style="font-size:0.7rem; color:var(--accent);"><b id="tpl-selected-count">0</b> /
+                    ${window.SALES_FEATURES?.length || 24} مختارة</span>
             </label>
-            <div id="tpl-features-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; padding:12px; background:var(--bg); border:1px solid var(--border); border-radius:10px; max-height:340px; overflow-y:auto; margin-bottom:8px;"></div>
+            <div id="tpl-features-grid"
+                style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; padding:12px; background:var(--bg); border:1px solid var(--border); border-radius:10px; max-height:340px; overflow-y:auto; margin-bottom:8px;">
+            </div>
             <div style="display:flex; gap:8px; margin-bottom:18px;">
-                <button type="button" class="btn-outline" style="flex:1; padding:6px; font-size:0.75rem;" onclick="window.toggleAllFeatures(true)">✓ تحديد الكل</button>
-                <button type="button" class="btn-outline" style="flex:1; padding:6px; font-size:0.75rem; color:var(--blue-grey); border-color:var(--blue-grey);" onclick="window.toggleAllFeatures(false)">إلغاء التحديد</button>
+                <button type="button" class="btn-outline" style="flex:1; padding:6px; font-size:0.75rem;"
+                    onclick="window.toggleAllFeatures(true)">✓ تحديد الكل</button>
+                <button type="button" class="btn-outline"
+                    style="flex:1; padding:6px; font-size:0.75rem; color:var(--blue-grey); border-color:var(--blue-grey);"
+                    onclick="window.toggleAllFeatures(false)">إلغاء التحديد</button>
             </div>
 
             <button class="btn-main" onclick="window.saveTemplate()" style="width: 100%;">💾 حفظ القالب</button>
@@ -2993,12 +3263,18 @@
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <div style="position: relative;">
-                        <button class="btn-main" id="pr-export-btn" style="padding: 8px 16px; font-size: 0.85rem;" onclick="window.togglePrExportMenu(event)">
+                        <button class="btn-main" id="pr-export-btn" style="padding: 8px 16px; font-size: 0.85rem;"
+                            onclick="window.togglePrExportMenu(event)">
                             📥 تصدير ▾
                         </button>
-                        <div id="pr-export-menu" style="display:none; position:absolute; top:110%; inset-inline-end:0; background:var(--card-bg); border:1px solid var(--border); border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.4); z-index:50; min-width:180px;">
-                            <button onclick="window.exportProjectExcel()" style="display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; color:var(--text); padding:12px 16px; cursor:pointer; font-size:0.85rem; text-align:start;">📊 Excel (متعدد الصفحات)</button>
-                            <button onclick="window.exportProjectPDF()" style="display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; color:var(--text); padding:12px 16px; cursor:pointer; font-size:0.85rem; text-align:start; border-top:1px solid var(--border);">📄 PDF (تقرير منسق)</button>
+                        <div id="pr-export-menu"
+                            style="display:none; position:absolute; top:110%; inset-inline-end:0; background:var(--card-bg); border:1px solid var(--border); border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.4); z-index:50; min-width:180px;">
+                            <button onclick="window.exportProjectExcel()"
+                                style="display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; color:var(--text); padding:12px 16px; cursor:pointer; font-size:0.85rem; text-align:start;">📊
+                                Excel (متعدد الصفحات)</button>
+                            <button onclick="window.exportProjectPDF()"
+                                style="display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; color:var(--text); padding:12px 16px; cursor:pointer; font-size:0.85rem; text-align:start; border-top:1px solid var(--border);">📄
+                                PDF (تقرير منسق)</button>
                         </div>
                     </div>
                     <button onclick="closeProjectReport()"
@@ -3006,9 +3282,12 @@
                 </div>
             </div>
 
-            <div id="pr-tabs" style="display:flex; gap:4px; padding: 0 20px; background:var(--bg); border-bottom:1px solid var(--border); overflow-x:auto;">
-                <button class="pr-tab active" data-tab="overview" onclick="window.switchPrTab('overview')">📌 نظرة عامة</button>
-                <button class="pr-tab" data-tab="dashboard" onclick="window.switchPrTab('dashboard')">📈 الداش بورد</button>
+            <div id="pr-tabs"
+                style="display:flex; gap:4px; padding: 0 20px; background:var(--bg); border-bottom:1px solid var(--border); overflow-x:auto;">
+                <button class="pr-tab active" data-tab="overview" onclick="window.switchPrTab('overview')">📌 نظرة
+                    عامة</button>
+                <button class="pr-tab" data-tab="dashboard" onclick="window.switchPrTab('dashboard')">📈 الداش
+                    بورد</button>
                 <button class="pr-tab" data-tab="lead" onclick="window.switchPrTab('lead')">👤 تقرير التيم ليد</button>
                 <button class="pr-tab" data-tab="tasks" onclick="window.switchPrTab('tasks')">✅ التاسكات</button>
                 <button class="pr-tab" data-tab="notes" onclick="window.switchPrTab('notes')">💬 الملاحظات</button>
@@ -3085,34 +3364,45 @@
                         </div>
 
                         <div class="sales-or-admin-only" style="position: relative; margin-top: 10px;">
-                            <button type="button" class="btn-outline" style="width: 100%; padding: 10px; font-size: 0.85rem; background: rgba(59,164,254,0.05);"
+                            <button type="button" class="btn-outline"
+                                style="width: 100%; padding: 10px; font-size: 0.85rem; background: rgba(59,164,254,0.05);"
                                 onclick="window.toggleTemplateApplyDropdown()">
                                 📥 إضافة من قالب جاهز
                             </button>
-                            <div id="tpl-apply-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:var(--card-bg); border:1px solid var(--accent); border-radius:10px; margin-top:5px; max-height:280px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.4); z-index:50;"></div>
+                            <div id="tpl-apply-dropdown"
+                                style="display:none; position:absolute; top:100%; left:0; right:0; background:var(--card-bg); border:1px solid var(--accent); border-radius:10px; margin-top:5px; max-height:280px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.4); z-index:50;">
+                            </div>
                         </div>
                     </div>
 
                     <div>
                         <div class="trello-section-title">📋 <span>تقرير الموظف على هذه المهمة</span>
-                            <span style="font-size: 0.75rem; color: var(--blue-grey); font-weight: normal; margin-inline-start: auto;">(كل موظف يكتب تقريره الخاص)</span>
+                            <span
+                                style="font-size: 0.75rem; color: var(--blue-grey); font-weight: normal; margin-inline-start: auto;">(كل
+                                موظف يكتب تقريره الخاص)</span>
                         </div>
                         <div id="dt-employee-reports" style="display: flex; flex-direction: column; gap: 12px;"></div>
                     </div>
 
                     <div>
                         <div class="trello-section-title">⚠️ <span>المشاكل والعقبات</span>
-                            <span style="font-size: 0.75rem; color: var(--blue-grey); font-weight: normal; margin-inline-start: auto;">(سجّل أي مشكلة واجهت هذه المهمة)</span>
+                            <span
+                                style="font-size: 0.75rem; color: var(--blue-grey); font-weight: normal; margin-inline-start: auto;">(سجّل
+                                أي مشكلة واجهت هذه المهمة)</span>
                         </div>
-                        <div id="dt-issues-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
+                        <div id="dt-issues-list"
+                            style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;"></div>
                         <div class="checklist-input-wrap">
-                            <input type="text" id="dt-new-issue" placeholder="وصف المشكلة..." style="flex:2; min-width:200px;">
-                            <select id="dt-new-issue-severity" style="flex:1; min-width:120px; padding: 10px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text);">
+                            <input type="text" id="dt-new-issue" placeholder="وصف المشكلة..."
+                                style="flex:2; min-width:200px;">
+                            <select id="dt-new-issue-severity"
+                                style="flex:1; min-width:120px; padding: 10px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text);">
                                 <option value="low">🔵 بسيطة</option>
                                 <option value="medium" selected>🟡 متوسطة</option>
                                 <option value="high">🔴 حرجة</option>
                             </select>
-                            <button class="btn-main" style="padding: 10px 20px; width: auto;" onclick="window.addIssue()">إضافة</button>
+                            <button class="btn-main" style="padding: 10px 20px; width: auto;"
+                                onclick="window.addIssue()">إضافة</button>
                         </div>
                     </div>
 
@@ -3567,6 +3857,169 @@
         };
 
         // ═══════════════════════════════════════════════════════════
+        // وضع المعاينة (View As) — للمدير فقط
+        //   - يحفظ الحالة الفعلية ويستبدلها بصلاحيات موظف آخر
+        //   - وضع قراءة فقط افتراضياً (يحمي من تعديلات بالخطأ)
+        //   - زر الرجوع دائماً ظاهر في البانر الأصفر
+        // ═══════════════════════════════════════════════════════════
+        window.viewAsState = null;
+
+        // إظهار/إخفاء العناصر حسب الصلاحيات (يُستدعى من auth ومن startViewAs/stopViewAs)
+        window.applyRoleBasedUI = () => {
+            const hasAdminRights = window.isManager || window.isTeamLead;
+            const canCreateTasks = hasAdminRights || window.isSales;
+            const canManageTemplates = window.isManager || window.isSales;
+            // العنصر "real-manager-only" يبقى مرتبطاً بالمدير الفعلي (ليس المُعَايَن) ليتمكن من الرجوع
+            const isRealManager = window.viewAsState ? window.viewAsState.realIsManager : window.isManager;
+
+            const showEl = (el) => {
+                if (el.tagName === 'BUTTON') {
+                    el.style.display = el.classList.contains('btn-add-circle') || el.classList.contains('btn-add-fab') || el.classList.contains('col-drag-handle') ? 'flex' : 'inline-flex';
+                } else if (el.tagName === 'SELECT') {
+                    el.style.display = 'block';
+                } else if (el.tagName === 'SPAN' && el.classList.contains('col-drag-handle')) {
+                    el.style.display = 'inline-block';
+                } else {
+                    el.style.display = 'flex';
+                }
+            };
+
+            document.querySelectorAll('.admin-only').forEach(el => { if (hasAdminRights) showEl(el); else el.style.display = 'none'; });
+            document.querySelectorAll('.creator-only').forEach(el => { if (canCreateTasks) showEl(el); else el.style.display = 'none'; });
+            document.querySelectorAll('.sales-or-admin-only').forEach(el => { if (canManageTemplates) showEl(el); else el.style.display = 'none'; });
+            document.querySelectorAll('.not-sales').forEach(el => { el.style.display = window.isSales ? 'none' : ''; });
+            document.querySelectorAll('.real-manager-only').forEach(el => { if (isRealManager) showEl(el); else el.style.display = 'none'; });
+
+            const dtTeam = document.getElementById('dt-team');
+            if (dtTeam) dtTeam.disabled = !hasAdminRights;
+        };
+
+        window.openViewAsModal = () => {
+            const list = document.getElementById('viewAsUserList');
+            if (!list) return;
+            const realName = window.viewAsState ? window.viewAsState.realName : window.currentUserName;
+            const entries = Object.entries(window.whitelist).filter(([_, u]) => u.name !== realName);
+            list.innerHTML = entries.map(([email, u]) => {
+                const safeEmail = sanitizeEmail(email);
+                const roleLabel = u.role === 'manager' ? 'مدير' : (u.isLead ? `قائد ${u.role}` : (u.role === 'sales' ? 'مبيعات' : `فريق ${u.role}`));
+                return `<div onclick="window.startViewAs('${email}')" style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--bg); border:1px solid var(--border); border-radius:8px; cursor:pointer; transition:0.15s;" onmouseover="this.style.borderColor='var(--accent)';" onmouseout="this.style.borderColor='var(--border)';">
+                    ${window.getAvatarHTML(u.name, safeEmail)}
+                    <div style="flex:1; min-width:0;">
+                        <div style="font-weight:600; color:var(--text); font-size:0.9rem;">${u.name}</div>
+                        <div style="font-size:0.72rem; color:var(--blue-grey); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${roleLabel} · ${email}</div>
+                    </div>
+                    <span style="color:var(--accent); font-size:1.1rem;">👁️</span>
+                </div>`;
+            }).join('');
+            document.getElementById('viewAsModal').classList.add('active');
+        };
+
+        window.startViewAs = (email) => {
+            const u = window.whitelist[email];
+            if (!u) return;
+
+            // احفظ الحالة الفعلية مرة واحدة فقط (لو الموظف بدّل من واحد لآخر بدون رجوع)
+            if (!window.viewAsState) {
+                window.viewAsState = {
+                    realName: window.currentUserName,
+                    realEmail: window.currentUserEmailSafe,
+                    realIsManager: window.isManager,
+                    realIsTeamLead: window.isTeamLead,
+                    realIsSales: window.isSales,
+                    readOnly: true
+                };
+            }
+
+            // طبّق صلاحيات الموظف المُعايَن
+            window.currentUserName = u.name;
+            window.currentUserEmailSafe = sanitizeEmail(email);
+            window.isManager = u.role === 'manager';
+            window.isTeamLead = u.isLead === true;
+            window.isSales = u.role === 'sales';
+
+            // تحديث الـ sidebar (الاسم/الدور/الأفاتار)
+            document.getElementById('user-name').innerText = u.name;
+            document.getElementById('user-role').innerText = window.isManager ? "Manager" : (window.isTeamLead ? `Team Lead (${u.role})` : (window.isSales ? "Sales" : `Team ${u.role}`));
+            const avatarEl = document.getElementById('user-avatar-main');
+            if (avatarEl) {
+                avatarEl.outerHTML = window.getAvatarHTML(u.name, window.currentUserEmailSafe).replace('class="avatar"', 'id="user-avatar-main" class="avatar avatar-lg"');
+            }
+
+            // إظهار البانر + تطبيق وضع القراءة فقط
+            document.body.classList.add('view-as-active');
+            if (window.viewAsState.readOnly) document.body.classList.add('view-as-readonly');
+            document.getElementById('viewAsName').innerText = u.name;
+
+            // طبّق الصلاحيات الجديدة على الواجهة
+            window.applyRoleBasedUI();
+
+            // انقل المستخدم لـ tab المناسب (المبيعات → templates، الباقي → kanban)
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            const targetId = window.isSales ? 'templates' : 'kanban';
+            const targetNav = document.querySelector(`.nav-item[data-target="${targetId}"]`);
+            const targetSec = document.getElementById(targetId);
+            if (targetNav) targetNav.classList.add('active');
+            if (targetSec) targetSec.classList.add('active');
+
+            document.body.classList.toggle('gantt-fullscreen', false);
+            window.refreshAllViews();
+            if (window.isSales && window.renderTemplates) setTimeout(window.renderTemplates, 50);
+
+            document.getElementById('viewAsModal').classList.remove('active');
+        };
+
+        window.stopViewAs = () => {
+            if (!window.viewAsState) return;
+            const s = window.viewAsState;
+            window.currentUserName = s.realName;
+            window.currentUserEmailSafe = s.realEmail;
+            window.isManager = s.realIsManager;
+            window.isTeamLead = s.realIsTeamLead;
+            window.isSales = s.realIsSales;
+            window.viewAsState = null;
+
+            // استرجاع بيانات الـ sidebar
+            let realUserData = null;
+            for (let email in window.whitelist) {
+                if (sanitizeEmail(email) === s.realEmail) { realUserData = window.whitelist[email]; break; }
+            }
+            if (realUserData) {
+                document.getElementById('user-name').innerText = realUserData.name;
+                document.getElementById('user-role').innerText = s.realIsManager ? "Manager" : (s.realIsTeamLead ? `Team Lead (${realUserData.role})` : (s.realIsSales ? "Sales" : `Team ${realUserData.role}`));
+                const avatarEl = document.getElementById('user-avatar-main');
+                if (avatarEl) {
+                    avatarEl.outerHTML = window.getAvatarHTML(realUserData.name, s.realEmail).replace('class="avatar"', 'id="user-avatar-main" class="avatar avatar-lg"');
+                }
+            }
+
+            document.body.classList.remove('view-as-active', 'view-as-readonly');
+            window.applyRoleBasedUI();
+            window.refreshAllViews();
+        };
+
+        window.toggleViewAsEditMode = () => {
+            if (!window.viewAsState) return;
+            window.viewAsState.readOnly = !window.viewAsState.readOnly;
+            document.body.classList.toggle('view-as-readonly', window.viewAsState.readOnly);
+            const btn = document.getElementById('viewAsEditToggle');
+            const status = document.getElementById('viewAsReadStatus');
+            if (window.viewAsState.readOnly) {
+                if (btn) btn.innerText = '🔓 السماح بالتعديل';
+                if (status) status.innerHTML = '🔒 قراءة فقط';
+            } else {
+                if (!confirm('⚠️ تنبيه: في وضع التعديل، أي تغيير ستحفظه سيُسجَّل باسم الموظف الذي تتقمصه (وليس باسمك). متابعة؟')) {
+                    // لم يوافق — أعد لوضع القراءة فقط
+                    window.viewAsState.readOnly = true;
+                    document.body.classList.add('view-as-readonly');
+                    return;
+                }
+                if (btn) btn.innerText = '🔒 العودة لقراءة فقط';
+                if (status) status.innerHTML = '⚠️ التعديل مفعّل — سيُحفظ باسم الموظف';
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════
         // ╔═══════════════════════════════════════════════════════╗
         // ║   نظام التقارير الشامل للمشاريع                       ║
         // ║   - تحليل تلقائي لكل بيانات المشروع                   ║
@@ -3776,7 +4229,7 @@
 
         window.closeProjectReport = () => {
             document.getElementById('projectReportModal').classList.remove('active');
-            Object.keys(window.prCharts).forEach(k => { try { window.prCharts[k].destroy(); } catch (e) {} });
+            Object.keys(window.prCharts).forEach(k => { try { window.prCharts[k].destroy(); } catch (e) { } });
             window.prCharts = {};
             const menu = document.getElementById('pr-export-menu');
             if (menu) menu.style.display = 'none';
@@ -3852,7 +4305,7 @@
                 </div>`;
 
             // Destroy old charts first
-            ['status', 'team', 'priority', 'hours'].forEach(k => { if (window.prCharts[k]) { try { window.prCharts[k].destroy(); } catch (e) {} } });
+            ['status', 'team', 'priority', 'hours'].forEach(k => { if (window.prCharts[k]) { try { window.prCharts[k].destroy(); } catch (e) { } } });
 
             setTimeout(() => {
                 const textColor = getComputedStyle(document.body).getPropertyValue('--text').trim() || '#fff';
@@ -4071,9 +4524,9 @@
             const overdueHtml = a.overdueTasks.length === 0 ? '<div style="color:var(--blue-grey); padding:14px; text-align:center;">✅ لا توجد مهام متأخرة</div>' : `
                 <table class="pr-table"><thead><tr><th>المهمة</th><th>المسؤول</th><th>التسليم</th><th>التأخر</th></tr></thead><tbody>
                 ${a.overdueTasks.map(t => {
-                    const assignees = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
-                    return `<tr><td><b>${escapeHtml(t.title)}</b></td><td>${assignees.join(', ') || '-'}</td><td>${t.dueDate}</td><td style="color:var(--red-danger); font-weight:700;">${t.daysOverdue} يوم</td></tr>`;
-                }).join('')}
+                const assignees = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+                return `<tr><td><b>${escapeHtml(t.title)}</b></td><td>${assignees.join(', ') || '-'}</td><td>${t.dueDate}</td><td style="color:var(--red-danger); font-weight:700;">${t.daysOverdue} يوم</td></tr>`;
+            }).join('')}
                 </tbody></table>`;
 
             const issuesHtml = a.allIssues.length === 0 ? '<div style="color:var(--blue-grey); padding:14px; text-align:center;">✅ لم تُسجّل أي مشكلة</div>' :
@@ -6666,39 +7119,8 @@
                     document.getElementById('user-name').innerText = userData.name;
                     document.getElementById('user-role').innerText = window.isManager ? "Manager" : (window.isTeamLead ? `Team Lead (${userData.role})` : (window.isSales ? "Sales" : `Team ${userData.role}`));
 
-                    const hasAdminRights = window.isManager || window.isTeamLead;
-                    const canCreateTasks = hasAdminRights || window.isSales;
-                    const canManageTemplates = window.isManager || window.isSales;
-
-                    // helper موحّد لإظهار العنصر بحالة عرض مناسبة
-                    const showEl = (el) => {
-                        if (el.tagName === 'BUTTON') {
-                            el.style.display = el.classList.contains('btn-add-circle') || el.classList.contains('btn-add-fab') || el.classList.contains('col-drag-handle') ? 'flex' : 'inline-flex';
-                        } else if (el.tagName === 'SELECT') {
-                            el.style.display = 'block';
-                        } else if (el.tagName === 'SPAN' && el.classList.contains('col-drag-handle')) {
-                            el.style.display = 'inline-block';
-                        } else {
-                            el.style.display = 'flex';
-                        }
-                    };
-
-                    // admin-only: مانيجر + تيم ليد فقط (تعديل التاسكات، الداش، التقارير، الجانت)
-                    document.querySelectorAll('.admin-only').forEach(el => {
-                        if (hasAdminRights) showEl(el); else el.style.display = 'none';
-                    });
-                    // creator-only: من يقدر ينشئ تاسكات (مانيجر + تيم ليد + مبيعات)
-                    document.querySelectorAll('.creator-only').forEach(el => {
-                        if (canCreateTasks) showEl(el); else el.style.display = 'none';
-                    });
-                    // sales-or-admin-only: قوالب المبيعات (مانيجر + مبيعات فقط)
-                    document.querySelectorAll('.sales-or-admin-only').forEach(el => {
-                        if (canManageTemplates) showEl(el); else el.style.display = 'none';
-                    });
-                    // not-sales: عناصر مخفية عن فريق المبيعات (الكنبان + بقية الصفحات)
-                    document.querySelectorAll('.not-sales').forEach(el => {
-                        if (window.isSales) el.style.display = 'none';
-                    });
+                    // إظهار العناصر حسب الصلاحيات (مستخلصة في دالة لإعادة الاستدعاء عند View As)
+                    window.applyRoleBasedUI();
 
                     // المبيعات يبدأ على صفحة القوالب بدل الكنبان
                     if (window.isSales) {
@@ -6710,8 +7132,6 @@
                         if (tplSec) tplSec.classList.add('active');
                         setTimeout(() => window.renderTemplates && window.renderTemplates(), 100);
                     }
-
-                    document.getElementById('dt-team').disabled = !hasAdminRights;
 
                     const monthInput = document.getElementById('monthFilter');
                     if (monthInput && !monthInput.value) monthInput.value = window.activeMonthFilter;
