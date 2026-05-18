@@ -1074,6 +1074,35 @@
             border-color: var(--accent);
         }
 
+        /* انيمشن لفت النظر للمشاريع الجديدة من المبيعات */
+        @keyframes salesSlideIn {
+            0% { opacity: 0; transform: translateY(-8px) scale(0.9); }
+            60% { opacity: 1; transform: translateY(0) scale(1.05); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes salesGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.55); }
+            50% { box-shadow: 0 0 0 6px rgba(52,211,153,0); }
+        }
+        @keyframes salesHeaderShimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .sales-section-anim {
+            animation: salesSlideIn 0.45s ease-out;
+        }
+        .sales-chip-anim {
+            animation: salesSlideIn 0.45s ease-out backwards, salesGlow 2.2s ease-in-out 0.5s infinite;
+        }
+        .sales-header-anim {
+            background: linear-gradient(90deg, var(--green-success) 0%, #6ee7b7 25%, var(--green-success) 50%, #6ee7b7 75%, var(--green-success) 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: salesHeaderShimmer 3s linear infinite;
+        }
+
         .autocomplete-suggestions {
             display: none;
             position: absolute;
@@ -5736,7 +5765,7 @@
             const salesProjects = all.filter(([_, m]) => m.fromSales).sort((a, b) => b[1].createdAt - a[1].createdAt);
             const otherProjects = all.filter(([_, m]) => !m.fromSales).sort((a, b) => b[1].createdAt - a[1].createdAt).slice(0, 6);
 
-            const makeChip = (p, salesStyle) => {
+            const makeChip = (p, salesStyle, idx) => {
                 const safe = p.replace(/'/g, "\\'");
                 const style = salesStyle
                     ? 'background:rgba(52,211,153,0.18); border:1.5px solid var(--green-success); color:var(--green-success); font-weight:700;'
@@ -5744,19 +5773,26 @@
                 const badge = salesStyle
                     ? '<span style="background:var(--green-success); color:#fff; font-size:0.6rem; padding:1px 5px; border-radius:8px; margin-inline-start:4px;">🆕 مبيعات</span>'
                     : '';
-                return `<span class="project-hashtag" style="${style}" onclick="document.getElementById('pNameNew').value='${safe}'; document.getElementById('projectSuggestions').style.display='none';"># ${p}${badge}</span>`;
+                const animClass = salesStyle ? 'sales-chip-anim' : '';
+                const animDelay = salesStyle ? `animation-delay: ${idx * 0.08}s, ${0.5 + idx * 0.08}s;` : '';
+                return `<span class="project-hashtag ${animClass}" style="${style}${animDelay}" onclick="document.getElementById('pNameNew').value='${safe}'; document.getElementById('projectSuggestions').style.display='none';"># ${p}${badge}</span>`;
             };
 
             let html = '';
             if (salesProjects.length > 0) {
-                html += `<div style="width:100%; font-size:0.72rem; color:var(--green-success); font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:6px;">🆕 مشاريع جديدة من فريق المبيعات <span style="background:var(--green-success); color:#fff; font-size:0.6rem; padding:1px 6px; border-radius:8px;">${salesProjects.length}</span></div>`;
-                html += `<div style="display:flex; flex-wrap:wrap; gap:6px; width:100%; margin-bottom:10px; padding-bottom:10px; border-bottom:1px dashed var(--border);">` + salesProjects.map(([p]) => makeChip(p, true)).join('') + `</div>`;
+                html += `<div class="sales-section-anim" style="width:100%; margin-bottom:10px; padding-bottom:10px; border-bottom:1px dashed var(--border);">`;
+                html += `<div style="font-size:0.78rem; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                    <span class="sales-header-anim">🆕 مشاريع جديدة من فريق المبيعات</span>
+                    <span style="background:var(--green-success); color:#fff; font-size:0.6rem; padding:1px 6px; border-radius:8px;">${salesProjects.length}</span>
+                </div>`;
+                html += `<div style="display:flex; flex-wrap:wrap; gap:6px;">` + salesProjects.map(([p], i) => makeChip(p, true, i)).join('') + `</div>`;
+                html += `</div>`;
             }
             if (otherProjects.length > 0) {
                 if (salesProjects.length > 0) {
                     html += `<div style="width:100%; font-size:0.7rem; color:var(--blue-grey); font-weight:600; margin-bottom:6px;">آخر المشاريع</div>`;
                 }
-                html += `<div style="display:flex; flex-wrap:wrap; gap:6px; width:100%;">` + otherProjects.map(([p]) => makeChip(p, false)).join('') + `</div>`;
+                html += `<div style="display:flex; flex-wrap:wrap; gap:6px; width:100%;">` + otherProjects.map(([p], i) => makeChip(p, false, i)).join('') + `</div>`;
             }
             container.innerHTML = html;
         };
