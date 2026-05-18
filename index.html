@@ -2838,26 +2838,37 @@
     <div class="modal" id="salesApplyModal">
         <div class="simple-modal" style="max-width: 580px; max-height: 92vh; overflow-y: auto;">
             <h2 style="color: var(--text); margin-bottom: 6px;">🚀 تطبيق القالب على مشروع جديد</h2>
-            <p style="color: var(--blue-grey); font-size:0.8rem; margin-bottom: 16px;">اختر التاسكات التي تريد إنشاءها — يمكنك إنشاء الكل أو فقط المحدد.</p>
+            <p style="color: var(--blue-grey); font-size:0.8rem; margin-bottom: 16px;">اختر التاسكات التي تريد إنشاءها —
+                يمكنك إنشاء الكل أو فقط المحدد.</p>
 
-            <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:6px; display:block;">اسم المشروع</label>
+            <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:6px; display:block;">اسم
+                المشروع</label>
             <input type="text" id="sa-project-name" placeholder="مثلاً: برج النخيل" style="margin-bottom: 14px;">
 
             <input type="hidden" id="sa-template-id">
 
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-                <span style="font-size:0.82rem; color:var(--text); font-weight:600;"><span id="sa-selected-count">0</span> / <span id="sa-total-count">0</span> تاسك مختار</span>
+                <span style="font-size:0.82rem; color:var(--text); font-weight:600;"><span
+                        id="sa-selected-count">0</span> / <span id="sa-total-count">0</span> تاسك مختار</span>
                 <div style="display:flex; gap:6px;">
-                    <button type="button" class="btn-outline" style="padding:4px 10px; font-size:0.7rem;" onclick="window.salesApplyToggleAll(true)">✓ الكل</button>
-                    <button type="button" class="btn-outline" style="padding:4px 10px; font-size:0.7rem; color:var(--blue-grey); border-color:var(--blue-grey);" onclick="window.salesApplyToggleAll(false)">إلغاء</button>
+                    <button type="button" class="btn-outline" style="padding:4px 10px; font-size:0.7rem;"
+                        onclick="window.salesApplyToggleAll(true)">✓ الكل</button>
+                    <button type="button" class="btn-outline"
+                        style="padding:4px 10px; font-size:0.7rem; color:var(--blue-grey); border-color:var(--blue-grey);"
+                        onclick="window.salesApplyToggleAll(false)">إلغاء</button>
                 </div>
             </div>
 
-            <div id="sa-items-list" style="display:flex; flex-direction:column; gap:6px; max-height:340px; overflow-y:auto; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:10px; margin-bottom:16px;"></div>
+            <div id="sa-items-list"
+                style="display:flex; flex-direction:column; gap:6px; max-height:340px; overflow-y:auto; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:10px; margin-bottom:16px;">
+            </div>
 
             <div style="display:flex; gap:10px;">
-                <button class="btn-main" style="flex:1; padding:11px;" onclick="window.salesApplyConfirm(false)">🚀 إنشاء المحدد فقط</button>
-                <button class="btn-outline" style="flex:1; padding:11px; background:rgba(52,211,153,0.1); color:var(--green-success); border-color:var(--green-success);" onclick="window.salesApplyConfirm(true)">📦 إنشاء الكل دفعة واحدة</button>
+                <button class="btn-main" style="flex:1; padding:11px;" onclick="window.salesApplyConfirm(false)">🚀
+                    إنشاء المحدد فقط</button>
+                <button class="btn-outline"
+                    style="flex:1; padding:11px; background:rgba(52,211,153,0.1); color:var(--green-success); border-color:var(--green-success);"
+                    onclick="window.salesApplyConfirm(true)">📦 إنشاء الكل دفعة واحدة</button>
             </div>
             <button onclick="document.getElementById('salesApplyModal').classList.remove('active')"
                 style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:10px; cursor:pointer; font-family: inherit; font-size:0.8rem;">إلغاء</button>
@@ -2921,7 +2932,7 @@
                 <div class="nav-item-content"><span>📅</span> <span data-i18n="navGantt">مخطط المشاريع</span></div>
             </div>
             <div class="nav-item sales-or-admin-only" data-target="templates">
-                <div class="nav-item-content"><span>📋</span> <span>قوالب المبيعات</span></div>
+                <div class="nav-item-content"><span>📋</span> <span> المبيعات</span></div>
             </div>
 
             <div class="settings-toggles">
@@ -3182,16 +3193,25 @@
                 <div id="projectSuggestions" class="autocomplete-suggestions"></div>
             </div>
 
-            <div id="tplFeaturesSelector" style="display:none; background:rgba(52,211,153,0.08); border:1.5px solid var(--green-success); border-radius:10px; padding:12px 14px; margin-bottom:15px;">
-                <div style="font-size:0.82rem; color:var(--green-success); font-weight:700; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+            <div id="tplFeaturesSelector"
+                style="display:none; background:rgba(52,211,153,0.08); border:1.5px solid var(--green-success); border-radius:10px; padding:12px 14px; margin-bottom:15px;">
+                <div
+                    style="font-size:0.82rem; color:var(--green-success); font-weight:700; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
                     <span>📋 ميزات قالب: <span id="tpl-features-tpl-name" style="color:var(--text);"></span></span>
-                    <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;"><b id="tpl-features-selected">0</b> / <b id="tpl-features-total">0</b> مختار</span>
+                    <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;"><b
+                            id="tpl-features-selected">0</b> / <b id="tpl-features-total">0</b> مختار</span>
                 </div>
-                <div style="font-size:0.7rem; color:var(--blue-grey); margin-bottom:8px;">✓ المختار سيُضاف كخطوات فرعية (checklist) داخل المهمة الجديدة عند الحفظ</div>
-                <div id="tplFeaturesItems" style="display:flex; flex-direction:column; gap:5px; max-height:220px; overflow-y:auto; padding:8px; background:var(--bg); border:1px solid var(--border); border-radius:8px; margin-bottom:10px;"></div>
+                <div style="font-size:0.7rem; color:var(--blue-grey); margin-bottom:8px;">✓ المختار سيُضاف كخطوات فرعية
+                    (checklist) داخل المهمة الجديدة عند الحفظ</div>
+                <div id="tplFeaturesItems"
+                    style="display:flex; flex-direction:column; gap:5px; max-height:220px; overflow-y:auto; padding:8px; background:var(--bg); border:1px solid var(--border); border-radius:8px; margin-bottom:10px;">
+                </div>
                 <div style="display:flex; gap:6px;">
-                    <button type="button" class="btn-outline" style="flex:1; padding:5px; font-size:0.7rem;" onclick="window.tplFeaturesToggleAll(true)">✓ تحديد الكل</button>
-                    <button type="button" class="btn-outline" style="flex:1; padding:5px; font-size:0.7rem; color:var(--blue-grey); border-color:var(--blue-grey);" onclick="window.tplFeaturesToggleAll(false)">إلغاء</button>
+                    <button type="button" class="btn-outline" style="flex:1; padding:5px; font-size:0.7rem;"
+                        onclick="window.tplFeaturesToggleAll(true)">✓ تحديد الكل</button>
+                    <button type="button" class="btn-outline"
+                        style="flex:1; padding:5px; font-size:0.7rem; color:var(--blue-grey); border-color:var(--blue-grey);"
+                        onclick="window.tplFeaturesToggleAll(false)">إلغاء</button>
                 </div>
             </div>
 
@@ -4820,17 +4840,17 @@
                     projectsBlock = `<div style="border-top:1px dashed var(--border); padding-top:10px; margin-top:4px;">
                         <div style="font-size:0.72rem; color:var(--green-success); font-weight:700; margin-bottom:8px;">🚀 المشاريع الناتجة (${projEntries.length})</div>
                         ${projEntries.map(([pName, info]) => {
-                            const pct = info.totalSub > 0 ? Math.round((info.doneSub / info.totalSub) * 100) : (info.totalTasks > 0 ? Math.round((info.doneTasks / info.totalTasks) * 100) : 0);
-                            const barColor = pct >= 80 ? 'var(--green-success)' : (pct >= 40 ? 'var(--amber)' : 'var(--accent)');
-                            let daysHtml = '';
-                            if (info.latestEnd) {
-                                const daysLeft = Math.round((info.latestEnd - todayMs) / dayMs);
-                                if (daysLeft < 0) daysHtml = `<span style="color:var(--red-danger); font-size:0.65rem;">⚠️ متأخر ${Math.abs(daysLeft)}ي</span>`;
-                                else if (daysLeft <= 7) daysHtml = `<span style="color:var(--amber); font-size:0.65rem;">🟠 ${daysLeft}ي</span>`;
-                                else daysHtml = `<span style="color:var(--blue-grey); font-size:0.65rem;">${daysLeft}ي</span>`;
-                            }
-                            const safeP = pName.replace(/'/g, "\\'");
-                            return `<div style="background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:8px 10px; margin-bottom:6px; cursor:pointer;" onclick="window.openProjectReport && window.openProjectReport('${safeP}')">
+                        const pct = info.totalSub > 0 ? Math.round((info.doneSub / info.totalSub) * 100) : (info.totalTasks > 0 ? Math.round((info.doneTasks / info.totalTasks) * 100) : 0);
+                        const barColor = pct >= 80 ? 'var(--green-success)' : (pct >= 40 ? 'var(--amber)' : 'var(--accent)');
+                        let daysHtml = '';
+                        if (info.latestEnd) {
+                            const daysLeft = Math.round((info.latestEnd - todayMs) / dayMs);
+                            if (daysLeft < 0) daysHtml = `<span style="color:var(--red-danger); font-size:0.65rem;">⚠️ متأخر ${Math.abs(daysLeft)}ي</span>`;
+                            else if (daysLeft <= 7) daysHtml = `<span style="color:var(--amber); font-size:0.65rem;">🟠 ${daysLeft}ي</span>`;
+                            else daysHtml = `<span style="color:var(--blue-grey); font-size:0.65rem;">${daysLeft}ي</span>`;
+                        }
+                        const safeP = pName.replace(/'/g, "\\'");
+                        return `<div style="background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:8px 10px; margin-bottom:6px; cursor:pointer;" onclick="window.openProjectReport && window.openProjectReport('${safeP}')">
                                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; font-size:0.78rem;">
                                     <span style="color:var(--accent); font-weight:700;"># ${escapeHtml(pName)}</span>
                                     <span style="display:flex; gap:6px; align-items:center;">
@@ -4843,7 +4863,7 @@
                                 </div>
                                 <div style="font-size:0.65rem; color:var(--blue-grey); margin-top:3px;">${info.totalTasks} تاسك · ${info.doneSub}/${info.totalSub} منجز</div>
                             </div>`;
-                        }).join('')}
+                    }).join('')}
                     </div>`;
                 }
 
@@ -6505,6 +6525,30 @@
             }
 
             const { ref, push, db } = window.firebaseTools;
+
+            // إرسال إشعار للمدراء وقادة الفرق إذا كان هذا المشروع جديداً وتمت إضافته بواسطة المبيعات
+            if (window.isSales) {
+                const isNewProject = !Object.values(window.allTasks || {}).some(t => t && (t.projectName || '').toLowerCase() === trimmedName);
+                if (isNewProject) {
+                    const adminEmails = [];
+                    for (let email in window.whitelist) {
+                        const u = window.whitelist[email];
+                        if (u.isLead === true || u.role === 'manager') adminEmails.push(sanitizeEmail(email));
+                    }
+                    adminEmails.forEach(ek => {
+                        if (ek === window.currentUserEmailSafe) return;
+                        push(ref(db, `users/${ek}/notifications`), {
+                            from: window.currentUserName,
+                            taskId: '',
+                            taskName: `🆕 مشروع جديد من المبيعات: ${projectName}`,
+                            time: Date.now(),
+                            read: false,
+                            salesProject: projectName
+                        });
+                    });
+                }
+            }
+
             push(ref(db, 'tasks'), data);
             document.getElementById('addTaskModal').classList.remove('active');
         };
