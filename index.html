@@ -3109,9 +3109,9 @@
                 </div>
 
                 <div id="sales-projects-section" style="display:none; margin-bottom: 24px;">
-                    <h3
+                    <h3 id="sales-projects-title"
                         style="font-size: 1rem; color: var(--text); margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
-                        📊 المشاريع النشطة التي أنشأتها
+                        📊 المشاريع النشطة من قوالب المبيعات
                         <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;">— نظرة مبسّطة على
                             التقدم</span>
                     </h3>
@@ -4876,16 +4876,29 @@
             }).join('');
         };
 
-        // ───── بطاقات المشاريع النشطة (للمبيعات) — اسم + أيام متبقية + بروقرس ─────
+        // ───── بطاقات المشاريع النشطة من قوالب المبيعات — تظهر للمدير + التيم ليد + المبيعات ─────
         window.renderSalesActiveProjects = () => {
             const section = document.getElementById('sales-projects-section');
             const list = document.getElementById('sales-projects-list');
+            const title = document.getElementById('sales-projects-title');
             if (!section || !list) return;
 
-            // المبيعات فقط — الأدمن والتيم ليد ما يحتاجون هاي البطاقات
-            if (!window.isSales) { section.style.display = 'none'; return; }
+            // إذا الموظف العادي (مش مدير/تيم ليد/مبيعات) → أخفِ القسم
+            if (!window.isManager && !window.isTeamLead && !window.isSales) {
+                section.style.display = 'none';
+                return;
+            }
 
-            // اجمع المشاريع التي أنشأها هذا المستخدم من قالب (createdByRole = 'sales')
+            // عنوان مخصّص حسب الدور
+            if (title) {
+                if (window.isSales) {
+                    title.innerHTML = '📊 المشاريع النشطة التي أنشأتها <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;">— نظرة مبسّطة على التقدم</span>';
+                } else {
+                    title.innerHTML = '📊 جميع المشاريع النشطة من قوالب المبيعات <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;">— نظرة شاملة للمدير وقادة الفرق</span>';
+                }
+            }
+
+            // اجمع المشاريع التي أُنشئت من قالب (fromTemplate موجود) أو createdByRole = sales
             const projMap = {};
             Object.values(window.allTasks || {}).forEach(t => {
                 if (!t || !t.projectName) return;
@@ -4897,7 +4910,10 @@
             const projects = Object.entries(projMap);
             if (projects.length === 0) {
                 section.style.display = 'block';
-                list.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--blue-grey); border:1px dashed var(--border); border-radius:10px; font-size:0.85rem;">لم تنشئ مشاريع بعد. اختر قالباً وطبّقه أدناه.</div>`;
+                const emptyMsg = window.isSales
+                    ? 'لم تنشئ مشاريع بعد. اختر قالباً وطبّقه أدناه.'
+                    : 'لا توجد مشاريع من قوالب المبيعات بعد. ستظهر هنا فور إنشاء فريق المبيعات لقالب أو ربط تاسك بقالب جاهز.';
+                list.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--blue-grey); border:1px dashed var(--border); border-radius:10px; font-size:0.85rem;">${emptyMsg}</div>`;
                 return;
             }
 
@@ -4948,13 +4964,24 @@
                     }
                 }
 
-                return `<div class="sales-project-card">
-                    <h3># ${escapeHtml(pName)}</h3>
+                const canSeeReport = window.isManager || window.isTeamLead;
+                const clickAttr = canSeeReport
+                    ? `onclick="window.openProjectReport && window.openProjectReport('${pName.replace(/'/g, "\\'")}')" style="cursor:pointer;"`
+                    : '';
+                const reportHint = canSeeReport
+                    ? '<span style="font-size:0.65rem; color:var(--accent); margin-inline-start:auto;">📄 افتح التقرير</span>'
+                    : '';
+                return `<div class="sales-project-card" ${clickAttr}>
+                    <h3 style="display:flex; align-items:center; gap:8px;"># ${escapeHtml(pName)}${reportHint}</h3>
                     <div class="sp-meta">
                         ${daysLeftHtml}
                         <span class="sp-pct">${pct}%</span>
                     </div>
                     <div class="sp-bar-bg"><div class="sp-bar-fill" style="width:${pct}%;"></div></div>
+                    <div style="font-size:0.7rem; color:var(--blue-grey); display:flex; justify-content:space-between;">
+                        <span>📋 ${totalTasks} تاسك</span>
+                        <span>${doneSub}/${totalSub} عنصر منجز</span>
+                    </div>
                 </div>`;
             }).join('');
         };
