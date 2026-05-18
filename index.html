@@ -3108,17 +3108,7 @@
                     </button>
                 </div>
 
-                <div id="sales-projects-section" style="display:none; margin-bottom: 24px;">
-                    <h3 id="sales-projects-title"
-                        style="font-size: 1rem; color: var(--text); margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
-                        📊 المشاريع النشطة من قوالب المبيعات
-                        <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;">— نظرة مبسّطة على
-                            التقدم</span>
-                    </h3>
-                    <div id="sales-projects-list"
-                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;">
-                    </div>
-                </div>
+
 
                 <h3 id="templates-section-title" style="font-size: 1rem; color: var(--text); margin-bottom: 12px;">
                     قوالبي:</h3>
@@ -4778,8 +4768,7 @@
             const container = document.getElementById('templates-list');
             if (!container) return;
 
-            // قسم المشاريع النشطة (للمبيعات فقط)
-            window.renderSalesActiveProjects();
+
 
             const list = Object.entries(window.allTemplates || {}).map(([id, t]) => ({ id, ...t }));
 
@@ -4876,114 +4865,6 @@
             }).join('');
         };
 
-        // ───── بطاقات المشاريع النشطة من قوالب المبيعات — تظهر للمدير + التيم ليد فقط ─────
-        //   ملاحظة: فريق المبيعات يشوف التقدم مدمجاً داخل بطاقة القالب نفسها (قسم "🚀 المشاريع الناتجة")،
-        //   فلا حاجة لقسم منفصل عندهم — يبقى فقط للمدير/التيم ليد كنظرة شاملة سريعة.
-        window.renderSalesActiveProjects = () => {
-            const section = document.getElementById('sales-projects-section');
-            const list = document.getElementById('sales-projects-list');
-            const title = document.getElementById('sales-projects-title');
-            if (!section || !list) return;
-
-            // فريق المبيعات: أخفِ القسم — البروقرس مدمج داخل بطاقة القالب
-            // الموظف العادي: أخفِ أيضاً
-            if (window.isSales || (!window.isManager && !window.isTeamLead)) {
-                section.style.display = 'none';
-                return;
-            }
-
-            // المدير + التيم ليد: عنوان شامل
-            if (title) {
-                title.innerHTML = '📊 جميع المشاريع النشطة من قوالب المبيعات <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;">— نظرة شاملة للمدير وقادة الفرق</span>';
-            }
-
-            // اجمع المشاريع التي أُنشئت من قالب (fromTemplate موجود) أو createdByRole = sales
-            const projMap = {};
-            Object.values(window.allTasks || {}).forEach(t => {
-                if (!t || !t.projectName) return;
-                if (t.createdByRole !== 'sales' && !t.fromTemplate) return; // فلتر: تاسكات من قوالب فقط
-                if (!projMap[t.projectName]) projMap[t.projectName] = { tasks: [], earliest: null, latest: null };
-                projMap[t.projectName].tasks.push(t);
-            });
-
-            const projects = Object.entries(projMap);
-            if (projects.length === 0) {
-                section.style.display = 'block';
-                const emptyMsg = window.isSales
-                    ? 'لم تنشئ مشاريع بعد. اختر قالباً وطبّقه أدناه.'
-                    : 'لا توجد مشاريع من قوالب المبيعات بعد. ستظهر هنا فور إنشاء فريق المبيعات لقالب أو ربط تاسك بقالب جاهز.';
-                list.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--blue-grey); border:1px dashed var(--border); border-radius:10px; font-size:0.85rem;">${emptyMsg}</div>`;
-                return;
-            }
-
-            section.style.display = 'block';
-            const today = new Date(); today.setHours(0, 0, 0, 0);
-            const dayMs = 86400000;
-
-            list.innerHTML = projects.map(([pName, info]) => {
-                let earliestStart = null, latestEnd = null;
-                let totalSub = 0, doneSub = 0;
-                let totalTasks = info.tasks.length, doneTasks = 0;
-
-                info.tasks.forEach(t => {
-                    if (t.startDate) {
-                        const [y, m, d] = t.startDate.split('-').map(Number);
-                        const ts = new Date(y, m - 1, d).getTime();
-                        if (!earliestStart || ts < earliestStart) earliestStart = ts;
-                    }
-                    if (t.dueDate) {
-                        const [y, m, d] = t.dueDate.split('-').map(Number);
-                        const ts = new Date(y, m - 1, d).getTime();
-                        if (!latestEnd || ts > latestEnd) latestEnd = ts;
-                    }
-                    if (t.status === 'completed') doneTasks++;
-                    if (t.checklist) {
-                        Object.values(t.checklist).forEach(it => {
-                            totalSub++;
-                            if (it.done) doneSub++;
-                        });
-                    }
-                });
-
-                // نسبة التقدم: تعتمد على الـ checklist إن وُجد، وإلا على حالة التاسكات
-                const pct = totalSub > 0 ? Math.round((doneSub / totalSub) * 100) : (totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0);
-
-                // أيام متبقية حتى آخر تاريخ تسليم
-                let daysLeftHtml = '<span style="color:var(--blue-grey);">— لم يُحدّد —</span>';
-                if (latestEnd) {
-                    const daysLeft = Math.round((latestEnd - today.getTime()) / dayMs);
-                    if (daysLeft < 0) {
-                        daysLeftHtml = `<span class="sp-days" style="color:var(--red-danger);">⚠️ متأخر ${Math.abs(daysLeft)} يوم</span>`;
-                    } else if (daysLeft === 0) {
-                        daysLeftHtml = `<span class="sp-days" style="color:var(--red-danger);">🔴 اليوم آخر موعد!</span>`;
-                    } else if (daysLeft <= 7) {
-                        daysLeftHtml = `<span class="sp-days" style="color:var(--amber);">🟠 ${daysLeft} يوم متبقي</span>`;
-                    } else {
-                        daysLeftHtml = `<span class="sp-days" style="color:var(--green-success);">🟢 ${daysLeft} يوم متبقي</span>`;
-                    }
-                }
-
-                const canSeeReport = window.isManager || window.isTeamLead;
-                const clickAttr = canSeeReport
-                    ? `onclick="window.openProjectReport && window.openProjectReport('${pName.replace(/'/g, "\\'")}')" style="cursor:pointer;"`
-                    : '';
-                const reportHint = canSeeReport
-                    ? '<span style="font-size:0.65rem; color:var(--accent); margin-inline-start:auto;">📄 افتح التقرير</span>'
-                    : '';
-                return `<div class="sales-project-card" ${clickAttr}>
-                    <h3 style="display:flex; align-items:center; gap:8px;"># ${escapeHtml(pName)}${reportHint}</h3>
-                    <div class="sp-meta">
-                        ${daysLeftHtml}
-                        <span class="sp-pct">${pct}%</span>
-                    </div>
-                    <div class="sp-bar-bg"><div class="sp-bar-fill" style="width:${pct}%;"></div></div>
-                    <div style="font-size:0.7rem; color:var(--blue-grey); display:flex; justify-content:space-between;">
-                        <span>📋 ${totalTasks} تاسك</span>
-                        <span>${doneSub}/${totalSub} عنصر منجز</span>
-                    </div>
-                </div>`;
-            }).join('');
-        };
 
         // تطبيق قالب من على بطاقته (سيلز + مانيجر) — يفتح مودال يسمح باختيار تاسكات محددة أو الكل
         window.applyTemplateFromCard = (templateId) => {
@@ -7559,10 +7440,7 @@
                         });
                         window.refreshAllViews();
 
-                        // تحديث بطاقات المبيعات تلقائياً إذا كان تاب القوالب مفتوحاً
-                        if (window.isSales && document.getElementById('templates').classList.contains('active')) {
-                            window.renderSalesActiveProjects && window.renderSalesActiveProjects();
-                        }
+
 
                         // تحديث hashtags داخل "إضافة مهمة" إذا كان مفتوحاً (يضمن ظهور مشاريع المبيعات فوراً)
                         if (document.getElementById('addTaskModal').classList.contains('active')) {
