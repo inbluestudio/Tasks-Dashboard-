@@ -2774,40 +2774,193 @@
         }
 
         /* Dashboard Modern UI */
-        .dash-modern { padding: 10px 0; background: transparent; }
-        .dash-header-modern { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; padding-top: 5px; }
-        .dash-header-modern h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; color: var(--text); display:flex; align-items:center; gap:8px;}
-        .dash-header-modern p { font-size: 0.9rem; color: var(--blue-grey); margin:0; }
-        .dash-time-wrap { text-align: end; }
-        .dash-time-wrap h2 { font-size: 2.2rem; font-weight: 700; margin:0; color: var(--text); line-height: 1; letter-spacing:1px; }
-        .dash-time-wrap p { font-size: 0.85rem; color: var(--blue-grey); margin:0; margin-top:5px; }
+        .dash-modern {
+            padding: 10px 0;
+            background: transparent;
+        }
 
-        .dash-main-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
-        @media (max-width: 1100px) { .dash-main-layout { grid-template-columns: 1fr; } }
+        .dash-header-modern {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 24px;
+            padding-top: 5px;
+        }
 
-        .dash-card-modern { background: var(--card-bg); border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.03); padding: 24px; margin-bottom: 24px; border: 1px solid var(--border); transition: 0.3s ease; }
-        .dash-card-modern:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.06); }
-        .dash-card-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center; }
-        .dash-badge-modern { background: rgba(59, 164, 254, 0.1); color: var(--accent); padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .dash-header-modern h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-        .dash-stats-row { display: flex; gap: 40px; margin-bottom: 20px; }
-        .dash-stat-item { display: flex; flex-direction: column; gap: 6px; }
-        .dash-stat-label { font-size: 0.8rem; color: var(--blue-grey); display:flex; align-items:center; gap:6px; font-weight:600; }
-        .dash-stat-label::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:currentColor; }
-        .dash-stat-value { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+        .dash-header-modern p {
+            font-size: 0.9rem;
+            color: var(--blue-grey);
+            margin: 0;
+        }
 
-        .dash-split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        @media (max-width: 768px) { .dash-split-grid { grid-template-columns: 1fr; } }
+        .dash-time-wrap {
+            text-align: end;
+        }
 
-        .dash-progress-ring-wrap { text-align: center; padding: 10px 0; }
-        .dash-ring-container { position: relative; width: 140px; height: 140px; margin: 0 auto; }
-        .dash-ring-container canvas { width: 100% !important; height: 100% !important; }
-        .dash-ring-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.4rem; font-weight: 700; color: var(--text); }
-        .dash-ring-sub { font-size:0.75rem; color:var(--blue-grey); margin-top:15px; font-weight:600; }
+        .dash-time-wrap h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text);
+            line-height: 1;
+            letter-spacing: 1px;
+        }
+
+        .dash-time-wrap p {
+            font-size: 0.85rem;
+            color: var(--blue-grey);
+            margin: 0;
+            margin-top: 5px;
+        }
+
+        .dash-main-layout {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 1100px) {
+            .dash-main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .dash-card-modern {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            transition: 0.3s ease;
+        }
+
+        .dash-card-modern:hover {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+
+        .dash-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dash-badge-modern {
+            background: rgba(59, 164, 254, 0.1);
+            color: var(--accent);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .dash-stats-row {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+
+        .dash-stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .dash-stat-label {
+            font-size: 0.8rem;
+            color: var(--blue-grey);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        .dash-stat-label::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .dash-stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .dash-split-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .dash-split-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .dash-progress-ring-wrap {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .dash-ring-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto;
+        }
+
+        .dash-ring-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .dash-ring-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .dash-ring-sub {
+            font-size: 0.75rem;
+            color: var(--blue-grey);
+            margin-top: 15px;
+            font-weight: 600;
+        }
 
         /* Light theme overrides for closer match */
-        [data-theme="light"] body { background: #f3f6fc; }
-        [data-theme="light"] .dash-card-modern { background: #ffffff; border:none; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        [data-theme="light"] body {
+            background: #f3f6fc;
+        }
+
+        [data-theme="light"] .dash-card-modern {
+            background: #ffffff;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        }
     </style>
 </head>
 
@@ -2969,6 +3122,9 @@
             </div>
             <div class="nav-item sales-or-admin-only" data-target="templates">
                 <div class="nav-item-content"><span>📋</span> <span> المبيعات</span></div>
+            </div>
+            <div class="nav-item admin-only" data-target="hr">
+                <div class="nav-item-content"><span>👥</span> <span data-i18n="navHR">الموارد البشرية</span></div>
             </div>
 
             <div class="settings-toggles">
@@ -3155,13 +3311,15 @@
                                 <canvas id="chartOverallComp"></canvas>
                                 <div class="dash-ring-value" id="overall-comp-pct">0%</div>
                             </div>
-                            <div class="dash-ring-sub">المهام الفرعية المنجزة: <span id="overall-comp-txt" style="color:var(--text);">0 / 0</span></div>
+                            <div class="dash-ring-sub">المهام الفرعية المنجزة: <span id="overall-comp-txt"
+                                    style="color:var(--text);">0 / 0</span></div>
                         </div>
 
                         <!-- Top Payers Style (Projects List) -->
                         <div class="dash-card-modern">
                             <div class="dash-card-title">تقدم المشاريع الحالية</div>
-                            <div id="projectCompletionList" class="comp-list-container" style="max-height: 350px; overflow-y: auto; padding-inline-end: 5px;"></div>
+                            <div id="projectCompletionList" class="comp-list-container"
+                                style="max-height: 350px; overflow-y: auto; padding-inline-end: 5px;"></div>
                         </div>
                     </div>
                 </div>
@@ -3182,10 +3340,120 @@
 
 
 
+                <div id="templates-scope-banner"
+                    style="display:none; padding:10px 14px; background:var(--card-bg); border:1px solid var(--border); border-inline-start:3px solid var(--accent); border-radius:8px; margin-bottom:14px; font-size:0.85rem; color:var(--blue-grey);">
+                </div>
+
                 <h3 id="templates-section-title" style="font-size: 1rem; color: var(--text); margin-bottom: 12px;">
                     قوالبي:</h3>
                 <div id="templates-list"
                     style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; padding-bottom: 20px;">
+                </div>
+            </section>
+
+            <section id="hr" class="section">
+                <div class="page-header">
+                    <div>
+                        <h1 style="margin-bottom: 5px;">👥 الموارد البشرية</h1>
+                        <p style="font-size: 0.85rem; color: var(--blue-grey);">إدارة الموظفين، الحضور، الإجازات،
+                            الرواتب، والتقييم</p>
+                    </div>
+                </div>
+
+                <div
+                    style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:24px;">
+                    <div class="hr-stat-card"
+                        style="background:var(--card-bg); border:1px solid var(--border); border-inline-start:3px solid var(--accent); border-radius:10px; padding:16px;">
+                        <div style="font-size:0.78rem; color:var(--blue-grey); margin-bottom:6px;">👤 إجمالي الموظفين
+                        </div>
+                        <div id="hr-stat-total" style="font-size:1.8rem; font-weight:800; color:var(--text);">—</div>
+                        <div style="font-size:0.72rem; color:var(--blue-grey); margin-top:4px;">في القائمة البيضاء</div>
+                    </div>
+                    <div class="hr-stat-card"
+                        style="background:var(--card-bg); border:1px solid var(--border); border-inline-start:3px solid var(--green-success); border-radius:10px; padding:16px;">
+                        <div style="font-size:0.78rem; color:var(--blue-grey); margin-bottom:6px;">✅ نشطون اليوم</div>
+                        <div id="hr-stat-active" style="font-size:1.8rem; font-weight:800; color:var(--text);">—</div>
+                        <div style="font-size:0.72rem; color:var(--blue-grey); margin-top:4px;">سجلوا دخول مؤخراً</div>
+                    </div>
+                    <div class="hr-stat-card"
+                        style="background:var(--card-bg); border:1px solid var(--border); border-inline-start:3px solid var(--intel-blue); border-radius:10px; padding:16px;">
+                        <div style="font-size:0.78rem; color:var(--blue-grey); margin-bottom:6px;">🏢 الأقسام</div>
+                        <div id="hr-stat-teams" style="font-size:1.8rem; font-weight:800; color:var(--text);">—</div>
+                        <div style="font-size:0.72rem; color:var(--blue-grey); margin-top:4px;">3D · UE · Code · AI ·
+                            Sales</div>
+                    </div>
+                    <div class="hr-stat-card"
+                        style="background:var(--card-bg); border:1px solid var(--border); border-inline-start:3px solid var(--amber); border-radius:10px; padding:16px;">
+                        <div style="font-size:0.78rem; color:var(--blue-grey); margin-bottom:6px;">👑 الإدارة</div>
+                        <div id="hr-stat-leads" style="font-size:1.8rem; font-weight:800; color:var(--text);">—</div>
+                        <div style="font-size:0.72rem; color:var(--blue-grey); margin-top:4px;">مدراء + قادة فرق</div>
+                    </div>
+                </div>
+
+                <div
+                    style="display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:14px; margin-bottom:24px;">
+                    <div
+                        style="background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:16px;">
+                        <div style="font-size:0.9rem; font-weight:700; color:var(--text); margin-bottom:12px;">📋 الملف
+                            الشخصي</div>
+                        <div style="font-size:0.78rem; color:var(--blue-grey); line-height:1.7;">— بيانات الموظف، تاريخ
+                            الالتحاق، الدور، الراتب، أوقات العمل<br>— سيتم ملؤها لاحقاً عند جاهزية البيانات</div>
+                    </div>
+                    <div
+                        style="background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:16px;">
+                        <div style="font-size:0.9rem; font-weight:700; color:var(--text); margin-bottom:12px;">📅 الحضور
+                            والإجازات</div>
+                        <div style="font-size:0.78rem; color:var(--blue-grey); line-height:1.7;">— تسجيل دخول/خروج
+                            يومي<br>— رصيد الإجازات المتبقي<br>— طلبات الإجازة وموافقة المدير</div>
+                    </div>
+                    <div
+                        style="background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:16px;">
+                        <div style="font-size:0.9rem; font-weight:700; color:var(--text); margin-bottom:12px;">💰
+                            الرواتب والمكافآت</div>
+                        <div style="font-size:0.78rem; color:var(--blue-grey); line-height:1.7;">— كشف رواتب شهري<br>—
+                            مكافآت الأداء والساعات الإضافية<br>— ربط تلقائي بأداء المهام</div>
+                    </div>
+                    <div
+                        style="background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:16px;">
+                        <div style="font-size:0.9rem; font-weight:700; color:var(--text); margin-bottom:12px;">⭐ التقييم
+                            الدوري</div>
+                        <div style="font-size:0.78rem; color:var(--blue-grey); line-height:1.7;">— تقييم الأداء كل ربع
+                            سنة<br>— مقارنة الساعات المخططة/الفعلية<br>— أهداف فردية ومتابعة</div>
+                    </div>
+                </div>
+
+                <div
+                    style="background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:18px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                        <h3 style="margin:0; font-size:1rem; color:var(--text);">📑 قائمة الموظفين الحاليين</h3>
+                        <span style="font-size:0.75rem; color:var(--blue-grey);">من القائمة البيضاء</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table id="hr-employees-table" style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                            <thead>
+                                <tr style="background:var(--bg); color:var(--blue-grey); text-align:start;">
+                                    <th style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">
+                                        الموظف</th>
+                                    <th style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">
+                                        البريد</th>
+                                    <th style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">
+                                        القسم</th>
+                                    <th style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">
+                                        الدور</th>
+                                    <th style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">
+                                        المهام النشطة</th>
+                                    <th style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">
+                                        معدل الإنجاز</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hr-employees-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div
+                    style="margin-top:18px; padding:14px; background:var(--card-bg); border:1px dashed var(--border); border-radius:10px; font-size:0.82rem; color:var(--blue-grey); text-align:center;">
+                    📦 المزيد من بيانات الموارد البشرية ستُضاف لاحقاً (عقود، مستندات، تأمين، تدريب، …)
                 </div>
             </section>
 
@@ -3387,7 +3655,8 @@
                 <button class="pr-tab" data-tab="notes" onclick="window.switchPrTab('notes')">💬 الملاحظات</button>
                 <button class="pr-tab" data-tab="issues" onclick="window.switchPrTab('issues')">⚠️ المشاكل</button>
                 <button class="pr-tab" data-tab="time" onclick="window.switchPrTab('time')">⏱️ تحليل الوقت</button>
-                <button class="pr-tab" data-tab="audit" onclick="window.switchPrTab('audit')">🕵️‍♂️ الإضافات والتعديلات</button>
+                <button class="pr-tab" data-tab="audit" onclick="window.switchPrTab('audit')">🕵️‍♂️ الإضافات
+                    والتعديلات</button>
             </div>
 
             <div id="pr-body" style="flex:1; overflow-y:auto; padding: 24px; background:var(--bg);">
@@ -3595,6 +3864,7 @@
 
         window.allTasks = {};
         window.allProjectReports = {};
+        window.allProjectLogs = {};
         window.allNotifications = {};
         window.boardColumns = [
             { id: 'pending', title: 'انتظار', titleEn: 'Pending' },
@@ -3805,14 +4075,41 @@
 
         window.getFilteredTasks = (ignoreMonthFilter = false) => {
             const hasAdminRights = window.isManager || window.isTeamLead;
-            const seesAll = hasAdminRights || window.isSales; // المبيعات تشوف الكل أيضاً
+            const seesAll = hasAdminRights; // المبيعات لم تعد تشاهد كل شيء — فقط مشاريعها
+
+            // عزل صفحة المبيعات: لكل سيلز نبني مجموعة المشاريع التي أنشأها هو/هي
+            // (أي مشروع يحتوي على تاسك واحد على الأقل بـ createdBy === currentUserName)
+            let mySalesProjects = null;
+            if (window.isSales) {
+                mySalesProjects = new Set();
+                Object.values(window.allTasks || {}).forEach(tt => {
+                    if (tt && tt.projectName && tt.createdBy === window.currentUserName) {
+                        mySalesProjects.add(tt.projectName);
+                    }
+                });
+                // كذلك المشاريع المنشأة من قوالب يملكها هذا السيلز
+                const myTemplateNames = new Set(
+                    Object.values(window.allTemplates || {})
+                        .filter(tpl => tpl.createdBy === window.currentUserName)
+                        .map(tpl => tpl.name)
+                );
+                Object.values(window.allTasks || {}).forEach(tt => {
+                    if (tt && tt.projectName && tt.fromTemplate && myTemplateNames.has(tt.fromTemplate)) {
+                        mySalesProjects.add(tt.projectName);
+                    }
+                });
+            }
+
             return Object.values(window.allTasks).filter(t => {
                 if (!t || !t.projectName) return false;
 
-                let assignedToArray = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
-                if (!seesAll && !assignedToArray.includes(window.currentUserName)) return false;
+                // المبيعات: فقط مشاريعها — مع تجاوز للمدراء (يزن/صفوان/حسام) لرؤية الكل
+                if (window.isSales && mySalesProjects && !mySalesProjects.has(t.projectName)) return false;
 
-                if (!ignoreMonthFilter && seesAll && !window.taskMatchesMonthFilter(t)) return false;
+                let assignedToArray = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+                if (!seesAll && !window.isSales && !assignedToArray.includes(window.currentUserName)) return false;
+
+                if (!ignoreMonthFilter && (seesAll || window.isSales) && !window.taskMatchesMonthFilter(t)) return false;
                 if (window.activeProjectFilter && t.projectName !== window.activeProjectFilter) return false;
                 if (window.searchTerm && !t.title.toLowerCase().includes(window.searchTerm) && !t.projectName.toLowerCase().includes(window.searchTerm)) return false;
 
@@ -4318,6 +4615,7 @@
             window.renderPrNotes(a);
             window.renderPrIssues(a);
             window.renderPrTime(a);
+            window.renderPrAudit(a);
 
             window.switchPrTab('overview');
             document.getElementById('projectReportModal').classList.add('active');
@@ -4689,6 +4987,104 @@
                 </div>`;
         };
 
+        // ───── Tab: الإضافات والتعديلات (Audit Log) ─────
+        window.renderPrAudit = (a) => {
+            const el = document.querySelector('[data-tab-content="audit"]');
+            if (!el) return;
+
+            const safeKey = sanitizeProjName(a.projectName);
+            const logsObj = (window.allProjectLogs && window.allProjectLogs[safeKey]) || {};
+            const logs = Object.values(logsObj).sort((x, y) => (y.time || 0) - (x.time || 0));
+
+            // مهام/تشيكليست بعلامة isAddon (إضافات لاحقة من المبيعات)
+            const addonTasks = a.tasks.filter(t => t.isAddon);
+            const addonChecklistItems = [];
+            a.tasks.forEach(t => {
+                if (t.checklist) {
+                    Object.values(t.checklist).forEach(it => {
+                        if (it.isAddon) addonChecklistItems.push({ taskTitle: t.title, item: it });
+                    });
+                }
+            });
+
+            const fmtTime = (ts) => ts ? new Date(ts).toLocaleString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+
+            const typeIcon = (type) => {
+                if (type === 'task_added') return '➕';
+                if (type === 'checklist_added') return '🌟';
+                if (type === 'task_removed') return '🗑️';
+                if (type === 'task_edited') return '✏️';
+                return '📝';
+            };
+            const typeColor = (type) => {
+                if (type === 'task_added' || type === 'checklist_added') return 'var(--amber)';
+                if (type === 'task_removed') return 'var(--red-danger)';
+                return 'var(--intel-blue)';
+            };
+
+            const logsHtml = logs.length === 0
+                ? '<div style="text-align:center; padding:20px; color:var(--blue-grey);">لا توجد تعديلات أو إضافات لاحقة على هذا المشروع.</div>'
+                : logs.map(L => `
+                    <div style="display:flex; gap:12px; padding:12px; background:var(--bg); border:1px solid var(--border); border-inline-start:3px solid ${typeColor(L.type)}; border-radius:8px; margin-bottom:8px;">
+                        <div style="font-size:1.3rem; line-height:1;">${typeIcon(L.type)}</div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600; font-size:0.9rem; margin-bottom:4px;">${escapeHtml(L.action || '-')}</div>
+                            <div style="font-size:0.78rem; color:var(--blue-grey);">
+                                <b style="color:var(--text);">${escapeHtml(L.user || '-')}</b> · ${fmtTime(L.time)}
+                            </div>
+                        </div>
+                    </div>`).join('');
+
+            const addonTaskRows = addonTasks.length === 0
+                ? '<tr><td colspan="5" style="text-align:center; color:var(--blue-grey); padding:14px;">لا توجد مهام مضافة لاحقاً.</td></tr>'
+                : addonTasks.map(t => `
+                    <tr>
+                        <td><b>${escapeHtml(t.title)}</b></td>
+                        <td>${escapeHtml(t.team || '-')}</td>
+                        <td>${(t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : []).join(', ') || '-'}</td>
+                        <td>${escapeHtml(t.createdBy || '-')}</td>
+                        <td>${fmtTime(t.addedAt || t.startedAt || t.time)}</td>
+                    </tr>`).join('');
+
+            const addonItemRows = addonChecklistItems.length === 0
+                ? '<tr><td colspan="4" style="text-align:center; color:var(--blue-grey); padding:14px;">لا توجد تفرعات/ميزات مضافة لاحقاً.</td></tr>'
+                : addonChecklistItems.map(({ taskTitle, item }) => `
+                    <tr>
+                        <td><b>${escapeHtml(item.text)}</b></td>
+                        <td>${escapeHtml(taskTitle)}</td>
+                        <td>${escapeHtml(item.addedBy || '-')}</td>
+                        <td>${fmtTime(item.addedAt || item.time)}</td>
+                    </tr>`).join('');
+
+            el.innerHTML = `
+                <div class="pr-kpi-grid">
+                    <div class="pr-kpi warn"><div class="pr-kpi-lbl">إضافات لاحقة (مهام)</div><div class="pr-kpi-val">${addonTasks.length}</div><div class="pr-kpi-sub">تُحسب ضمن مدة المشروع</div></div>
+                    <div class="pr-kpi warn"><div class="pr-kpi-lbl">إضافات لاحقة (ميزات)</div><div class="pr-kpi-val">${addonChecklistItems.length}</div><div class="pr-kpi-sub">تفرعات على مهام قائمة</div></div>
+                    <div class="pr-kpi"><div class="pr-kpi-lbl">إجمالي السجلات</div><div class="pr-kpi-val">${logs.length}</div><div class="pr-kpi-sub">تعديلات/إضافات مسجّلة</div></div>
+                </div>
+
+                <div class="pr-section">
+                    <div class="pr-section-title">📜 سجل التعديلات (الأحدث أولاً)</div>
+                    ${logsHtml}
+                </div>
+
+                <div class="pr-section">
+                    <div class="pr-section-title">➕ مهام مضافة بعد بدء المشروع (${addonTasks.length})</div>
+                    <table class="pr-table">
+                        <thead><tr><th>المهمة</th><th>القسم</th><th>المسؤول</th><th>أضافها</th><th>متى</th></tr></thead>
+                        <tbody>${addonTaskRows}</tbody>
+                    </table>
+                </div>
+
+                <div class="pr-section">
+                    <div class="pr-section-title">🌟 ميزات/تفرعات مضافة لاحقاً (${addonChecklistItems.length})</div>
+                    <table class="pr-table">
+                        <thead><tr><th>الميزة</th><th>ضمن المهمة</th><th>أضافها</th><th>متى</th></tr></thead>
+                        <tbody>${addonItemRows}</tbody>
+                    </table>
+                </div>`;
+        };
+
         // ═══════════════════════════════════════════════════════════
         // تصدير Excel — متعدد الـ Sheets
         // ═══════════════════════════════════════════════════════════
@@ -4790,7 +5186,8 @@
                 { id: 'tasks', title: 'تفاصيل التاسكات' },
                 { id: 'notes', title: 'الملاحظات والتعليقات' },
                 { id: 'issues', title: 'المشاكل والتأخيرات' },
-                { id: 'time', title: 'تحليل الوقت' }
+                { id: 'time', title: 'تحليل الوقت' },
+                { id: 'audit', title: 'الإضافات والتعديلات' }
             ];
 
             const btn = document.getElementById('pr-export-btn');
@@ -4851,9 +5248,28 @@
             const container = document.getElementById('templates-list');
             if (!container) return;
 
+            // ─── عزل صفحة كل سيلز ───
+            // كل واحد من المبيعات يرى قوالبه فقط، أما المانيجر/التيم ليد يرى الكل.
+            let list = Object.entries(window.allTemplates || {}).map(([id, t]) => ({ id, ...t }));
+            if (window.isSales) {
+                list = list.filter(t => t.createdBy === window.currentUserName);
+            }
 
-
-            const list = Object.entries(window.allTemplates || {}).map(([id, t]) => ({ id, ...t }));
+            // عنوان توضيحي للنطاق
+            const scopeBanner = document.getElementById('templates-scope-banner');
+            if (scopeBanner) {
+                if (window.isSales) {
+                    scopeBanner.innerHTML = `<span style="color:var(--accent);">👤 صفحتك:</span> <b>${escapeHtml(window.currentUserName)}</b> — تشاهد فقط قوالبك ومشاريعك`;
+                    scopeBanner.style.display = 'block';
+                } else if (window.isManager || window.isTeamLead) {
+                    const salesCount = Object.values(window.allTemplates || {}).reduce((acc, t) => { acc[t.createdBy || '-'] = (acc[t.createdBy || '-'] || 0) + 1; return acc; }, {});
+                    const summary = Object.entries(salesCount).map(([n, c]) => `${escapeHtml(n)} (${c})`).join(' · ');
+                    scopeBanner.innerHTML = `<span style="color:var(--green-success);">👁️ عرض شامل:</span> كل قوالب المبيعات — ${summary || 'لا قوالب'}`;
+                    scopeBanner.style.display = 'block';
+                } else {
+                    scopeBanner.style.display = 'none';
+                }
+            }
 
             if (list.length === 0) {
                 container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 50px 20px; color: var(--blue-grey); border: 2px dashed var(--border); border-radius: 12px;">
@@ -4947,6 +5363,83 @@
             }).join('');
         };
 
+
+        // ─────────────── HR Section ───────────────
+        window.renderHR = () => {
+            const employees = Object.entries(window.whitelist || {}).map(([email, info]) => ({ email, ...info }));
+            const teams = new Set();
+            let leadsCount = 0;
+            employees.forEach(e => {
+                if (e.role) teams.add(e.role);
+                if (e.isLead || e.role === 'manager') leadsCount++;
+            });
+
+            const setText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+            setText('hr-stat-total', employees.length);
+            setText('hr-stat-teams', teams.size);
+            setText('hr-stat-leads', leadsCount);
+
+            // نشطون اليوم = الذين لديهم تاسك بحالة inprogress أو حدّثوا تاسك خلال 24 ساعة
+            const dayAgo = Date.now() - 86400000;
+            const activeUsers = new Set();
+            Object.values(window.allTasks || {}).forEach(t => {
+                if (!t) return;
+                const assignees = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+                if (t.status === 'inprogress') assignees.forEach(n => activeUsers.add(n));
+                if ((t.updatedAt || t.startedAt || 0) > dayAgo) assignees.forEach(n => activeUsers.add(n));
+            });
+            setText('hr-stat-active', activeUsers.size);
+
+            // إحصائيات لكل موظف
+            const empStats = {};
+            employees.forEach(e => { empStats[e.name] = { active: 0, total: 0, done: 0 }; });
+            Object.values(window.allTasks || {}).forEach(t => {
+                if (!t) return;
+                const assignees = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+                assignees.forEach(n => {
+                    if (!empStats[n]) empStats[n] = { active: 0, total: 0, done: 0 };
+                    empStats[n].total++;
+                    if (t.status === 'inprogress') empStats[n].active++;
+                    if (t.status === 'completed') empStats[n].done++;
+                });
+            });
+
+            const tbody = document.getElementById('hr-employees-body');
+            if (!tbody) return;
+
+            const roleBadge = (r, isLead) => {
+                if (r === 'manager') return '<span style="background:rgba(249,115,22,0.15); color:var(--amber); padding:2px 8px; border-radius:10px; font-size:0.72rem;">👑 مدير</span>';
+                if (isLead) return '<span style="background:rgba(136,207,253,0.15); color:var(--intel-blue); padding:2px 8px; border-radius:10px; font-size:0.72rem;">⭐ قائد فريق</span>';
+                if (r === 'sales') return '<span style="background:rgba(74,222,128,0.15); color:var(--green-success); padding:2px 8px; border-radius:10px; font-size:0.72rem;">💼 مبيعات</span>';
+                return `<span style="background:var(--bg); color:var(--blue-grey); padding:2px 8px; border-radius:10px; font-size:0.72rem;">${escapeHtml(r || '-')}</span>`;
+            };
+
+            tbody.innerHTML = employees.sort((a, b) => {
+                const ra = a.role === 'manager' ? 0 : (a.isLead ? 1 : 2);
+                const rb = b.role === 'manager' ? 0 : (b.isLead ? 1 : 2);
+                if (ra !== rb) return ra - rb;
+                return (a.name || '').localeCompare(b.name || '');
+            }).map(e => {
+                const s = empStats[e.name] || { active: 0, total: 0, done: 0 };
+                const rate = s.total > 0 ? Math.round((s.done / s.total) * 100) : 0;
+                const rateColor = rate >= 80 ? 'var(--green-success)' : (rate >= 50 ? 'var(--amber)' : 'var(--red-danger)');
+                return `<tr style="border-bottom:1px solid var(--border);">
+                    <td style="padding:10px;"><b>${escapeHtml(e.name || '-')}</b></td>
+                    <td style="padding:10px; color:var(--blue-grey); font-size:0.78rem;">${escapeHtml(e.email)}</td>
+                    <td style="padding:10px;"><span style="color:${window.getTeamColor ? window.getTeamColor(e.role) : 'var(--text)'}; font-weight:600;">${escapeHtml(e.role || '-')}</span></td>
+                    <td style="padding:10px;">${roleBadge(e.role, e.isLead)}</td>
+                    <td style="padding:10px;"><b>${s.active}</b> <span style="color:var(--blue-grey); font-size:0.75rem;">/ ${s.total}</span></td>
+                    <td style="padding:10px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div style="flex:1; background:var(--bg); height:6px; border-radius:3px; overflow:hidden; min-width:60px;">
+                                <div style="width:${rate}%; height:100%; background:${rateColor};"></div>
+                            </div>
+                            <b style="color:${rateColor}; font-size:0.78rem;">${rate}%</b>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        };
 
         // تطبيق قالب من على بطاقته (سيلز + مانيجر) — يفتح مودال يسمح باختيار تاسكات محددة أو الكل
         window.applyTemplateFromCard = (templateId) => {
@@ -5588,13 +6081,13 @@
                 // تحديث اسم المستخدم والتاريخ للداشبورد الجديد
                 const userNameEl = document.getElementById('dash-user-name');
                 if (userNameEl) userNameEl.innerText = window.currentUserName || '';
-                
+
                 const clockEl = document.getElementById('dash-clock');
                 const dateEl = document.getElementById('dash-date-str');
                 if (clockEl && dateEl) {
                     const now = new Date();
-                    clockEl.innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    dateEl.innerText = now.toLocaleDateString(undefined, {month: 'long', day: 'numeric', year: 'numeric'});
+                    clockEl.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    dateEl.innerText = now.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
                 }
 
                 const arr = window.getFilteredTasks();
@@ -6312,7 +6805,7 @@
                 const isFromSales = task.createdByRole === 'sales';
                 const isAddonTask = task.isAddon === true;
                 const needsAssignment = isFromSales && (!task.team || (Array.isArray(task.assignedTo) ? task.assignedTo.length === 0 : !task.assignedTo));
-                
+
                 let badgesHtml = '';
                 if (isFromSales && (window.isManager || window.isTeamLead) && !isAddonTask) {
                     badgesHtml += `<div style="background:rgba(52,211,153,0.18); color:var(--green-success); border:1px solid var(--green-success); padding:3px 9px; border-radius:5px; font-size:0.65rem; font-weight:700;">🆕 ${needsAssignment ? 'يحتاج توزيع' : 'مبيعات'}</div>`;
@@ -6612,7 +7105,7 @@
             // إرسال إشعار للمدراء وقادة الفرق وتتبع الإضافات اللاحقة للمشاريع
             if (window.isSales) {
                 const isNewProject = !Object.values(window.allTasks || {}).some(t => t && (t.projectName || '').toLowerCase() === trimmedName);
-                
+
                 const adminEmails = [];
                 for (let email in window.whitelist) {
                     const u = window.whitelist[email];
@@ -6634,13 +7127,15 @@
                 } else {
                     // هذا تعديل/إضافة على مشروع قائم!
                     data.isAddon = true;
-                    
-                    const safeP = projectName.replace(/'/g, "\\'");
+                    data.addedAt = Date.now();
+
+                    const safeP = sanitizeProjName(projectName);
                     push(ref(db, `projectLogs/${safeP}`), {
                         time: Date.now(),
                         user: window.currentUserName,
                         action: `قام بإضافة مهمة رئيسية إضافية (${data.title})`,
-                        type: 'task_added'
+                        type: 'task_added',
+                        target: data.title
                     });
 
                     adminEmails.forEach(ek => {
@@ -7349,16 +7844,37 @@
             const newItem = { text: text, done: false, addedBy: window.currentUserName, actualHours: hours, time: Date.now(), assignedToItem: assignedToItem, note: "" };
 
             const task = window.allTasks[id];
-            
+
             const { ref, push, update, db } = window.firebaseTools;
             if (window.isSales && task.projectName) {
                 newItem.isAddon = true;
-                const safeP = task.projectName.replace(/'/g, "\\'");
+                newItem.addedAt = Date.now();
+                const safeP = sanitizeProjName(task.projectName);
                 push(ref(db, `projectLogs/${safeP}`), {
                     time: Date.now(),
                     user: window.currentUserName,
                     action: `قام بإضافة ميزة/تاسك فرعي (${text}) للمهمة (${task.title})`,
-                    type: 'checklist_added'
+                    type: 'checklist_added',
+                    target: text,
+                    parentTask: task.title
+                });
+
+                // إشعار للمانيجر/التيم ليد إن المبيعات أضافت checklist على مشروع قائم
+                const adminEmails = [];
+                for (let email in window.whitelist) {
+                    const u = window.whitelist[email];
+                    if (u.isLead === true || u.role === 'manager') adminEmails.push(sanitizeEmail(email));
+                }
+                adminEmails.forEach(ek => {
+                    if (ek === window.currentUserEmailSafe) return;
+                    push(ref(db, `users/${ek}/notifications`), {
+                        from: window.currentUserName,
+                        taskId: id,
+                        taskName: `🌟 المبيعات أضافت ميزة (${text}) للمهمة (${task.title}) — مشروع: ${task.projectName}`,
+                        time: Date.now(),
+                        read: false,
+                        salesProject: task.projectName
+                    });
                 });
             }
 
@@ -7451,6 +7967,14 @@
 
             onValue(ref(db, 'projectReports'), (snap) => {
                 window.allProjectReports = snap.val() || {};
+            });
+
+            onValue(ref(db, 'projectLogs'), (snap) => {
+                window.allProjectLogs = snap.val() || {};
+                // إذا تقرير المشروع مفتوح حالياً — حدّث تاب الإضافات والتعديلات
+                if (document.getElementById('projectReportModal').classList.contains('active') && window.currentProjectReport) {
+                    window.renderPrAudit && window.renderPrAudit(window.currentProjectReport);
+                }
             });
 
             onValue(ref(db, 'taskTemplates'), (snap) => {
@@ -7663,6 +8187,9 @@
                     }
                     if (item.dataset.target === 'templates') {
                         window.renderTemplates();
+                    }
+                    if (item.dataset.target === 'hr') {
+                        window.renderHR && window.renderHR();
                     }
                 }
             });
