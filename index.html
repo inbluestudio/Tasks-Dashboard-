@@ -2772,6 +2772,42 @@
                 width: 200px;
             }
         }
+
+        /* Dashboard Modern UI */
+        .dash-modern { padding: 10px 0; background: transparent; }
+        .dash-header-modern { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; padding-top: 5px; }
+        .dash-header-modern h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 5px; color: var(--text); display:flex; align-items:center; gap:8px;}
+        .dash-header-modern p { font-size: 0.9rem; color: var(--blue-grey); margin:0; }
+        .dash-time-wrap { text-align: end; }
+        .dash-time-wrap h2 { font-size: 2.2rem; font-weight: 700; margin:0; color: var(--text); line-height: 1; letter-spacing:1px; }
+        .dash-time-wrap p { font-size: 0.85rem; color: var(--blue-grey); margin:0; margin-top:5px; }
+
+        .dash-main-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+        @media (max-width: 1100px) { .dash-main-layout { grid-template-columns: 1fr; } }
+
+        .dash-card-modern { background: var(--card-bg); border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.03); padding: 24px; margin-bottom: 24px; border: 1px solid var(--border); transition: 0.3s ease; }
+        .dash-card-modern:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.06); }
+        .dash-card-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center; }
+        .dash-badge-modern { background: rgba(59, 164, 254, 0.1); color: var(--accent); padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+
+        .dash-stats-row { display: flex; gap: 40px; margin-bottom: 20px; }
+        .dash-stat-item { display: flex; flex-direction: column; gap: 6px; }
+        .dash-stat-label { font-size: 0.8rem; color: var(--blue-grey); display:flex; align-items:center; gap:6px; font-weight:600; }
+        .dash-stat-label::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:currentColor; }
+        .dash-stat-value { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+
+        .dash-split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 768px) { .dash-split-grid { grid-template-columns: 1fr; } }
+
+        .dash-progress-ring-wrap { text-align: center; padding: 10px 0; }
+        .dash-ring-container { position: relative; width: 140px; height: 140px; margin: 0 auto; }
+        .dash-ring-container canvas { width: 100% !important; height: 100% !important; }
+        .dash-ring-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.4rem; font-weight: 700; color: var(--text); }
+        .dash-ring-sub { font-size:0.75rem; color:var(--blue-grey); margin-top:15px; font-weight:600; }
+
+        /* Light theme overrides for closer match */
+        [data-theme="light"] body { background: #f3f6fc; }
+        [data-theme="light"] .dash-card-modern { background: #ffffff; border:none; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
     </style>
 </head>
 
@@ -3053,55 +3089,80 @@
                 </div>
             </section>
 
-            <section id="dashboard" class="section">
-                <div class="page-header">
-                    <h1 style="margin-bottom: 0;" data-i18n="dashboardTitle">لوحة المعلومات والتحليلات الاستراتيجية</h1>
-                </div>
-
-                <div class="stats-grid-top">
-                    <div class="stat-box">
-                        <div class="stat-val" id="st-total">0</div>
-                        <div class="stat-lbl" data-i18n="statTasks">إجمالي المهام</div>
+            <section id="dashboard" class="section dash-modern">
+                <div class="dash-header-modern">
+                    <div>
+                        <h1><span data-i18n="hello">مرحباً</span>، <span id="dash-user-name">...</span> 👋</h1>
+                        <p data-i18n="dashboardSub">نظرة عامة على مقاييس أداء فريقك ومشاريعك</p>
                     </div>
-                    <div class="stat-box">
-                        <div class="stat-val" id="st-hours" style="color: var(--amber)">0</div>
-                        <div class="stat-lbl" data-i18n="statHours">الساعات التقديرية (الكلية)</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-val" id="st-projects" style="color: var(--light-blue)">0</div>
-                        <div class="stat-lbl" data-i18n="statProjects">مشاريع نشطة</div>
+                    <div class="dash-time-wrap">
+                        <h2 id="dash-clock">--:--</h2>
+                        <p id="dash-date-str">---</p>
                     </div>
                 </div>
 
-                <div class="dashboard-grid">
-                    <div class="chart-wrapper">
-                        <h3 data-i18n="chartTaskStatus">حالة المهام الكلية</h3>
-                        <canvas id="chartStatus"></canvas>
-                    </div>
-                    <div class="chart-wrapper">
-                        <div class="widget-progress-header">
-                            <div class="widget-progress-info">
-                                <div class="pct" id="overall-comp-pct">0%</div>
-                                <div class="lbl" data-i18n="progTitle">تقدم المشاريع</div>
+                <div class="dash-main-layout">
+                    <!-- Main Column -->
+                    <div>
+                        <!-- Revenue Style Chart (Yearly Line Chart) -->
+                        <div class="dash-card-modern">
+                            <div class="dash-card-title">
+                                <span>إحصائيات المشاريع</span>
+                                <span class="dash-badge-modern">سنوي 📅</span>
                             </div>
-                            <div class="widget-progress-stats">
-                                <div class="text"><span data-i18n="progSub">المهام الفرعية المنجزة</span><br><b
-                                        id="overall-comp-txt">0 / 0</b></div>
-                                <div class="widget-progress-chart-container">
-                                    <canvas id="chartOverallComp"></canvas>
+                            <div class="dash-stats-row">
+                                <div class="dash-stat-item">
+                                    <div class="dash-stat-label" style="color: var(--blue-grey);">إجمالي المهام</div>
+                                    <div class="dash-stat-value" id="st-total">0</div>
                                 </div>
+                                <div class="dash-stat-item">
+                                    <div class="dash-stat-label" style="color: var(--accent);">مشاريع نشطة</div>
+                                    <div class="dash-stat-value" id="st-projects" style="color: var(--accent);">0</div>
+                                </div>
+                                <div class="dash-stat-item">
+                                    <div class="dash-stat-label" style="color: var(--amber);">الساعات التقديرية</div>
+                                    <div class="dash-stat-value" id="st-hours" style="color: var(--amber);">0</div>
+                                </div>
+                            </div>
+                            <div style="height: 240px; width:100%; margin-top:20px;">
+                                <canvas id="chartYearly"></canvas>
                             </div>
                         </div>
 
-                        <div id="projectCompletionList" class="comp-list-container"></div>
+                        <!-- Split Grid for Bar Chart and Doughnut -->
+                        <div class="dash-split-grid">
+                            <div class="dash-card-modern">
+                                <div class="dash-card-title">حجم المهام للمشاريع</div>
+                                <div style="height: 200px; width:100%;">
+                                    <canvas id="chartTopProjects"></canvas>
+                                </div>
+                            </div>
+                            <div class="dash-card-modern">
+                                <div class="dash-card-title">حالة المهام الكلية</div>
+                                <div style="height: 200px; width:100%;">
+                                    <canvas id="chartStatus"></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="chart-wrapper">
-                        <h3 data-i18n="chartTopProj">حجم المشاريع (عدد المهام)</h3>
-                        <canvas id="chartTopProjects"></canvas>
-                    </div>
-                    <div class="chart-wrapper">
-                        <h3 data-i18n="chartYearly">حركة المشاريع خلال السنة</h3>
-                        <canvas id="chartYearly"></canvas>
+
+                    <!-- Side Column -->
+                    <div>
+                        <!-- Collection Rate Style (Radial Progress) -->
+                        <div class="dash-card-modern dash-progress-ring-wrap">
+                            <div class="dash-card-title" style="justify-content:center;">نسبة التقدم الكلية</div>
+                            <div class="dash-ring-container">
+                                <canvas id="chartOverallComp"></canvas>
+                                <div class="dash-ring-value" id="overall-comp-pct">0%</div>
+                            </div>
+                            <div class="dash-ring-sub">المهام الفرعية المنجزة: <span id="overall-comp-txt" style="color:var(--text);">0 / 0</span></div>
+                        </div>
+
+                        <!-- Top Payers Style (Projects List) -->
+                        <div class="dash-card-modern">
+                            <div class="dash-card-title">تقدم المشاريع الحالية</div>
+                            <div id="projectCompletionList" class="comp-list-container" style="max-height: 350px; overflow-y: auto; padding-inline-end: 5px;"></div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -5522,6 +5583,18 @@
 
         window.updateAdminStats = () => {
             try {
+                // تحديث اسم المستخدم والتاريخ للداشبورد الجديد
+                const userNameEl = document.getElementById('dash-user-name');
+                if (userNameEl) userNameEl.innerText = window.currentUserName || '';
+                
+                const clockEl = document.getElementById('dash-clock');
+                const dateEl = document.getElementById('dash-date-str');
+                if (clockEl && dateEl) {
+                    const now = new Date();
+                    clockEl.innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    dateEl.innerText = now.toLocaleDateString(undefined, {month: 'long', day: 'numeric', year: 'numeric'});
+                }
+
                 const arr = window.getFilteredTasks();
                 const arrYearly = window.getFilteredTasks(true);
 
