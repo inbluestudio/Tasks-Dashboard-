@@ -3193,39 +3193,17 @@
             </div>
 
             <div id="tplFeaturesSelector" style="display:none; background:rgba(52,211,153,0.08); border:1.5px solid var(--green-success); border-radius:10px; padding:12px 14px; margin-bottom:15px;">
-                <div style="font-size:0.82rem; color:var(--green-success); font-weight:700; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
-                    <span>📋 تاسكات القالب: <span id="tpl-features-tpl-name" style="color:var(--text);"></span></span>
+                <div style="font-size:0.82rem; color:var(--green-success); font-weight:700; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                    <span>📋 ميزات قالب: <span id="tpl-features-tpl-name" style="color:var(--text);"></span></span>
                     <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;"><b id="tpl-features-selected">0</b> / <b id="tpl-features-total">0</b> مختار</span>
                 </div>
+                <div style="font-size:0.7rem; color:var(--blue-grey); margin-bottom:8px;">✓ المختار سيُضاف كخطوات فرعية (checklist) داخل المهمة الجديدة عند الحفظ</div>
                 <div id="tplFeaturesItems" style="display:flex; flex-direction:column; gap:5px; max-height:220px; overflow-y:auto; padding:8px; background:var(--bg); border:1px solid var(--border); border-radius:8px; margin-bottom:10px;"></div>
-                <div style="display:flex; gap:6px; margin-bottom:8px;">
+                <div style="display:flex; gap:6px;">
                     <button type="button" class="btn-outline" style="flex:1; padding:5px; font-size:0.7rem;" onclick="window.tplFeaturesToggleAll(true)">✓ تحديد الكل</button>
                     <button type="button" class="btn-outline" style="flex:1; padding:5px; font-size:0.7rem; color:var(--blue-grey); border-color:var(--blue-grey);" onclick="window.tplFeaturesToggleAll(false)">إلغاء</button>
                 </div>
-                <div style="display:flex; gap:8px;">
-                    <button class="btn-main" style="flex:1; padding:10px; font-size:0.82rem;" onclick="window.addSelectedTemplateTasks(false)">➕ إضافة المحدد</button>
-                    <button class="btn-outline" style="flex:1; padding:10px; font-size:0.82rem; background:rgba(52,211,153,0.12); color:var(--green-success); border-color:var(--green-success);" onclick="window.addSelectedTemplateTasks(true)">📦 إضافة الكل</button>
-                </div>
             </div>
-
-            <div class="sales-or-admin-only"
-                style="background:rgba(59,164,254,0.06); border:1px dashed var(--accent); border-radius:10px; padding:12px 14px; margin-bottom:15px;">
-                <label
-                    style="font-size:0.8rem; color:var(--accent); font-weight:600; margin-bottom:8px; display:block;">📋
-                    إنشاء عدة تاسكات من قالب جاهز <span
-                        style="font-weight:normal; color:var(--blue-grey);">(اختياري)</span></label>
-                <select id="tplSelectNew"
-                    style="width:100%; padding:10px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; margin-bottom:8px;">
-                    <option value="">— بدون قالب —</option>
-                </select>
-                <button type="button" class="btn-outline" onclick="window.applyTemplateAsMultipleTasks()"
-                    style="width:100%; padding:9px; font-size:0.82rem;">
-                    🚀 إنشاء كل تاسكات القالب الآن
-                </button>
-            </div>
-
-            <div style="font-size:0.75rem; color:var(--blue-grey); text-align:center; margin-bottom:10px;">— أو أنشئ
-                مهمة واحدة يدوياً —</div>
 
             <input type="text" id="tTitleNew" data-i18n-placeholder="addTaskTitlePlh" placeholder="عنوان المهمة">
 
@@ -6374,38 +6352,54 @@
             set(ref(db, 'settings/columns'), window.boardColumns);
         };
 
-        // رسم اقتراحات المشاريع — مشاريع المبيعات + القوالب الجاهزة تظهر في قسم مميز فوق الكل
+        // رسم اقتراحات المشاريع
+        //   🆕 قسم "مشاريع جديدة من فريق المبيعات" = قوالب لم يضف لها المانيجر تاسكات بعد (معلّقة للتوزيع)
+        //   📁 قسم "آخر المشاريع" = كل المشاريع الحديثة (يشمل قوالب المبيعات + مشاريع المانيجر)
+        //   ملاحظة: لما المانيجر يضيف تاسكات على قالب، المشروع يختفي من 🆕 ويبقى في آخر المشاريع
         window.refreshHashtagSuggestions = () => {
             const container = document.getElementById('hashtagContainerNew');
             if (!container) return;
 
-            // 1) اجمع المشاريع الموجودة من التاسكات
+            // 1) اجمع المشاريع من التاسكات
             const projMap = {};
             Object.values(window.allTasks).forEach(t => {
                 if (!t || !t.projectName) return;
                 const name = t.projectName;
                 if (!projMap[name]) {
-                    projMap[name] = { createdAt: t.createdAt || 0, fromSales: t.createdByRole === 'sales', isTemplate: false };
-                } else {
-                    if (t.createdAt && t.createdAt > projMap[name].createdAt) projMap[name].createdAt = t.createdAt;
-                    if (t.createdByRole === 'sales') projMap[name].fromSales = true;
+                    projMap[name] = { createdAt: t.createdAt || 0, hasManagerTasks: false, hasSalesPending: false, isTemplate: false };
+                }
+                if (t.createdAt && t.createdAt > projMap[name].createdAt) projMap[name].createdAt = t.createdAt;
+                const assignedArr = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+                // تاسك من المبيعات بدون توزيع → معلّق
+                if (t.createdByRole === 'sales' && (!t.team || assignedArr.length === 0)) {
+                    projMap[name].hasSalesPending = true;
+                }
+                // أي تاسك من غير المبيعات أو موزّع → المانيجر تعامل معه
+                if (t.createdByRole && t.createdByRole !== 'sales') {
+                    projMap[name].hasManagerTasks = true;
                 }
             });
 
-            // 2) أضف أسماء القوالب كمشاريع محتملة (حتى لو ما عندها تاسكات بعد) — اسم القالب = اسم المشروع
+            // 2) أضف أسماء القوالب (اسم القالب = اسم مشروع جاهز للعمل)
             Object.values(window.allTemplates || {}).forEach(tpl => {
                 if (!tpl || !tpl.name) return;
                 if (!projMap[tpl.name]) {
-                    projMap[tpl.name] = { createdAt: tpl.createdAt || Date.now(), fromSales: true, isTemplate: true };
+                    projMap[tpl.name] = { createdAt: tpl.createdAt || Date.now(), hasManagerTasks: false, hasSalesPending: true, isTemplate: true };
                 } else {
                     projMap[tpl.name].isTemplate = true;
-                    projMap[tpl.name].fromSales = true;
+                    if (!projMap[tpl.name].hasManagerTasks) projMap[tpl.name].hasSalesPending = true;
                 }
             });
 
             const all = Object.entries(projMap);
-            const salesProjects = all.filter(([_, m]) => m.fromSales).sort((a, b) => b[1].createdAt - a[1].createdAt);
-            const otherProjects = all.filter(([_, m]) => !m.fromSales).sort((a, b) => b[1].createdAt - a[1].createdAt).slice(0, 6);
+            // 🆕 قسم المعلّقة: قوالب بدون تاسكات من المانيجر بعد
+            const salesProjects = all
+                .filter(([_, m]) => m.hasSalesPending && !m.hasManagerTasks)
+                .sort((a, b) => b[1].createdAt - a[1].createdAt);
+            // 📁 آخر المشاريع: أحدث 6 مشاريع — يشمل القوالب الجاهزة ومشاريع المانيجر معاً
+            const otherProjects = all
+                .sort((a, b) => b[1].createdAt - a[1].createdAt)
+                .slice(0, 6);
 
             const makeChip = (p, salesStyle, idx) => {
                 const safe = p.replace(/'/g, "\\'");
@@ -6552,17 +6546,6 @@
                 setTimeout(() => window.checkAndShowTemplateFeatures(window.activeProjectFilter), 50);
             }
 
-            // تعبئة dropdown القوالب (للمانيجر والمبيعات)
-            const tplSel = document.getElementById('tplSelectNew');
-            if (tplSel) {
-                const tpls = Object.entries(window.allTemplates || {});
-                tplSel.innerHTML = '<option value="">— بدون قالب —</option>' +
-                    tpls.map(([id, t]) => {
-                        const cnt = Array.isArray(t.items) ? t.items.length : 0;
-                        return `<option value="${id}">${(t.name || '').replace(/</g, '&lt;')} (${cnt} عنصر)</option>`;
-                    }).join('');
-            }
-
             window.refreshHashtagSuggestions();
             document.getElementById('addTaskModal').classList.add('active');
         };
@@ -6575,17 +6558,45 @@
 
         window.saveNewTask = () => {
             const today = new Date().toISOString().split('T')[0];
+            const projectName = document.getElementById('pNameNew').value.replace('#', '').trim();
             const data = {
-                projectName: document.getElementById('pNameNew').value.replace('#', '').trim(),
+                projectName,
                 title: document.getElementById('tTitleNew').value.trim(),
                 assignedTo: [],
                 team: document.getElementById('tTypeNew').value,
                 estHours: parseFloat(document.getElementById('eHoursNew').value) || 0,
                 priority: document.getElementById('tPriorityNew').value || 'low',
                 status: window.boardColumns[0].id,
-                createdAt: Date.now(), description: "", startDate: today, dueDate: "", comments: {}, checklist: {}
+                createdAt: Date.now(), description: "", startDate: today, dueDate: "", comments: {}, checklist: {},
+                createdByRole: window.isSales ? 'sales' : (window.isManager ? 'manager' : 'lead')
             };
             if (!data.projectName || !data.title) return alert("Required data missing.");
+
+            // إذا اسم المشروع يطابق قالباً، اربط الـ fromTemplate به
+            const trimmedName = projectName.toLowerCase();
+            const tplMatch = Object.entries(window.allTemplates || {}).find(([_, t]) => (t.name || '').trim().toLowerCase() === trimmedName);
+            if (tplMatch) data.fromTemplate = tplMatch[1].name;
+
+            // اقرأ الميزات المختارة من قائمة القالب → تصير checklist items داخل المهمة
+            const checkedFeatures = Array.from(document.querySelectorAll('.tpl-feature-cb:checked:not(:disabled)')).map(cb => cb.getAttribute('data-text'));
+            if (checkedFeatures.length > 0) {
+                const checklistObj = {};
+                checkedFeatures.forEach((text, idx) => {
+                    // مفتاح بسيط مرتّب (Firebase push لاحقاً يعطي ترتيب أحدث، لكن هذا يكفي للحفظ الأولي)
+                    const k = `tpl_${Date.now()}_${idx}`;
+                    checklistObj[k] = {
+                        text,
+                        done: false,
+                        addedBy: window.currentUserName,
+                        actualHours: null,
+                        time: Date.now() + idx,
+                        assignedToItem: null,
+                        note: '',
+                        fromTemplate: tplMatch ? tplMatch[1].name : null
+                    };
+                });
+                data.checklist = checklistObj;
+            }
 
             const { ref, push, db } = window.firebaseTools;
             push(ref(db, 'tasks'), data);
