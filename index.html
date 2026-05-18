@@ -7439,6 +7439,9 @@
                             window.allTasks[k] = { ...rawData[k], _id: k };
                         });
                         window.refreshAllViews();
+                        if (document.getElementById('templates').classList.contains('active')) {
+                            window.renderTemplates && window.renderTemplates();
+                        }
 
 
 
