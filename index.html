@@ -2835,6 +2835,35 @@
         </div>
     </div>
 
+    <div class="modal" id="salesApplyModal">
+        <div class="simple-modal" style="max-width: 580px; max-height: 92vh; overflow-y: auto;">
+            <h2 style="color: var(--text); margin-bottom: 6px;">🚀 تطبيق القالب على مشروع جديد</h2>
+            <p style="color: var(--blue-grey); font-size:0.8rem; margin-bottom: 16px;">اختر التاسكات التي تريد إنشاءها — يمكنك إنشاء الكل أو فقط المحدد.</p>
+
+            <label style="font-size:0.8rem; color:var(--blue-grey); margin-bottom:6px; display:block;">اسم المشروع</label>
+            <input type="text" id="sa-project-name" placeholder="مثلاً: برج النخيل" style="margin-bottom: 14px;">
+
+            <input type="hidden" id="sa-template-id">
+
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <span style="font-size:0.82rem; color:var(--text); font-weight:600;"><span id="sa-selected-count">0</span> / <span id="sa-total-count">0</span> تاسك مختار</span>
+                <div style="display:flex; gap:6px;">
+                    <button type="button" class="btn-outline" style="padding:4px 10px; font-size:0.7rem;" onclick="window.salesApplyToggleAll(true)">✓ الكل</button>
+                    <button type="button" class="btn-outline" style="padding:4px 10px; font-size:0.7rem; color:var(--blue-grey); border-color:var(--blue-grey);" onclick="window.salesApplyToggleAll(false)">إلغاء</button>
+                </div>
+            </div>
+
+            <div id="sa-items-list" style="display:flex; flex-direction:column; gap:6px; max-height:340px; overflow-y:auto; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:10px; margin-bottom:16px;"></div>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn-main" style="flex:1; padding:11px;" onclick="window.salesApplyConfirm(false)">🚀 إنشاء المحدد فقط</button>
+                <button class="btn-outline" style="flex:1; padding:11px; background:rgba(52,211,153,0.1); color:var(--green-success); border-color:var(--green-success);" onclick="window.salesApplyConfirm(true)">📦 إنشاء الكل دفعة واحدة</button>
+            </div>
+            <button onclick="document.getElementById('salesApplyModal').classList.remove('active')"
+                style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:10px; cursor:pointer; font-family: inherit; font-size:0.8rem;">إلغاء</button>
+        </div>
+    </div>
+
     <div class="modal" id="viewAsModal">
         <div class="simple-modal" style="max-width: 500px;">
             <h2 style="color: var(--text); margin-bottom: 6px;">👁️ معاينة كموظف</h2>
@@ -3161,6 +3190,22 @@
                     placeholder="اسم المشروع (أو اكتب # للبحث)" oninput="handleProjectInput()" autocomplete="off"
                     style="margin-bottom: 0;">
                 <div id="projectSuggestions" class="autocomplete-suggestions"></div>
+            </div>
+
+            <div id="tplFeaturesSelector" style="display:none; background:rgba(52,211,153,0.08); border:1.5px solid var(--green-success); border-radius:10px; padding:12px 14px; margin-bottom:15px;">
+                <div style="font-size:0.82rem; color:var(--green-success); font-weight:700; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                    <span>📋 تاسكات القالب: <span id="tpl-features-tpl-name" style="color:var(--text);"></span></span>
+                    <span style="font-size:0.7rem; color:var(--blue-grey); font-weight:normal;"><b id="tpl-features-selected">0</b> / <b id="tpl-features-total">0</b> مختار</span>
+                </div>
+                <div id="tplFeaturesItems" style="display:flex; flex-direction:column; gap:5px; max-height:220px; overflow-y:auto; padding:8px; background:var(--bg); border:1px solid var(--border); border-radius:8px; margin-bottom:10px;"></div>
+                <div style="display:flex; gap:6px; margin-bottom:8px;">
+                    <button type="button" class="btn-outline" style="flex:1; padding:5px; font-size:0.7rem;" onclick="window.tplFeaturesToggleAll(true)">✓ تحديد الكل</button>
+                    <button type="button" class="btn-outline" style="flex:1; padding:5px; font-size:0.7rem; color:var(--blue-grey); border-color:var(--blue-grey);" onclick="window.tplFeaturesToggleAll(false)">إلغاء</button>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-main" style="flex:1; padding:10px; font-size:0.82rem;" onclick="window.addSelectedTemplateTasks(false)">➕ إضافة المحدد</button>
+                    <button class="btn-outline" style="flex:1; padding:10px; font-size:0.82rem; background:rgba(52,211,153,0.12); color:var(--green-success); border-color:var(--green-success);" onclick="window.addSelectedTemplateTasks(true)">📦 إضافة الكل</button>
+                </div>
             </div>
 
             <div class="sales-or-admin-only"
@@ -4776,6 +4821,65 @@
                 const itemsHtml = items.slice(0, 8).map(it => `<div>${escapeHtml(it)}</div>`).join('') +
                     (items.length > 8 ? `<div style="opacity:0.6; font-style:italic;">+ ${items.length - 8} عناصر إضافية...</div>` : '');
                 const createdDate = tpl.createdAt ? new Date(tpl.createdAt).toLocaleDateString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+
+                // اجمع المشاريع المُنشأة من هذا القالب (تاسكات تحمل fromTemplate === tpl.name)
+                const projectsFromThisTpl = {};
+                Object.values(window.allTasks || {}).forEach(t => {
+                    if (!t || t.fromTemplate !== tpl.name) return;
+                    if (!projectsFromThisTpl[t.projectName]) {
+                        projectsFromThisTpl[t.projectName] = { totalSub: 0, doneSub: 0, totalTasks: 0, doneTasks: 0, latestEnd: null };
+                    }
+                    const p = projectsFromThisTpl[t.projectName];
+                    p.totalTasks++;
+                    if (t.status === 'completed') p.doneTasks++;
+                    if (t.checklist) {
+                        Object.values(t.checklist).forEach(it => {
+                            p.totalSub++;
+                            if (it.done) p.doneSub++;
+                        });
+                    }
+                    if (t.dueDate) {
+                        const [y, m, d] = t.dueDate.split('-').map(Number);
+                        const ts = new Date(y, m - 1, d).getTime();
+                        if (!p.latestEnd || ts > p.latestEnd) p.latestEnd = ts;
+                    }
+                });
+
+                const projEntries = Object.entries(projectsFromThisTpl);
+                let projectsBlock = '';
+                if (projEntries.length > 0) {
+                    const todayMs = Date.now();
+                    const dayMs = 86400000;
+                    projectsBlock = `<div style="border-top:1px dashed var(--border); padding-top:10px; margin-top:4px;">
+                        <div style="font-size:0.72rem; color:var(--green-success); font-weight:700; margin-bottom:8px;">🚀 المشاريع الناتجة (${projEntries.length})</div>
+                        ${projEntries.map(([pName, info]) => {
+                            const pct = info.totalSub > 0 ? Math.round((info.doneSub / info.totalSub) * 100) : (info.totalTasks > 0 ? Math.round((info.doneTasks / info.totalTasks) * 100) : 0);
+                            const barColor = pct >= 80 ? 'var(--green-success)' : (pct >= 40 ? 'var(--amber)' : 'var(--accent)');
+                            let daysHtml = '';
+                            if (info.latestEnd) {
+                                const daysLeft = Math.round((info.latestEnd - todayMs) / dayMs);
+                                if (daysLeft < 0) daysHtml = `<span style="color:var(--red-danger); font-size:0.65rem;">⚠️ متأخر ${Math.abs(daysLeft)}ي</span>`;
+                                else if (daysLeft <= 7) daysHtml = `<span style="color:var(--amber); font-size:0.65rem;">🟠 ${daysLeft}ي</span>`;
+                                else daysHtml = `<span style="color:var(--blue-grey); font-size:0.65rem;">${daysLeft}ي</span>`;
+                            }
+                            const safeP = pName.replace(/'/g, "\\'");
+                            return `<div style="background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:8px 10px; margin-bottom:6px; cursor:pointer;" onclick="window.openProjectReport && window.openProjectReport('${safeP}')">
+                                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; font-size:0.78rem;">
+                                    <span style="color:var(--accent); font-weight:700;"># ${escapeHtml(pName)}</span>
+                                    <span style="display:flex; gap:6px; align-items:center;">
+                                        ${daysHtml}
+                                        <b style="color:${barColor}; font-size:0.75rem;">${pct}%</b>
+                                    </span>
+                                </div>
+                                <div style="background:var(--card-bg); height:6px; border-radius:3px; overflow:hidden;">
+                                    <div style="width:${pct}%; height:100%; background:${barColor}; transition:width 0.4s ease;"></div>
+                                </div>
+                                <div style="font-size:0.65rem; color:var(--blue-grey); margin-top:3px;">${info.totalTasks} تاسك · ${info.doneSub}/${info.totalSub} منجز</div>
+                            </div>`;
+                        }).join('')}
+                    </div>`;
+                }
+
                 return `<div class="template-card">
                     <h3>📋 ${escapeHtml(tpl.name)}</h3>
                     ${tpl.description ? `<div style="font-size:0.78rem; color:var(--blue-grey); font-style:italic;">${escapeHtml(tpl.description)}</div>` : ''}
@@ -4784,6 +4888,7 @@
                         <span>👤 ${escapeHtml(tpl.createdBy || '-')} · ${createdDate}</span>
                     </div>
                     <div class="tpl-items">${itemsHtml || '<div style="opacity:0.5;">لا عناصر</div>'}</div>
+                    ${projectsBlock}
                     <button class="btn-main" style="padding:9px; font-size:0.82rem;" onclick="window.applyTemplateFromCard('${tpl.id}')">🚀 تطبيق على مشروع جديد</button>
                     <div class="tpl-actions">
                         <button class="tpl-btn-edit" onclick="window.openTemplateModal('${tpl.id}')">✏️ تعديل</button>
@@ -4876,22 +4981,62 @@
             }).join('');
         };
 
-        // تطبيق قالب من على بطاقته (سيلز + مانيجر) — يسأل عن اسم المشروع ثم ينشئ التاسكات
+        // تطبيق قالب من على بطاقته (سيلز + مانيجر) — يفتح مودال يسمح باختيار تاسكات محددة أو الكل
         window.applyTemplateFromCard = (templateId) => {
             const tpl = window.allTemplates[templateId];
             if (!tpl) return;
             const items = Array.isArray(tpl.items) ? tpl.items : [];
             if (items.length === 0) return alert('القالب فارغ');
 
-            const projectName = prompt(`📂 اسم المشروع الجديد:\n\nسيتم إنشاء ${items.length} تاسك من قالب "${tpl.name}".`);
-            if (!projectName || !projectName.trim()) return;
+            document.getElementById('sa-template-id').value = templateId;
+            // اسم القالب = اسم المشروع افتراضياً (السلز يقدر يغيّره لو احتاج)
+            document.getElementById('sa-project-name').value = tpl.name;
+            document.getElementById('sa-total-count').innerText = items.length;
+
+            const list = document.getElementById('sa-items-list');
+            list.innerHTML = items.map((it, idx) => `
+                <label style="display:flex; align-items:center; gap:10px; padding:9px 12px; background:var(--card-bg); border:1px solid var(--border); border-radius:7px; cursor:pointer; font-size:0.85rem; color:var(--text); transition:0.15s;">
+                    <input type="checkbox" class="sa-item-cb" data-text="${it.replace(/"/g, '&quot;')}" checked onchange="window.salesApplyUpdateCount()" style="width:16px; height:16px; accent-color:var(--accent); margin:0; cursor:pointer; flex-shrink:0;">
+                    <span style="flex:1;">${escapeHtml(it)}</span>
+                </label>
+            `).join('');
+            window.salesApplyUpdateCount();
+            document.getElementById('salesApplyModal').classList.add('active');
+            setTimeout(() => document.getElementById('sa-project-name').focus(), 100);
+        };
+
+        window.salesApplyToggleAll = (checkAll) => {
+            document.querySelectorAll('.sa-item-cb').forEach(cb => { cb.checked = checkAll; });
+            window.salesApplyUpdateCount();
+        };
+
+        window.salesApplyUpdateCount = () => {
+            const count = document.querySelectorAll('.sa-item-cb:checked').length;
+            const el = document.getElementById('sa-selected-count');
+            if (el) el.innerText = count;
+        };
+
+        window.salesApplyConfirm = (createAll) => {
+            const templateId = document.getElementById('sa-template-id').value;
+            const tpl = window.allTemplates[templateId];
+            if (!tpl) return;
+            const projectName = document.getElementById('sa-project-name').value.trim();
+            if (!projectName) { alert('يرجى إدخال اسم المشروع'); document.getElementById('sa-project-name').focus(); return; }
+
+            let selectedItems;
+            if (createAll) {
+                selectedItems = Array.from(document.querySelectorAll('.sa-item-cb')).map(cb => cb.getAttribute('data-text'));
+            } else {
+                selectedItems = Array.from(document.querySelectorAll('.sa-item-cb:checked')).map(cb => cb.getAttribute('data-text'));
+                if (selectedItems.length === 0) { alert('يرجى اختيار تاسك واحد على الأقل، أو اختر "إنشاء الكل"'); return; }
+            }
 
             const today = new Date().toISOString().split('T')[0];
             const { ref, push, db } = window.firebaseTools;
 
-            items.forEach(itemText => {
+            selectedItems.forEach(itemText => {
                 push(ref(db, 'tasks'), {
-                    projectName: projectName.trim(),
+                    projectName,
                     title: itemText,
                     assignedTo: [],
                     team: '',
@@ -4909,7 +5054,7 @@
                 });
             });
 
-            // إشعار التيم ليد + المانيجر (3D و Unreal والمدراء)
+            // إشعار التيم ليد + المانيجر
             const adminEmails = [];
             for (let email in window.whitelist) {
                 const u = window.whitelist[email];
@@ -4920,14 +5065,15 @@
                 push(ref(db, `users/${ek}/notifications`), {
                     from: window.currentUserName,
                     taskId: '',
-                    taskName: `🆕 مشروع جديد من المبيعات: ${projectName.trim()} (${items.length} تاسك)`,
+                    taskName: `🆕 مشروع جديد من المبيعات: ${projectName} (${selectedItems.length} تاسك)`,
                     time: Date.now(),
                     read: false,
-                    salesProject: projectName.trim()
+                    salesProject: projectName
                 });
             });
 
-            alert(`✅ تم إنشاء ${items.length} تاسك في مشروع "${projectName.trim()}" + إرسال إشعار للمدراء وقادة الفرق.`);
+            document.getElementById('salesApplyModal').classList.remove('active');
+            alert(`✅ تم إنشاء ${selectedItems.length} تاسك في مشروع "${projectName}" + إرسال إشعار للمدراء وقادة الفرق.`);
         };
 
         // يرسم قائمة الـ checkboxes من window.SALES_FEATURES، ويختار العناصر المحددة مسبقاً
@@ -5008,6 +5154,23 @@
                 payload.createdAt = Date.now();
                 push(ref(db, 'taskTemplates'), payload).then(() => {
                     document.getElementById('templateModal').classList.remove('active');
+                    // إشعار المدراء + قادة الفرق بأن قالب/مشروع جديد متاح للعمل (اسم القالب = اسم المشروع)
+                    const adminEmails = [];
+                    for (let email in window.whitelist) {
+                        const u = window.whitelist[email];
+                        if (u.isLead === true || u.role === 'manager') adminEmails.push(sanitizeEmail(email));
+                    }
+                    adminEmails.forEach(ek => {
+                        if (ek === window.currentUserEmailSafe) return;
+                        push(ref(db, `users/${ek}/notifications`), {
+                            from: window.currentUserName,
+                            taskId: '',
+                            taskName: `🆕 قالب/مشروع جديد جاهز: ${name} (${items.length} تاسك)`,
+                            time: Date.now(),
+                            read: false,
+                            salesProject: name
+                        });
+                    });
                 });
             }
         };
@@ -5684,10 +5847,10 @@
                 };
             });
 
-            // ───── سلوك التكبير حسب الفلتر ─────
-            // - "كل المشاريع": إضافة حدود السنة الكاملة (Jan 1 → Dec 31) لإجبار المخطط على عرضها كلها
-            // - مشروع محدد: المخطط ينضغط طبيعياً على مداه الزمني (zoom-in تلقائي)
-            if (!window.ganttProjectFilter) {
+            // ───── حدود السنة الكاملة دائماً (Jan 1 → Dec 31) ─────
+            // نضيفها سواء عرضنا كل المشاريع أو فلترنا واحداً، حتى يبقى عرض العمود ثابتاً
+            // ويظهر شريط المشروع في موقعه الصحيح من السنة بدل تمديده على كامل العرض
+            {
                 const yr = new Date().getFullYear();
                 tasksForGantt.unshift({
                     id: '__yr_start__', name: '',
@@ -5719,23 +5882,17 @@
                         .gantt .bar-wrapper.${cls} .bar-progress { fill: ${teamColor}cc !important; }`;
             }).join('\n');
 
-            // حساب عرض العمود: المخطط يملأ المساحة المتاحة (zoom طبيعي حسب الفلتر)
-            // عند فلترة مشروع → المدى الزمني ضيق → الأعمدة تتمدد لتملأ الشاشة (تكبير)
-            // عند "كل المشاريع" → السنة كاملة (12 شهر) → الأعمدة بعرض معقول
-            const minStart = Math.min(...tasksForGantt.map(t => new Date(t.start).getTime()));
-            const maxEnd = Math.max(...tasksForGantt.map(t => new Date(t.end).getTime()));
-            const spanDays = Math.max(1, (maxEnd - minStart) / dayMs);
+            // حساب عرض العمود: عرض ثابت يحافظ على نفس الحجم سواء عند عرض "كل المشاريع" أو فلترة مشروع واحد
+            // المرجع: السنة كاملة في Month mode (12 شهر) أو ~26 أسبوع في Week mode (نصف سنة)
             const wrapperEl = container.parentElement;
             const availableWidth = (wrapperEl ? wrapperEl.clientWidth : 1500) - 280; // 280 لعمود أسماء المهام
             const WIDTH_BOOST = 1.4; // زيادة 40% بالعرض
             let dynColumnWidth;
             if (window.currentGanttMode === 'Month') {
-                const monthsCount = Math.max(1, Math.ceil(spanDays / 30));
-                // الحد الأدنى 80px؛ بدون حد أقصى لأن "zoom on filter" يحتاج أعمدة عريضة جداً للمشاريع القصيرة
-                dynColumnWidth = Math.max(80, Math.floor((availableWidth * WIDTH_BOOST) / monthsCount));
-            } else { // Week
-                const weeksCount = Math.max(1, Math.ceil(spanDays / 7));
-                dynColumnWidth = Math.max(40, Math.floor((availableWidth * WIDTH_BOOST) / weeksCount));
+                // 12 شهر دائماً → نفس عرض العمود حتى عند فلترة مشروع واحد
+                dynColumnWidth = Math.max(80, Math.floor((availableWidth * WIDTH_BOOST) / 12));
+            } else { // Week — 6 أشهر = 26 أسبوع
+                dynColumnWidth = Math.max(40, Math.floor((availableWidth * WIDTH_BOOST) / 26));
             }
 
             container.innerHTML = '';
@@ -5988,19 +6145,32 @@
         window.renderProjectsSidebar = () => {
             const container = document.getElementById('project-filters-list');
             if (!container) return;
-            const projCounts = {};
+            const projInfo = {}; // { count, hasSalesPending }
             const hasAdminRights = window.isManager || window.isTeamLead;
             Object.values(window.allTasks).forEach(t => {
                 if (!t || !t.projectName) return;
                 let assignedToArray = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
                 if (!hasAdminRights && !assignedToArray.includes(window.currentUserName)) return;
                 if (hasAdminRights && !window.taskMatchesMonthFilter(t)) return;
-                projCounts[t.projectName] = (projCounts[t.projectName] || 0) + 1;
+                if (!projInfo[t.projectName]) projInfo[t.projectName] = { count: 0, hasSalesPending: false };
+                projInfo[t.projectName].count++;
+                // علم "يحتاج توزيع" على المشروع لو فيه تاسك من المبيعات بدون قسم/مكلَّفين
+                if (t.createdByRole === 'sales' && (!t.team || assignedToArray.length === 0)) {
+                    projInfo[t.projectName].hasSalesPending = true;
+                }
             });
             container.innerHTML = '';
-            Object.keys(projCounts).sort((a, b) => a.localeCompare(b)).forEach(p => {
+            // المشاريع التي فيها تاسكات مبيعات معلّقة تظهر أولاً
+            const sortedNames = Object.keys(projInfo).sort((a, b) => {
+                if (projInfo[a].hasSalesPending !== projInfo[b].hasSalesPending) return projInfo[a].hasSalesPending ? -1 : 1;
+                return a.localeCompare(b);
+            });
+            sortedNames.forEach(p => {
                 const isActive = p === window.activeProjectFilter ? 'active' : '';
-                container.innerHTML += `<div class="project-filter-item ${isActive}" onclick="window.setProjectFilter('${p.replace(/'/g, "\\'")}')"><span># ${p}</span><span class="count">${projCounts[p]}</span></div>`;
+                const salesIndicator = (projInfo[p].hasSalesPending && hasAdminRights)
+                    ? '<span style="background:var(--green-success); color:#fff; font-size:0.6rem; padding:1px 5px; border-radius:6px; margin-inline-end:5px;">🆕</span>'
+                    : '';
+                container.innerHTML += `<div class="project-filter-item ${isActive}" onclick="window.setProjectFilter('${p.replace(/'/g, "\\'")}')"><span>${salesIndicator}# ${p}</span><span class="count">${projInfo[p].count}</span></div>`;
             });
         };
 
@@ -6159,10 +6329,18 @@
                 const priorityLabel = task.priority ? t(priorityKeyMap[task.priority] || 'priLow') : '';
                 const teamColor = task.team ? window.getTeamColor(task.team) : '';
                 const teamChipHtml = task.team ? `<div class="team-chip" style="background:${teamColor}22; color:${teamColor}; border:1px solid ${teamColor}55;">${task.team}</div>` : '';
+                // شارة "من المبيعات" تظهر للأدمن/التيم ليد فقط — تلفت النظر للتاسكات الجديدة الواردة من فريق المبيعات
+                const isFromSales = task.createdByRole === 'sales';
+                const needsAssignment = isFromSales && (!task.team || (Array.isArray(task.assignedTo) ? task.assignedTo.length === 0 : !task.assignedTo));
+                const salesBadgeHtml = (isFromSales && (window.isManager || window.isTeamLead))
+                    ? `<div style="background:rgba(52,211,153,0.18); color:var(--green-success); border:1px solid var(--green-success); padding:3px 9px; border-radius:5px; font-size:0.65rem; font-weight:700;">🆕 ${needsAssignment ? 'يحتاج توزيع' : 'مبيعات'}</div>`
+                    : '';
+                if (needsAssignment) card.style.borderInlineStartColor = 'var(--green-success)';
                 card.innerHTML = `
                 <div class="card-top-row" style="flex-wrap:wrap; gap:6px;">
                     <div class="project-chip"># ${task.projectName}</div>
                     ${teamChipHtml}
+                    ${salesBadgeHtml}
                     ${task.priority ? `<div class="priority-badge" style="color:var(--text); margin-inline-start:auto;">${priorityLabel}</div>` : ''}
                 </div>
                 ${dateHtml}
@@ -6196,21 +6374,32 @@
             set(ref(db, 'settings/columns'), window.boardColumns);
         };
 
-        // رسم اقتراحات المشاريع — مشاريع المبيعات تظهر في قسم مميز فوق الكل
+        // رسم اقتراحات المشاريع — مشاريع المبيعات + القوالب الجاهزة تظهر في قسم مميز فوق الكل
         window.refreshHashtagSuggestions = () => {
             const container = document.getElementById('hashtagContainerNew');
             if (!container) return;
 
-            // اجمع بيانات كل مشروع (آخر تاريخ + هل أُنشئ من المبيعات)
+            // 1) اجمع المشاريع الموجودة من التاسكات
             const projMap = {};
             Object.values(window.allTasks).forEach(t => {
                 if (!t || !t.projectName) return;
                 const name = t.projectName;
                 if (!projMap[name]) {
-                    projMap[name] = { createdAt: t.createdAt || 0, fromSales: t.createdByRole === 'sales' };
+                    projMap[name] = { createdAt: t.createdAt || 0, fromSales: t.createdByRole === 'sales', isTemplate: false };
                 } else {
                     if (t.createdAt && t.createdAt > projMap[name].createdAt) projMap[name].createdAt = t.createdAt;
                     if (t.createdByRole === 'sales') projMap[name].fromSales = true;
+                }
+            });
+
+            // 2) أضف أسماء القوالب كمشاريع محتملة (حتى لو ما عندها تاسكات بعد) — اسم القالب = اسم المشروع
+            Object.values(window.allTemplates || {}).forEach(tpl => {
+                if (!tpl || !tpl.name) return;
+                if (!projMap[tpl.name]) {
+                    projMap[tpl.name] = { createdAt: tpl.createdAt || Date.now(), fromSales: true, isTemplate: true };
+                } else {
+                    projMap[tpl.name].isTemplate = true;
+                    projMap[tpl.name].fromSales = true;
                 }
             });
 
@@ -6228,7 +6417,7 @@
                     : '';
                 const animClass = salesStyle ? 'sales-chip-anim' : '';
                 const animDelay = salesStyle ? `animation-delay: ${idx * 0.08}s, ${0.5 + idx * 0.08}s;` : '';
-                return `<span class="project-hashtag ${animClass}" style="${style}${animDelay}" onclick="document.getElementById('pNameNew').value='${safe}'; document.getElementById('projectSuggestions').style.display='none';"># ${p}${badge}</span>`;
+                return `<span class="project-hashtag ${animClass}" style="${style}${animDelay}" onclick="document.getElementById('pNameNew').value='${safe}'; document.getElementById('projectSuggestions').style.display='none'; window.checkAndShowTemplateFeatures('${safe}');"># ${p}${badge}</span>`;
             };
 
             let html = '';
@@ -6250,12 +6439,118 @@
             container.innerHTML = html;
         };
 
+        // ═══════════════════════════════════════════════════════════
+        // قائمة تاسكات القالب الذكية داخل "إضافة مهمة جديدة"
+        //   - تظهر تلقائياً لما اسم المشروع يطابق اسم قالب
+        //   - تعرض الفيتشرز كـ checkboxes (المضافة مسبقاً تظهر "✓ موجود" ومعطّلة)
+        //   - زر "إضافة المحدد" أو "إضافة الكل"
+        // ═══════════════════════════════════════════════════════════
+        window.checkAndShowTemplateFeatures = (projectName) => {
+            const selector = document.getElementById('tplFeaturesSelector');
+            if (!selector) return;
+            const trimmedName = (projectName || '').replace('#', '').trim().toLowerCase();
+            if (!trimmedName) { selector.style.display = 'none'; return; }
+
+            // ابحث عن قالب باسم مطابق (case-insensitive)
+            const allTpls = Object.entries(window.allTemplates || {});
+            const match = allTpls.find(([_, t]) => (t.name || '').trim().toLowerCase() === trimmedName);
+            if (!match) { selector.style.display = 'none'; return; }
+
+            const [, tpl] = match;
+            const items = Array.isArray(tpl.items) ? tpl.items : [];
+            if (items.length === 0) { selector.style.display = 'none'; return; }
+
+            // اجمع التاسكات الموجودة فعلاً في هذا المشروع (لإظهار "✓ موجود" بدل التكرار)
+            const existingTitles = new Set();
+            Object.values(window.allTasks || {}).forEach(t => {
+                if (t && (t.projectName || '').trim().toLowerCase() === trimmedName) existingTitles.add(t.title);
+            });
+
+            document.getElementById('tpl-features-tpl-name').innerText = tpl.name;
+            const list = document.getElementById('tplFeaturesItems');
+            list.innerHTML = items.map(it => {
+                const exists = existingTitles.has(it);
+                return `<label style="display:flex; align-items:center; gap:8px; padding:7px 10px; background:var(--card-bg); border:1px solid var(--border); border-radius:6px; cursor:${exists ? 'not-allowed' : 'pointer'}; font-size:0.82rem; ${exists ? 'opacity:0.55;' : ''}">
+                    <input type="checkbox" class="tpl-feature-cb" data-text="${it.replace(/"/g, '&quot;')}" ${exists ? 'disabled' : 'checked'} onchange="window.tplFeaturesUpdateCount()" style="width:15px; height:15px; accent-color:var(--green-success); margin:0; flex-shrink:0;">
+                    <span style="flex:1;">${escapeHtml(it)}</span>
+                    ${exists ? '<span style="font-size:0.65rem; color:var(--green-success); font-weight:700;">✓ موجود</span>' : ''}
+                </label>`;
+            }).join('');
+            window.tplFeaturesUpdateCount();
+            selector.style.display = 'block';
+        };
+
+        window.tplFeaturesToggleAll = (check) => {
+            document.querySelectorAll('.tpl-feature-cb:not(:disabled)').forEach(cb => { cb.checked = check; });
+            window.tplFeaturesUpdateCount();
+        };
+
+        window.tplFeaturesUpdateCount = () => {
+            const total = document.querySelectorAll('.tpl-feature-cb:not(:disabled)').length;
+            const sel = document.querySelectorAll('.tpl-feature-cb:checked').length;
+            const totalEl = document.getElementById('tpl-features-total');
+            const selEl = document.getElementById('tpl-features-selected');
+            if (totalEl) totalEl.innerText = total;
+            if (selEl) selEl.innerText = sel;
+        };
+
+        window.addSelectedTemplateTasks = (addAll) => {
+            const projectName = document.getElementById('pNameNew').value.replace('#', '').trim();
+            if (!projectName) { alert('يرجى اختيار/كتابة اسم المشروع'); return; }
+
+            let items;
+            if (addAll) {
+                items = Array.from(document.querySelectorAll('.tpl-feature-cb:not(:disabled)')).map(cb => cb.getAttribute('data-text'));
+            } else {
+                items = Array.from(document.querySelectorAll('.tpl-feature-cb:checked')).map(cb => cb.getAttribute('data-text'));
+                if (items.length === 0) { alert('يرجى اختيار تاسك واحد على الأقل أو اضغط "إضافة الكل"'); return; }
+            }
+            if (items.length === 0) { alert('كل التاسكات موجودة مسبقاً في هذا المشروع ✅'); return; }
+
+            // اربط الـ fromTemplate باسم القالب
+            const trimmedName = projectName.toLowerCase();
+            const match = Object.entries(window.allTemplates || {}).find(([_, t]) => (t.name || '').trim().toLowerCase() === trimmedName);
+            const tplName = match ? match[1].name : null;
+
+            const today = new Date().toISOString().split('T')[0];
+            const { ref, push, db } = window.firebaseTools;
+            items.forEach(itemText => {
+                push(ref(db, 'tasks'), {
+                    projectName,
+                    title: itemText,
+                    assignedTo: [],
+                    team: '',
+                    estHours: 0,
+                    priority: 'low',
+                    status: window.boardColumns[0].id,
+                    createdAt: Date.now(),
+                    description: '',
+                    startDate: today,
+                    dueDate: '',
+                    comments: {},
+                    checklist: {},
+                    fromTemplate: tplName,
+                    createdByRole: window.isSales ? 'sales' : (window.isManager ? 'manager' : 'lead')
+                });
+            });
+
+            document.getElementById('addTaskModal').classList.remove('active');
+            alert(`✅ تم إنشاء ${items.length} تاسك في مشروع "${projectName}"`);
+        };
+
         window.openAddModal = () => {
             document.getElementById('pNameNew').value = window.activeProjectFilter || "";
             document.getElementById('tTitleNew').value = "";
             document.getElementById('eHoursNew').value = "";
             document.getElementById('tPriorityNew').value = "low";
             document.getElementById('projectSuggestions').style.display = 'none';
+            // أخفِ قائمة تاسكات القالب افتراضياً حتى يختار المستخدم اسم مشروع
+            const tplFeatBox = document.getElementById('tplFeaturesSelector');
+            if (tplFeatBox) tplFeatBox.style.display = 'none';
+            // إذا فيه فلتر مشروع نشط ويطابق قالب → افتح القائمة مباشرة
+            if (window.activeProjectFilter) {
+                setTimeout(() => window.checkAndShowTemplateFeatures(window.activeProjectFilter), 50);
+            }
 
             // تعبئة dropdown القوالب (للمانيجر والمبيعات)
             const tplSel = document.getElementById('tplSelectNew');
@@ -6402,6 +6697,9 @@
             const val = input.value;
             const suggestionsBox = document.getElementById('projectSuggestions');
 
+            // افحص إذا اسم المشروع المكتوب يطابق قالباً → أظهر قائمة تاسكاته
+            window.checkAndShowTemplateFeatures && window.checkAndShowTemplateFeatures(val);
+
             if (val.includes('#') || val.length >= 1) {
                 const query = val.replace('#', '').trim().toLowerCase();
                 // اجمع المشاريع مع علم "أُنشئ من المبيعات" + آخر تاريخ
@@ -6414,6 +6712,13 @@
                     } else {
                         if (t.createdAt && t.createdAt > projMap[name].createdAt) projMap[name].createdAt = t.createdAt;
                         if (t.createdByRole === 'sales') projMap[name].fromSales = true;
+                    }
+                });
+                // أضف القوالب أيضاً (اسم القالب = اسم مشروع محتمل)
+                Object.values(window.allTemplates || {}).forEach(tpl => {
+                    if (!tpl || !tpl.name) return;
+                    if (!projMap[tpl.name]) {
+                        projMap[tpl.name] = { createdAt: tpl.createdAt || Date.now(), fromSales: true };
                     }
                 });
                 const matches = Object.entries(projMap)
@@ -6432,7 +6737,7 @@
                             ? '<span style="background:var(--green-success); color:#fff; font-size:0.6rem; padding:1px 6px; border-radius:8px; margin-inline-start:6px;">🆕 مبيعات</span>'
                             : '';
                         const style = m.fromSales ? 'color:var(--green-success); font-weight:700;' : '';
-                        return `<div class="suggestion-item" style="${style}" onmousedown="document.getElementById('pNameNew').value='${safe}'; document.getElementById('projectSuggestions').style.display='none';"># ${p}${badge}</div>`;
+                        return `<div class="suggestion-item" style="${style}" onmousedown="document.getElementById('pNameNew').value='${safe}'; document.getElementById('projectSuggestions').style.display='none'; window.checkAndShowTemplateFeatures('${safe}');"># ${p}${badge}</div>`;
                     }).join('');
                     suggestionsBox.style.display = 'block';
                 } else {
@@ -7068,6 +7373,10 @@
             onValue(ref(db, 'taskTemplates'), (snap) => {
                 window.allTemplates = snap.val() || {};
                 if (document.getElementById('templates').classList.contains('active')) window.renderTemplates();
+                // إذا مودال "إضافة مهمة" مفتوح — حدّث الهاشتاقات لتظهر القوالب الجديدة مباشرة
+                if (document.getElementById('addTaskModal').classList.contains('active')) {
+                    window.refreshHashtagSuggestions && window.refreshHashtagSuggestions();
+                }
             });
 
             window.handleAuth = async () => {
