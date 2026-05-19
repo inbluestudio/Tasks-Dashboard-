@@ -3591,7 +3591,7 @@
                 <div id="hr-tabs" style="display:flex; gap:4px; padding-bottom:0; background:var(--bg); border-bottom:1px solid var(--border); margin-bottom:18px; overflow-x:auto;">
                     <button class="hr-tab active" data-hrtab="employees" onclick="window.switchHrTab('employees')">📑 الموظفون</button>
                     <button class="hr-tab" data-hrtab="appraisals" onclick="window.switchHrTab('appraisals')">⭐ التقييمات الربعية</button>
-                    <button class="hr-tab real-manager-only" data-hrtab="calibration" onclick="window.switchHrTab('calibration')">📊 المعايرة (Calibration)</button>
+                    <button class="hr-tab hr-tab-calibration" data-hrtab="calibration" onclick="window.switchHrTab('calibration')">📊 المعايرة (Calibration)</button>
                     <button class="hr-tab" data-hrtab="diary" onclick="window.switchHrTab('diary')">📝 سجل الأداء السنوي</button>
                 </div>
 
@@ -4311,9 +4311,11 @@
             { id: 'completed', title: 'مكتملة', titleEn: 'Completed' }
         ];
 
-        window.isManager = false;
-        window.isTeamLead = false;
-        window.isSales = false; // فريق المبيعات: يدير قوالب التاسكات + ينشئ تاسكات
+        window.isManager = false;  // CEO + manager — صلاحيات إدارية عليا
+        window.isCEO = false;      // يزن فقط — قرار CEO على التقييمات
+        window.isHR = false;       // دينا — وصول لتاب HR وإدارة دورات التقييم
+        window.isTeamLead = false; // نور / ليث
+        window.isSales = false;    // فريق المبيعات: يدير قوالب التاسكات + ينشئ تاسكات
         window.allTemplates = {};
 
         // قائمة الميزات الجاهزة (المبيعات تختار منها فقط - لا كتابة حرّة)
@@ -4372,29 +4374,66 @@
         window.boardObserver = null;
 
         window.whitelist = {
+            // ── الإدارة العليا ──
+            "yazan.reyal@bluedesignstudio.com": { name: "يزن", role: "ceo" },
             "safwan.krasneh@bluedesignstudio.com": { name: "صفوان", role: "manager" },
             "hussam.banat@bluedesignstudio.com": { name: "حسام بنات", role: "manager" },
-            "yazan.reyal@bluedesignstudio.com": { name: "يزن", role: "manager" },
+
+            // ── الموارد البشرية والمحاسبة والإدارة ──
+            "dina.abuattieh@bluedesignstudio.com": { name: "دينا", role: "hr" },
+            "zaid.maslaha@bluedesignstudio.com": { name: "زيد", role: "accounting" },
+            "wafaa.makahleh@bluedesignstudio.com": { name: "وفاء", role: "administration" },
+
+            // ── فريق 3D ──
             "nooradeen.awad@bluedesignstudio.com": { name: "نور الدين", role: "3D", isLead: true },
             "tamer.shishani@bluedesignstudio.com": { name: "تامر", role: "3D" },
             "motaz.hawari@bluedesignstudio.com": { name: "معتز", role: "3D" },
+
+            // ── فريق Unreal Engine ──
             "laith.jebril@bluedesignstudio.com": { name: "ليث", role: "unreal engine", isLead: true },
             "dana.bojoq@bluedesignstudio.com": { name: "دانا", role: "unreal engine" },
             "baker.hasan@bluedesignstudio.com": { name: "بكر", role: "unreal engine" },
+
+            // ── فريق العمارة ──
+            "lamees.rawashdeh@bluedesignstudio.com": { name: "لميس", role: "architecture" },
+            "hana.ghazo@bluedesignstudio.com": { name: "هنا", role: "architecture" },
+
+            // ── فريق Code ──
             "abdullah.tekreeti@bluedesignstudio.com": { name: "عبدالله", role: "Code" },
+
+            // ── فريق المبيعات ──
             "afnan.saleh@bluedesignstudio.com": { name: "أفنان", role: "sales" },
             "ahmad.alam@bluedesignstudio.com": { name: "أحمد", role: "sales" },
-            "fahid.khatib@bluedesignstudio.com": { name: "فهد", role: "sales" }
+            "fahid.khatib@bluedesignstudio.com": { name: "فهد", role: "sales" },
+
+            // ── فريق التسويق ──
+            "ayah.mousa@bluedesignstudio.com": { name: "آية", role: "marketing" },
+            "hiba.abulaban@bluedesignstudio.com": { name: "هبة", role: "marketing" }
         };
 
-        window.staffByTeam = { "3D": ["نور الدين", "تامر", "معتز"], "unreal engine": ["ليث", "دانا", "بكر", "حسام بنات"], "Code": ["عبدالله"], "AI": ["صفوان"] };
+        window.staffByTeam = {
+            "3D": ["نور الدين", "تامر", "معتز"],
+            "unreal engine": ["ليث", "دانا", "بكر", "حسام بنات"],
+            "Code": ["عبدالله"],
+            "AI": ["صفوان"],
+            "architecture": ["لميس", "هنا"],
+            "marketing": ["آية", "هبة"],
+            "hr": ["دينا"],
+            "accounting": ["زيد"],
+            "administration": ["وفاء"]
+        };
 
         // ألوان مميّزة لكل قسم (تُستخدم على البطاقة وعلى مخطط جانت)
         window.teamColors = {
             "3D": "#3BA4FE",            // أزرق
             "unreal engine": "#a78bfa", // بنفسجي
             "Code": "#34d399",          // أخضر
-            "AI": "#f97316"             // برتقالي
+            "AI": "#f97316",            // برتقالي
+            "architecture": "#06b6d4",  // سماوي
+            "marketing": "#ec4899",     // وردي
+            "hr": "#facc15",            // أصفر
+            "accounting": "#10b981",    // أخضر زمردي
+            "administration": "#94a3b8" // رمادي
         };
         window.getTeamColor = (team) => window.teamColors[team] || "#8FA3BC";
 
@@ -4737,6 +4776,10 @@
             document.querySelectorAll('.not-sales').forEach(el => { el.style.display = window.isSales ? 'none' : ''; });
             document.querySelectorAll('.real-manager-only').forEach(el => { if (isRealManager) showEl(el); else el.style.display = 'none'; });
 
+            // تاب المعايرة (HR + manager + teamlead فقط)
+            const canSeeCalibration = window.isManager || window.isTeamLead || window.isHR;
+            document.querySelectorAll('.hr-tab-calibration').forEach(el => { el.style.display = canSeeCalibration ? 'inline-flex' : 'none'; });
+
             const dtTeam = document.getElementById('dt-team');
             if (dtTeam) dtTeam.disabled = !hasAdminRights;
         };
@@ -4771,6 +4814,8 @@
                     realName: window.currentUserName,
                     realEmail: window.currentUserEmailSafe,
                     realIsManager: window.isManager,
+                    realIsCEO: window.isCEO,
+                    realIsHR: window.isHR,
                     realIsTeamLead: window.isTeamLead,
                     realIsSales: window.isSales,
                     readOnly: true
@@ -4780,7 +4825,9 @@
             // طبّق صلاحيات الموظف المُعايَن
             window.currentUserName = u.name;
             window.currentUserEmailSafe = sanitizeEmail(email);
-            window.isManager = u.role === 'manager';
+            window.isCEO = u.role === 'ceo';
+            window.isManager = u.role === 'manager' || u.role === 'ceo';
+            window.isHR = u.role === 'hr';
             window.isTeamLead = u.isLead === true;
             window.isSales = u.role === 'sales';
 
@@ -4822,6 +4869,8 @@
             window.currentUserName = s.realName;
             window.currentUserEmailSafe = s.realEmail;
             window.isManager = s.realIsManager;
+            window.isCEO = s.realIsCEO;
+            window.isHR = s.realIsHR;
             window.isTeamLead = s.realIsTeamLead;
             window.isSales = s.realIsSales;
             window.viewAsState = null;
@@ -5915,8 +5964,8 @@
             const startBtn = document.getElementById('hr-start-cycle-btn');
             if (!banner) return;
 
-            const isManagerOrLead = window.isManager || window.isTeamLead;
-            if (startBtn) startBtn.style.display = isManagerOrLead ? 'inline-flex' : 'none';
+            const canStartCycle = window.isManager || window.isTeamLead || window.isHR;
+            if (startBtn) startBtn.style.display = canStartCycle ? 'inline-flex' : 'none';
 
             const activeCycleId = (window.allAppraisals && window.allAppraisals.activeCycle) || null;
             const activeCycle = activeCycleId && window.allAppraisals[activeCycleId];
@@ -5977,7 +6026,7 @@
 
         // فتح مودال إنشاء دورة جديدة
         window.startAppraisalCycle = () => {
-            if (!window.isManager && !window.isTeamLead) return alert('غير مصرح لك ببدء دورة تقييم.');
+            if (!window.isManager && !window.isTeamLead && !window.isHR) return alert('غير مصرح لك ببدء دورة تقييم.');
             const info = window.getCurrentQuarterInfo();
             document.getElementById('start-cycle-year').value = info.year;
             document.getElementById('start-cycle-deadline').value = info.reviewDeadline;
@@ -6188,12 +6237,12 @@
             const myTeam = Object.values(window.whitelist).find(u => u.name === window.currentUserName)?.role;
             const empTeam = Object.values(window.whitelist).find(u => u.name === empData.empName)?.role;
             const isMyTeamLead = isLead && empTeam === myTeam;
-            const isCEO = window.currentUserName === 'صفوان' || window.currentUserName === 'يزن';
+            const isCEO = window.isCEO === true;
 
             // حساب المؤشرات التلقائية
             const metrics = window.computeEmployeeQuarterMetrics(empData.empName, meta.periodFrom, meta.periodTo);
 
-            window._currentAppraisal = { cycleId, empKey, data: empData, metrics, isAnnual, perms: { isThisEmp, isAdmin, isLead: isMyTeamLead, isCEO } };
+            window._currentAppraisal = { cycleId, empKey, data: empData, metrics, isAnnual, perms: { isThisEmp, isAdmin, isLead: isMyTeamLead, isCEO, isHR: window.isHR } };
 
             // تعبئة الرأس
             document.getElementById('appr-emp-name').innerText = empData.empName;
@@ -6231,7 +6280,7 @@
             // تحديد صلاحيات التعديل حسب المرحلة + الدور
             const canEditSelf = perms.isThisEmp && currentStage === 'self';
             const canEditManager = (perms.isAdmin || perms.isLead) && (currentStage === 'manager' || currentStage === 'self');
-            const canEditHR = perms.isAdmin && (currentStage === 'hr' || currentStage === 'manager');
+            const canEditHR = (perms.isAdmin || perms.isHR) && (currentStage === 'hr' || currentStage === 'manager');
             const canEditCEO = perms.isCEO && currentStage === 'ceo';
             const readOnly = !canEditSelf && !canEditManager && !canEditHR && !canEditCEO;
 
@@ -6376,7 +6425,7 @@
                 const actionColors = ['var(--blue-grey)','var(--green-success)','var(--green-success)','var(--accent)','var(--intel-blue)','var(--red-danger)'];
                 ceoHtml = `
                     <div class="appraisal-section" style="border:2px solid ${perms.isCEO ? 'var(--red-danger)' : 'var(--border)'};">
-                        <div class="appraisal-section-title">#9 👔 قرار CEO <span style="font-size:0.72rem; color:var(--blue-grey); font-weight:400; margin-inline-start:auto;">${perms.isCEO ? '✓ صلاحية CEO' : '🔒 للقراءة فقط — متاح فقط لصفوان/يزن'}</span></div>
+                        <div class="appraisal-section-title">#9 👔 قرار CEO <span style="font-size:0.72rem; color:var(--blue-grey); font-weight:400; margin-inline-start:auto;">${perms.isCEO ? '✓ صلاحية CEO' : '🔒 للقراءة فقط — متاح فقط للـ CEO'}</span></div>
                         <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
                             ${actions.map((a, i) => `<button type="button" onclick="window._apprMarkCEO('${a}')" ${canEditCEO ? '' : 'disabled'} style="padding:9px 16px; border:2px solid ${actionColors[i]}; background:${ceoDecision === a ? actionColors[i] : 'transparent'}; color:${ceoDecision === a ? '#fff' : actionColors[i]}; border-radius:8px; font-family:inherit; font-weight:700; font-size:0.8rem; cursor:${canEditCEO ? 'pointer' : 'not-allowed'};">${a}</button>`).join('')}
                         </div>
@@ -6583,8 +6632,11 @@
         window.renderCalibrationTab = () => {
             const el = document.getElementById('hr-calibration-content');
             if (!el) return;
-            if (!window.isManager && !window.isTeamLead) {
-                el.innerHTML = '<div style="text-align:center; padding:30px; color:var(--red-danger);">🔒 هذا التاب متاح فقط للمدراء وقادة الفرق.</div>';
+            const tabBtn = document.querySelector('.hr-tab-calibration');
+            const canSeeCalibration = window.isManager || window.isTeamLead || window.isHR;
+            if (tabBtn) tabBtn.style.display = canSeeCalibration ? 'inline-flex' : 'none';
+            if (!canSeeCalibration) {
+                el.innerHTML = '<div style="text-align:center; padding:30px; color:var(--red-danger);">🔒 هذا التاب متاح فقط للمدراء وقادة الفرق و HR.</div>';
                 return;
             }
 
@@ -9368,7 +9420,10 @@
                     const userData = window.whitelist[user.email];
                     if (!userData) { signOut(auth); window.showError("عذراً، هذا البريد غير مصرح له."); return; }
 
-                    window.isManager = userData.role === "manager";
+                    // CEO يرث صلاحيات المدير + قرار CEO الحصري
+                    window.isCEO = userData.role === "ceo";
+                    window.isManager = userData.role === "manager" || userData.role === "ceo";
+                    window.isHR = userData.role === "hr";
                     window.isTeamLead = userData.isLead === true;
                     window.isSales = userData.role === "sales";
                     window.currentUserName = userData.name;
