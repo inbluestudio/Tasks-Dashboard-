@@ -744,18 +744,25 @@
 
         /* ───── المهام العاجلة جداً — وميض أحمر كل 10 ثواني ───── */
         @keyframes urgentTaskHighlight {
-            0%, 45%, 70%, 100% {
+
+            0%,
+            45%,
+            70%,
+            100% {
                 background: var(--card-bg);
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             }
+
             50% {
                 background: rgba(248, 113, 113, 0.28);
                 box-shadow: 0 0 32px rgba(248, 113, 113, 0.7), inset 0 0 0 2px rgba(248, 113, 113, 0.6);
             }
+
             55% {
                 background: rgba(248, 113, 113, 0.22);
                 box-shadow: 0 0 26px rgba(248, 113, 113, 0.55), inset 0 0 0 2px rgba(248, 113, 113, 0.45);
             }
+
             60% {
                 background: rgba(248, 113, 113, 0.14);
                 box-shadow: 0 0 16px rgba(248, 113, 113, 0.35), inset 0 0 0 1px rgba(248, 113, 113, 0.25);
@@ -789,25 +796,44 @@
         }
 
         @keyframes urgentBadgePulse {
-            0%, 45%, 70%, 100% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-            55% { transform: scale(1.15); }
+
+            0%,
+            45%,
+            70%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.3);
+            }
+
+            55% {
+                transform: scale(1.15);
+            }
         }
 
         /* ───── المهام الجديدة في عمود الانتظار — وميض أخضر كل 10 ثواني ───── */
         @keyframes newPendingHighlight {
-            0%, 45%, 70%, 100% {
+
+            0%,
+            45%,
+            70%,
+            100% {
                 background: var(--card-bg);
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             }
+
             50% {
                 background: rgba(52, 211, 153, 0.26);
                 box-shadow: 0 0 30px rgba(52, 211, 153, 0.65), inset 0 0 0 2px rgba(52, 211, 153, 0.55);
             }
+
             55% {
                 background: rgba(52, 211, 153, 0.20);
                 box-shadow: 0 0 24px rgba(52, 211, 153, 0.5), inset 0 0 0 2px rgba(52, 211, 153, 0.4);
             }
+
             60% {
                 background: rgba(52, 211, 153, 0.12);
                 box-shadow: 0 0 14px rgba(52, 211, 153, 0.3), inset 0 0 0 1px rgba(52, 211, 153, 0.22);
@@ -840,9 +866,21 @@
         }
 
         @keyframes newBadgePulse {
-            0%, 45%, 70%, 100% { transform: scale(1); }
-            50% { transform: scale(1.25); }
-            55% { transform: scale(1.1); }
+
+            0%,
+            45%,
+            70%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.25);
+            }
+
+            55% {
+                transform: scale(1.1);
+            }
         }
 
         /* لو التاسك عاجل وجديد بنفس الوقت — الأحمر يطغى لأنه أعلى أولوية */
@@ -865,10 +903,12 @@
                 background: rgba(248, 113, 113, 0.12);
                 box-shadow: 0 0 12px rgba(248, 113, 113, 0.3);
             }
+
             .card[data-priority="urgent"]::after,
             .card.new-pending-task::after {
                 animation: none;
             }
+
             .card.new-pending-task {
                 animation: none;
                 background: rgba(52, 211, 153, 0.1);
@@ -1247,9 +1287,12 @@
 
         /* نبضة بطاقة "إضافة لاحقة" — تلفت نظر المانيجر والتيم ليد */
         @keyframes addonCardPulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 box-shadow: 0 2px 8px rgba(245, 158, 11, 0.18), inset 4px 0 0 var(--amber);
             }
+
             50% {
                 box-shadow: 0 4px 18px rgba(245, 158, 11, 0.55), inset 4px 0 0 var(--amber);
             }
@@ -1310,8 +1353,16 @@
             white-space: nowrap;
             font-family: inherit;
         }
-        .hr-tab:hover { color: var(--text); background: rgba(59,164,254,0.05); }
-        .hr-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .hr-tab:hover {
+            color: var(--text);
+            background: rgba(59, 164, 254, 0.05);
+        }
+
+        .hr-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
 
         /* بطاقة تقييم موظف */
         .appraisal-emp-card {
@@ -1325,7 +1376,12 @@
             align-items: center;
             transition: 0.2s;
         }
-        .appraisal-emp-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+
+        .appraisal-emp-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+
         .appraisal-quarter-pill {
             display: inline-block;
             padding: 3px 9px;
@@ -1333,11 +1389,32 @@
             font-size: 0.7rem;
             font-weight: 700;
         }
-        .appraisal-quarter-pill.empty { background: var(--bg); color: var(--blue-grey); border: 1px dashed var(--border); }
-        .appraisal-quarter-pill.self { background: rgba(136,207,253,0.15); color: var(--intel-blue); }
-        .appraisal-quarter-pill.manager { background: rgba(251,191,36,0.15); color: var(--amber); }
-        .appraisal-quarter-pill.hr { background: rgba(167,139,250,0.18); color: #a78bfa; }
-        .appraisal-quarter-pill.completed { background: rgba(52,211,153,0.18); color: var(--green-success); }
+
+        .appraisal-quarter-pill.empty {
+            background: var(--bg);
+            color: var(--blue-grey);
+            border: 1px dashed var(--border);
+        }
+
+        .appraisal-quarter-pill.self {
+            background: rgba(136, 207, 253, 0.15);
+            color: var(--intel-blue);
+        }
+
+        .appraisal-quarter-pill.manager {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--amber);
+        }
+
+        .appraisal-quarter-pill.hr {
+            background: rgba(167, 139, 250, 0.18);
+            color: #a78bfa;
+        }
+
+        .appraisal-quarter-pill.completed {
+            background: rgba(52, 211, 153, 0.18);
+            color: var(--green-success);
+        }
 
         /* المودال — نموذج التقييم */
         .appraisal-modal-box {
@@ -1350,8 +1427,9 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
         }
+
         .appraisal-section {
             background: var(--bg);
             border: 1px solid var(--border);
@@ -1359,6 +1437,7 @@
             padding: 18px;
             margin-bottom: 18px;
         }
+
         .appraisal-section-title {
             font-size: 1rem;
             font-weight: 700;
@@ -1370,13 +1449,16 @@
             align-items: center;
             gap: 8px;
         }
+
         .appraisal-rating {
             display: inline-flex;
             gap: 4px;
         }
+
         .appraisal-rating input[type="radio"] {
             display: none;
         }
+
         .appraisal-rating label {
             cursor: pointer;
             background: var(--card-bg);
@@ -1392,13 +1474,23 @@
             color: var(--blue-grey);
             transition: 0.15s;
         }
-        .appraisal-rating label:hover { border-color: var(--accent); color: var(--accent); }
-        .appraisal-rating input[type="radio"]:checked + label {
-            background: var(--accent); color: #fff; border-color: var(--accent);
+
+        .appraisal-rating label:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
+
+        .appraisal-rating input[type="radio"]:checked+label {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
         .appraisal-rating[data-disabled="true"] label {
-            cursor: not-allowed; opacity: 0.7;
+            cursor: not-allowed;
+            opacity: 0.7;
         }
+
         .appraisal-criteria-row {
             display: grid;
             grid-template-columns: 2fr auto auto 2fr;
@@ -1407,7 +1499,11 @@
             padding: 10px;
             border-bottom: 1px dashed var(--border);
         }
-        .appraisal-criteria-row:last-child { border-bottom: none; }
+
+        .appraisal-criteria-row:last-child {
+            border-bottom: none;
+        }
+
         .appraisal-criteria-label {
             font-size: 0.85rem;
             color: var(--text);
@@ -1415,13 +1511,15 @@
             flex-direction: column;
             gap: 3px;
         }
+
         .appraisal-auto-hint {
             font-size: 0.68rem;
             color: var(--green-success);
             font-weight: 600;
         }
+
         .appraisal-criteria-group-title {
-            background: rgba(59,164,254,0.06);
+            background: rgba(59, 164, 254, 0.06);
             color: var(--accent);
             font-weight: 700;
             font-size: 0.9rem;
@@ -1437,6 +1535,7 @@
             gap: 10px;
             margin-bottom: 14px;
         }
+
         .appraisal-kpi {
             background: var(--bg);
             border: 1px solid var(--border);
@@ -1444,11 +1543,30 @@
             border-radius: 8px;
             padding: 10px 12px;
         }
-        .appraisal-kpi .lbl { font-size: 0.68rem; color: var(--blue-grey); }
-        .appraisal-kpi .val { font-size: 1.3rem; font-weight: 700; color: var(--text); margin-top: 2px; }
-        .appraisal-kpi.good { border-inline-start-color: var(--green-success); }
-        .appraisal-kpi.warn { border-inline-start-color: var(--amber); }
-        .appraisal-kpi.bad { border-inline-start-color: var(--red-danger); }
+
+        .appraisal-kpi .lbl {
+            font-size: 0.68rem;
+            color: var(--blue-grey);
+        }
+
+        .appraisal-kpi .val {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-top: 2px;
+        }
+
+        .appraisal-kpi.good {
+            border-inline-start-color: var(--green-success);
+        }
+
+        .appraisal-kpi.warn {
+            border-inline-start-color: var(--amber);
+        }
+
+        .appraisal-kpi.bad {
+            border-inline-start-color: var(--red-danger);
+        }
 
         /* Stage stepper */
         .appraisal-stages {
@@ -1458,14 +1576,26 @@
             font-size: 0.78rem;
             color: var(--blue-grey);
         }
+
         .appraisal-stage-step {
             padding: 4px 10px;
             border-radius: 14px;
             background: var(--bg);
             border: 1px solid var(--border);
         }
-        .appraisal-stage-step.done { background: rgba(52,211,153,0.15); color: var(--green-success); border-color: var(--green-success); }
-        .appraisal-stage-step.current { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+
+        .appraisal-stage-step.done {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--green-success);
+            border-color: var(--green-success);
+        }
+
+        .appraisal-stage-step.current {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            font-weight: 700;
+        }
 
         .sales-section-anim {
             animation: salesSlideIn 0.45s ease-out;
@@ -3558,7 +3688,9 @@
                     </div>
 
                     <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;">
-                        <div id="active-filters-bar" style="display:none; padding:8px 12px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; margin-bottom:8px; flex-shrink:0;"></div>
+                        <div id="active-filters-bar"
+                            style="display:none; padding:8px 12px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; margin-bottom:8px; flex-shrink:0;">
+                        </div>
                         <div class="top-scrollbar-wrapper" id="topScrollWrapper">
                             <div class="top-scrollbar-content" id="topScrollContent"></div>
                         </div>
@@ -3661,8 +3793,12 @@
                             <div class="dash-card-title">
                                 <span>🔥 ضغط فرق العمل</span>
                                 <div style="display:flex; gap:6px;">
-                                    <button class="workload-range-btn" data-range="week" onclick="window.setWorkloadRange('week')" style="padding:4px 10px; font-size:0.72rem; border:1px solid var(--accent); background:var(--accent); color:#fff; border-radius:5px; cursor:pointer; font-family:inherit; font-weight:600;">أسبوعي</button>
-                                    <button class="workload-range-btn" data-range="month" onclick="window.setWorkloadRange('month')" style="padding:4px 10px; font-size:0.72rem; border:1px solid var(--border); background:transparent; color:var(--blue-grey); border-radius:5px; cursor:pointer; font-family:inherit; font-weight:600;">شهري</button>
+                                    <button class="workload-range-btn" data-range="week"
+                                        onclick="window.setWorkloadRange('week')"
+                                        style="padding:4px 10px; font-size:0.72rem; border:1px solid var(--accent); background:var(--accent); color:#fff; border-radius:5px; cursor:pointer; font-family:inherit; font-weight:600;">أسبوعي</button>
+                                    <button class="workload-range-btn" data-range="month"
+                                        onclick="window.setWorkloadRange('month')"
+                                        style="padding:4px 10px; font-size:0.72rem; border:1px solid var(--border); background:transparent; color:var(--blue-grey); border-radius:5px; cursor:pointer; font-family:inherit; font-weight:600;">شهري</button>
                                 </div>
                             </div>
                             <div id="workload-content"></div>
@@ -3722,64 +3858,103 @@
                 <div class="page-header">
                     <div>
                         <h1 style="margin-bottom: 5px;">👥 الموارد البشرية</h1>
-                        <p style="font-size: 0.85rem; color: var(--blue-grey);">إدارة الموظفين، التقييمات الربعية، والمعايرة بين الأقسام</p>
+                        <p style="font-size: 0.85rem; color: var(--blue-grey);">إدارة الموظفين، التقييمات الربعية،
+                            والمعايرة بين الأقسام</p>
                     </div>
-                    <button id="hr-start-cycle-btn" class="btn-main" onclick="window.startAppraisalCycle()" style="display:none;">
+                    <button id="hr-start-cycle-btn" class="btn-main" onclick="window.startAppraisalCycle()"
+                        style="display:none;">
                         🚀 بدء دورة تقييم جديدة
                     </button>
                 </div>
 
                 <!-- شريط الدورة النشطة -->
-                <div id="hr-active-cycle-banner" style="display:none; padding:14px 18px; background:linear-gradient(135deg, rgba(59,164,254,0.12), rgba(52,211,153,0.08)); border:1px solid var(--accent); border-radius:10px; margin-bottom:18px;"></div>
+                <div id="hr-active-cycle-banner"
+                    style="display:none; padding:14px 18px; background:linear-gradient(135deg, rgba(59,164,254,0.12), rgba(52,211,153,0.08)); border:1px solid var(--accent); border-radius:10px; margin-bottom:18px;">
+                </div>
 
                 <!-- تبويبات HR -->
-                <div id="hr-tabs" style="display:flex; gap:4px; padding-bottom:0; background:var(--bg); border-bottom:1px solid var(--border); margin-bottom:18px; overflow-x:auto;">
-                    <button class="hr-tab active" data-hrtab="employees" onclick="window.switchHrTab('employees')">📑 الموظفون</button>
-                    <button class="hr-tab" data-hrtab="appraisals" onclick="window.switchHrTab('appraisals')">⭐ التقييمات الربعية</button>
-                    <button class="hr-tab hr-tab-calibration" data-hrtab="calibration" onclick="window.switchHrTab('calibration')">📊 المعايرة (Calibration)</button>
-                    <button class="hr-tab" data-hrtab="diary" onclick="window.switchHrTab('diary')">📝 سجل الأداء السنوي</button>
+                <div id="hr-tabs"
+                    style="display:flex; gap:4px; padding-bottom:0; background:var(--bg); border-bottom:1px solid var(--border); margin-bottom:18px; overflow-x:auto;">
+                    <button class="hr-tab active" data-hrtab="employees" onclick="window.switchHrTab('employees')">📑
+                        الموظفون</button>
+                    <button class="hr-tab" data-hrtab="appraisals" onclick="window.switchHrTab('appraisals')">⭐
+                        التقييمات الربعية</button>
+                    <button class="hr-tab hr-tab-calibration" data-hrtab="calibration"
+                        onclick="window.switchHrTab('calibration')">📊 المعايرة (Calibration)</button>
+                    <button class="hr-tab" data-hrtab="diary" onclick="window.switchHrTab('diary')">📝 سجل الأداء
+                        السنوي</button>
                 </div>
 
                 <!-- تاب 1: الموظفون -->
                 <div class="hr-tab-content" data-hrtab-content="employees">
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:24px;">
-                        <div class="hr-stat-card" style="background:var(--card-bg); border:1px solid var(--border); border-inline-start:3px solid var(--accent); border-radius:10px; padding:16px;">
-                            <div style="font-size:0.78rem; color:var(--blue-grey); margin-bottom:6px;">👤 إجمالي الموظفين</div>
-                            <div id="hr-stat-total" style="font-size:1.8rem; font-weight:800; color:var(--text);">—</div>
-                            <div style="font-size:0.72rem; color:var(--blue-grey); margin-top:4px;">في القائمة البيضاء</div>
+                    <div
+                        style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:24px;">
+                        <div class="hr-stat-card"
+                            style="background:var(--card-bg); border:1px solid var(--border); border-inline-start:3px solid var(--accent); border-radius:10px; padding:16px;">
+                            <div style="font-size:0.78rem; color:var(--blue-grey); margin-bottom:6px;">👤 إجمالي
+                                الموظفين</div>
+                            <div id="hr-stat-total" style="font-size:1.8rem; font-weight:800; color:var(--text);">—
+                            </div>
+                            <div style="font-size:0.72rem; color:var(--blue-grey); margin-top:4px;">في القائمة البيضاء
+                            </div>
                         </div>
-                        <div class="hr-stat-card" style="background:var(--card-bg); border:1px solid var(--border); border-inline-start:3px solid var(--green-success); border-radius:10px; padding:16px;">
-                            <div style="font-size:0.78rem; color:var(--blue-grey); margin-bottom:6px;">✅ نشطون اليوم</div>
-                            <div id="hr-stat-active" style="font-size:1.8rem; font-weight:800; color:var(--text);">—</div>
-                            <div style="font-size:0.72rem; color:var(--blue-grey); margin-top:4px;">سجلوا دخول مؤخراً</div>
+                        <div class="hr-stat-card"
+                            style="background:var(--card-bg); border:1px solid var(--border); border-inline-start:3px solid var(--green-success); border-radius:10px; padding:16px;">
+                            <div style="font-size:0.78rem; color:var(--blue-grey); margin-bottom:6px;">✅ نشطون اليوم
+                            </div>
+                            <div id="hr-stat-active" style="font-size:1.8rem; font-weight:800; color:var(--text);">—
+                            </div>
+                            <div style="font-size:0.72rem; color:var(--blue-grey); margin-top:4px;">سجلوا دخول مؤخراً
+                            </div>
                         </div>
-                        <div class="hr-stat-card" style="background:var(--card-bg); border:1px solid var(--border); border-inline-start:3px solid var(--intel-blue); border-radius:10px; padding:16px;">
+                        <div class="hr-stat-card"
+                            style="background:var(--card-bg); border:1px solid var(--border); border-inline-start:3px solid var(--intel-blue); border-radius:10px; padding:16px;">
                             <div style="font-size:0.78rem; color:var(--blue-grey); margin-bottom:6px;">🏢 الأقسام</div>
-                            <div id="hr-stat-teams" style="font-size:1.8rem; font-weight:800; color:var(--text);">—</div>
-                            <div style="font-size:0.72rem; color:var(--blue-grey); margin-top:4px;">3D · UE · Code · AI · Sales</div>
+                            <div id="hr-stat-teams" style="font-size:1.8rem; font-weight:800; color:var(--text);">—
+                            </div>
+                            <div style="font-size:0.72rem; color:var(--blue-grey); margin-top:4px;">3D · UE · Code · AI
+                                · Sales</div>
                         </div>
-                        <div class="hr-stat-card" style="background:var(--card-bg); border:1px solid var(--border); border-inline-start:3px solid var(--amber); border-radius:10px; padding:16px;">
+                        <div class="hr-stat-card"
+                            style="background:var(--card-bg); border:1px solid var(--border); border-inline-start:3px solid var(--amber); border-radius:10px; padding:16px;">
                             <div style="font-size:0.78rem; color:var(--blue-grey); margin-bottom:6px;">👑 الإدارة</div>
-                            <div id="hr-stat-leads" style="font-size:1.8rem; font-weight:800; color:var(--text);">—</div>
-                            <div style="font-size:0.72rem; color:var(--blue-grey); margin-top:4px;">مدراء + قادة فرق</div>
+                            <div id="hr-stat-leads" style="font-size:1.8rem; font-weight:800; color:var(--text);">—
+                            </div>
+                            <div style="font-size:0.72rem; color:var(--blue-grey); margin-top:4px;">مدراء + قادة فرق
+                            </div>
                         </div>
                     </div>
 
-                    <div style="background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:18px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                    <div
+                        style="background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:18px;">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
                             <h3 style="margin:0; font-size:1rem; color:var(--text);">📑 قائمة الموظفين الحاليين</h3>
                             <span style="font-size:0.75rem; color:var(--blue-grey);">من القائمة البيضاء</span>
                         </div>
                         <div style="overflow-x:auto;">
-                            <table id="hr-employees-table" style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                            <table id="hr-employees-table"
+                                style="width:100%; border-collapse:collapse; font-size:0.85rem;">
                                 <thead>
                                     <tr style="background:var(--bg); color:var(--blue-grey); text-align:start;">
-                                        <th style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">الموظف</th>
-                                        <th style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">البريد</th>
-                                        <th style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">القسم</th>
-                                        <th style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">الدور</th>
-                                        <th style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">المهام النشطة</th>
-                                        <th style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">معدل الإنجاز</th>
+                                        <th
+                                            style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">
+                                            الموظف</th>
+                                        <th
+                                            style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">
+                                            البريد</th>
+                                        <th
+                                            style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">
+                                            القسم</th>
+                                        <th
+                                            style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">
+                                            الدور</th>
+                                        <th
+                                            style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">
+                                            المهام النشطة</th>
+                                        <th
+                                            style="padding:10px; border-bottom:1px solid var(--border); text-align:start;">
+                                            معدل الإنجاز</th>
                                     </tr>
                                 </thead>
                                 <tbody id="hr-employees-body"></tbody>
@@ -3960,7 +4135,8 @@
     <!-- Appraisal Modal (مطابق لنموذج Appraisal Form الورقي) -->
     <div class="modal" id="appraisalModal">
         <div class="appraisal-modal-box">
-            <div style="padding:18px 24px; border-bottom:1px solid var(--border); background:var(--bg); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div
+                style="padding:18px 24px; border-bottom:1px solid var(--border); background:var(--bg); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                 <div>
                     <h2 style="color:var(--text); font-size:1.25rem; margin-bottom:4px;">
                         📋 نموذج التقييم — <span id="appr-emp-name" style="color:var(--accent);"></span>
@@ -3973,9 +4149,13 @@
                     <div id="appr-stages-wrap" style="margin-top:8px;"></div>
                 </div>
                 <div style="display:flex; gap:8px; align-items:center;">
-                    <button id="appr-save-btn" class="btn-main" onclick="window.saveAppraisalForm()" style="padding:9px 18px; font-size:0.85rem;">💾 حفظ</button>
-                    <button id="appr-submit-btn" class="btn-outline" onclick="window.submitAppraisalStage()" style="padding:9px 18px; font-size:0.85rem; color:var(--green-success); border-color:var(--green-success);">✓ إرسال للمرحلة التالية</button>
-                    <button onclick="document.getElementById('appraisalModal').classList.remove('active')" style="background:none; border:none; font-size:1.6rem; color:var(--blue-grey); cursor:pointer;">✖</button>
+                    <button id="appr-save-btn" class="btn-main" onclick="window.saveAppraisalForm()"
+                        style="padding:9px 18px; font-size:0.85rem;">💾 حفظ</button>
+                    <button id="appr-submit-btn" class="btn-outline" onclick="window.submitAppraisalStage()"
+                        style="padding:9px 18px; font-size:0.85rem; color:var(--green-success); border-color:var(--green-success);">✓
+                        إرسال للمرحلة التالية</button>
+                    <button onclick="document.getElementById('appraisalModal').classList.remove('active')"
+                        style="background:none; border:none; font-size:1.6rem; color:var(--blue-grey); cursor:pointer;">✖</button>
                 </div>
             </div>
 
@@ -3993,7 +4173,8 @@
                 ستُنشأ تقييمات فاضية لكل موظف في القائمة البيضاء، وستصلهم إشعارات للبدء بتقييمهم الذاتي.
             </p>
 
-            <label style="font-size:0.8rem; color:var(--blue-grey); display:block; margin-bottom:6px;">الربع المراد تقييمه</label>
+            <label style="font-size:0.8rem; color:var(--blue-grey); display:block; margin-bottom:6px;">الربع المراد
+                تقييمه</label>
             <select id="start-cycle-quarter" style="margin-bottom:15px;">
                 <option value="auto">🎯 الربع الحالي (تلقائي)</option>
                 <option value="1">Q1 (يناير - مارس) — تقييم تيم ليد</option>
@@ -4005,13 +4186,18 @@
             <label style="font-size:0.8rem; color:var(--blue-grey); display:block; margin-bottom:6px;">السنة</label>
             <input type="number" id="start-cycle-year" min="2025" max="2030" style="margin-bottom:15px;">
 
-            <label style="font-size:0.8rem; color:var(--blue-grey); display:block; margin-bottom:6px;">تاريخ نهاية الموعد (Deadline)</label>
+            <label style="font-size:0.8rem; color:var(--blue-grey); display:block; margin-bottom:6px;">تاريخ نهاية
+                الموعد (Deadline)</label>
             <input type="date" id="start-cycle-deadline" style="margin-bottom:18px;">
 
-            <div id="start-cycle-info" style="padding:10px; background:rgba(59,164,254,0.08); border-radius:8px; font-size:0.78rem; color:var(--blue-grey); margin-bottom:18px; line-height:1.6;"></div>
+            <div id="start-cycle-info"
+                style="padding:10px; background:rgba(59,164,254,0.08); border-radius:8px; font-size:0.78rem; color:var(--blue-grey); margin-bottom:18px; line-height:1.6;">
+            </div>
 
-            <button class="btn-main" onclick="window.confirmStartAppraisalCycle()" style="width:100%; padding:12px;">🚀 إنشاء الدورة وإشعار الموظفين</button>
-            <button onclick="document.getElementById('startCycleModal').classList.remove('active')" style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:10px; cursor:pointer; font-family:inherit; font-size:0.85rem;">إلغاء</button>
+            <button class="btn-main" onclick="window.confirmStartAppraisalCycle()" style="width:100%; padding:12px;">🚀
+                إنشاء الدورة وإشعار الموظفين</button>
+            <button onclick="document.getElementById('startCycleModal').classList.remove('active')"
+                style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:10px; cursor:pointer; font-family:inherit; font-size:0.85rem;">إلغاء</button>
         </div>
     </div>
 
@@ -4030,10 +4216,13 @@
                 <option value="concern">🟠 ملاحظة سلبية (مشكلة/تأخر)</option>
             </select>
 
-            <textarea id="diary-text" placeholder="اكتب الملاحظة هنا — ستظهر في تقييمه القادم..." style="width:100%; min-height:120px; padding:12px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical; margin-bottom:18px;"></textarea>
+            <textarea id="diary-text" placeholder="اكتب الملاحظة هنا — ستظهر في تقييمه القادم..."
+                style="width:100%; min-height:120px; padding:12px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical; margin-bottom:18px;"></textarea>
 
-            <button class="btn-main" onclick="window.saveDiaryEntry()" style="width:100%; padding:11px;">💾 حفظ الملاحظة</button>
-            <button onclick="document.getElementById('diaryEntryModal').classList.remove('active')" style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:10px; cursor:pointer; font-family:inherit;">إلغاء</button>
+            <button class="btn-main" onclick="window.saveDiaryEntry()" style="width:100%; padding:11px;">💾 حفظ
+                الملاحظة</button>
+            <button onclick="document.getElementById('diaryEntryModal').classList.remove('active')"
+                style="background:transparent; color:var(--blue-grey); border:none; width:100%; margin-top:10px; cursor:pointer; font-family:inherit;">إلغاء</button>
         </div>
     </div>
 
@@ -4417,7 +4606,7 @@
                 const taskCompletedTs = t.completedAt || 0;
                 // اعتبر التاسك ضمن الفترة إذا تم إنشاؤه أو إنهاؤه ضمنها
                 const inPeriod = (taskCreatedTs >= fromTs && taskCreatedTs <= toTs) ||
-                                 (taskCompletedTs >= fromTs && taskCompletedTs <= toTs);
+                    (taskCompletedTs >= fromTs && taskCompletedTs <= toTs);
                 if (!inPeriod) return;
 
                 totalTasks++;
@@ -6219,11 +6408,11 @@
                             <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--green-success); box-shadow:0 0 6px var(--green-success);"></span>
                             الدورة النشطة: <span style="color:var(--accent);">${escapeHtml(meta.cycleId || activeCycleId)}</span>
                             ${(() => {
-                                const t = meta.type;
-                                if (t === 'annual') return '<span style="background:rgba(248,113,113,0.15); color:var(--red-danger); font-size:0.7rem; padding:2px 8px; border-radius:8px;">🔴 شامل + HR + CEO</span>';
-                                if (t === 'tl-hr') return '<span style="background:rgba(251,191,36,0.15); color:var(--amber); font-size:0.7rem; padding:2px 8px; border-radius:8px;">🟡 تيم ليد + HR (نصف سنوي)</span>';
-                                return '<span style="background:rgba(74,222,128,0.15); color:var(--green-success); font-size:0.7rem; padding:2px 8px; border-radius:8px;">🟢 تيم ليد فقط</span>';
-                            })()}
+                    const t = meta.type;
+                    if (t === 'annual') return '<span style="background:rgba(248,113,113,0.15); color:var(--red-danger); font-size:0.7rem; padding:2px 8px; border-radius:8px;">🔴 شامل + HR + CEO</span>';
+                    if (t === 'tl-hr') return '<span style="background:rgba(251,191,36,0.15); color:var(--amber); font-size:0.7rem; padding:2px 8px; border-radius:8px;">🟡 تيم ليد + HR (نصف سنوي)</span>';
+                    return '<span style="background:rgba(74,222,128,0.15); color:var(--green-success); font-size:0.7rem; padding:2px 8px; border-radius:8px;">🟢 تيم ليد فقط</span>';
+                })()}
                         </div>
                         <div style="font-size:0.78rem; color:var(--blue-grey); margin-top:4px;">
                             الفترة: ${escapeHtml(meta.periodFrom || '-')} → ${escapeHtml(meta.periodTo || '-')}
@@ -6337,7 +6526,7 @@
                     type: window.getQuarterTypeFor(q),
                     periodFrom: ranges[q][0],
                     periodTo: ranges[q][1],
-                    reviewDeadline: deadline || `${yearInp}-${String(((q*3) % 12) + 1).padStart(2,'0')}-07`,
+                    reviewDeadline: deadline || `${yearInp}-${String(((q * 3) % 12) + 1).padStart(2, '0')}-07`,
                     createdBy: window.currentUserName,
                     createdAt: Date.now()
                 },
@@ -6532,10 +6721,10 @@
                 <div class="appraisal-section">
                     <div class="appraisal-section-title">📊 المؤشرات التلقائية للفترة <span style="font-size:0.72rem; color:var(--blue-grey); font-weight:400; margin-inline-start:auto;">محسوبة من بيانات المهام</span></div>
                     <div class="appraisal-kpi-strip">
-                        <div class="appraisal-kpi ${kpiClass(ra.completionRate * 100, 80, 60)}"><div class="lbl">إنجاز كلي</div><div class="val">${Math.round(ra.completionRate*100)}%</div></div>
-                        <div class="appraisal-kpi ${kpiClass(ra.onTimeRate * 100, 80, 60)}"><div class="lbl">تسليم في الموعد</div><div class="val">${Math.round(ra.onTimeRate*100)}%</div></div>
-                        <div class="appraisal-kpi ${kpiClass(ra.hoursAccuracy * 100, 80, 60)}"><div class="lbl">دقة الساعات</div><div class="val">${Math.round(ra.hoursAccuracy*100)}%</div></div>
-                        <div class="appraisal-kpi ${kpiClass(ra.qualityRatio * 100, 90, 70)}"><div class="lbl">الجودة</div><div class="val">${Math.round(ra.qualityRatio*100)}%</div></div>
+                        <div class="appraisal-kpi ${kpiClass(ra.completionRate * 100, 80, 60)}"><div class="lbl">إنجاز كلي</div><div class="val">${Math.round(ra.completionRate * 100)}%</div></div>
+                        <div class="appraisal-kpi ${kpiClass(ra.onTimeRate * 100, 80, 60)}"><div class="lbl">تسليم في الموعد</div><div class="val">${Math.round(ra.onTimeRate * 100)}%</div></div>
+                        <div class="appraisal-kpi ${kpiClass(ra.hoursAccuracy * 100, 80, 60)}"><div class="lbl">دقة الساعات</div><div class="val">${Math.round(ra.hoursAccuracy * 100)}%</div></div>
+                        <div class="appraisal-kpi ${kpiClass(ra.qualityRatio * 100, 90, 70)}"><div class="lbl">الجودة</div><div class="val">${Math.round(ra.qualityRatio * 100)}%</div></div>
                         <div class="appraisal-kpi"><div class="lbl">إجمالي مهام</div><div class="val">${r.totalTasks}</div></div>
                         <div class="appraisal-kpi"><div class="lbl">منجزة</div><div class="val">${r.doneTasks}</div></div>
                         <div class="appraisal-kpi"><div class="lbl">ساعات فعلية</div><div class="val">${r.totalAct.toFixed(0)}</div></div>
@@ -6549,18 +6738,18 @@
                 <div class="appraisal-section">
                     <div class="appraisal-section-title">#3 ✏️ التقييم الذاتي <span style="font-size:0.72rem; color:var(--blue-grey); font-weight:400; margin-inline-start:auto;">${canEditSelf ? '✓ قابل للتعديل' : '🔒 للقراءة فقط'}</span></div>
                     ${['previousPeriodReview', 'mainAchievements', 'mainChallenges', 'positiveAspects', 'unmetGoals', 'managerFeedback'].map(field => {
-                        const labels = {
-                            previousPeriodReview: 'هل كانت الفترة السابقة جيدة/مرضية؟ ولماذا؟',
-                            mainAchievements: 'أهم الإنجازات',
-                            mainChallenges: 'أكبر التحديات',
-                            positiveAspects: 'الجوانب الإيجابية في عملك',
-                            unmetGoals: 'أهداف لم تُحقق ولماذا',
-                            managerFeedback: 'ملاحظات على مديرك'
-                        };
-                        const val = (data.selfReview && data.selfReview[field]) || '';
-                        return `<label style="display:block; font-size:0.82rem; color:var(--blue-grey); margin-top:10px; margin-bottom:4px;">${labels[field]}</label>
+                const labels = {
+                    previousPeriodReview: 'هل كانت الفترة السابقة جيدة/مرضية؟ ولماذا؟',
+                    mainAchievements: 'أهم الإنجازات',
+                    mainChallenges: 'أكبر التحديات',
+                    positiveAspects: 'الجوانب الإيجابية في عملك',
+                    unmetGoals: 'أهداف لم تُحقق ولماذا',
+                    managerFeedback: 'ملاحظات على مديرك'
+                };
+                const val = (data.selfReview && data.selfReview[field]) || '';
+                return `<label style="display:block; font-size:0.82rem; color:var(--blue-grey); margin-top:10px; margin-bottom:4px;">${labels[field]}</label>
                                 <textarea id="appr-self-${field}" ${selfDis} style="width:100%; min-height:60px; padding:10px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:0.85rem; resize:vertical;">${escapeHtml(val)}</textarea>`;
-                    }).join('')}
+            }).join('')}
                 </div>`;
 
             // ───── #4 + #5 Skills/Performance Evaluation ─────
@@ -6579,7 +6768,7 @@
                 const canEdit = who === 'staff' ? canEditSelf : (who === 'manager' ? canEditManager : canEditHR);
                 const dis = canEdit ? '' : 'disabled';
                 return `<div class="appraisal-rating" data-disabled="${!canEdit}">
-                    ${[1,2,3,4,5].map(n => `<input type="radio" name="appr-${key}-${who}" id="appr-${key}-${who}-${n}" value="${n}" ${val == n ? 'checked' : ''} ${dis} onchange="window._apprMark('${key}','${who}',${n})"><label for="appr-${key}-${who}-${n}">${n}</label>`).join('')}
+                    ${[1, 2, 3, 4, 5].map(n => `<input type="radio" name="appr-${key}-${who}" id="appr-${key}-${who}-${n}" value="${n}" ${val == n ? 'checked' : ''} ${dis} onchange="window._apprMark('${key}','${who}',${n})"><label for="appr-${key}-${who}-${n}">${n}</label>`).join('')}
                 </div>`;
             };
 
@@ -6619,7 +6808,7 @@
             const empDiary = diaryKey && window.allPerfDiary ? (window.allPerfDiary[diaryKey] || {}) : {};
             const periodFromTs = new Date(c.metrics.periodFrom).getTime();
             const periodToTs = new Date(c.metrics.periodTo).getTime() + 86400000;
-            const diaryNotes = Object.entries(empDiary).filter(([_, d]) => d.time >= periodFromTs && d.time <= periodToTs).sort((a,b) => (b[1].time || 0) - (a[1].time || 0));
+            const diaryNotes = Object.entries(empDiary).filter(([_, d]) => d.time >= periodFromTs && d.time <= periodToTs).sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
             const sentimentColor = (s) => s === 'positive' ? 'var(--green-success)' : (s === 'concern' ? 'var(--red-danger)' : 'var(--intel-blue)');
             const sentimentIcon = (s) => s === 'positive' ? '🟢' : (s === 'concern' ? '🟠' : '🔵');
 
@@ -6627,7 +6816,7 @@
                 <div class="appraisal-section">
                     <div class="appraisal-section-title">📝 ملاحظات الأداء خلال الفترة (${diaryNotes.length}) <span style="font-size:0.72rem; color:var(--blue-grey); font-weight:400; margin-inline-start:auto;">من Performance Diary</span></div>
                     ${diaryNotes.length === 0 ? '<div style="color:var(--blue-grey); font-size:0.82rem; padding:10px; text-align:center;">لا توجد ملاحظات على هذا الموظف خلال هذه الفترة. أضف ملاحظات من تاب "سجل الأداء" أو من أي صفحة تاسك.</div>'
-                        : diaryNotes.map(([dKey, d]) => `<div style="padding:10px; background:var(--card-bg); border-inline-start:3px solid ${sentimentColor(d.sentiment)}; border-radius:6px; margin-bottom:6px;">
+                    : diaryNotes.map(([dKey, d]) => `<div style="padding:10px; background:var(--card-bg); border-inline-start:3px solid ${sentimentColor(d.sentiment)}; border-radius:6px; margin-bottom:6px;">
                             <div style="font-size:0.82rem; color:var(--text); margin-bottom:4px;">${sentimentIcon(d.sentiment)} ${escapeHtml(d.text)}</div>
                             <div style="font-size:0.7rem; color:var(--blue-grey);"><b>${escapeHtml(d.by || '-')}</b> · ${d.time ? new Date(d.time).toLocaleDateString(window.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' }) : ''}</div>
                         </div>`).join('')}
@@ -6648,8 +6837,8 @@
 
             // ───── #8 Summary ─────
             const summaryRating = data.summary?.rating || '';
-            const summaryOptions = ['NOT SATISFYING','TO IMPROVE','SATISFACTORY','GOOD','VERY GOOD'];
-            const summaryColors = ['var(--red-danger)','var(--amber)','var(--intel-blue)','var(--green-success)','var(--accent)'];
+            const summaryOptions = ['NOT SATISFYING', 'TO IMPROVE', 'SATISFACTORY', 'GOOD', 'VERY GOOD'];
+            const summaryColors = ['var(--red-danger)', 'var(--amber)', 'var(--intel-blue)', 'var(--green-success)', 'var(--accent)'];
             const summaryHtml = `
                 <div class="appraisal-section">
                     <div class="appraisal-section-title">#8 📋 ملخص التقييم النهائي <span style="font-size:0.72rem; color:var(--blue-grey); font-weight:400; margin-inline-start:auto;">${canEditManager || canEditHR ? '✓ قابل للتعديل' : '🔒'}</span></div>
@@ -6675,8 +6864,8 @@
             let ceoHtml = '';
             if (isAnnual) {
                 const ceoDecision = data.ceoDecision?.action || '';
-                const actions = ['NO ACTION','INCREASE','BONUS','PROMOTION','TRAINING','PIP'];
-                const actionColors = ['var(--blue-grey)','var(--green-success)','var(--green-success)','var(--accent)','var(--intel-blue)','var(--red-danger)'];
+                const actions = ['NO ACTION', 'INCREASE', 'BONUS', 'PROMOTION', 'TRAINING', 'PIP'];
+                const actionColors = ['var(--blue-grey)', 'var(--green-success)', 'var(--green-success)', 'var(--accent)', 'var(--intel-blue)', 'var(--red-danger)'];
                 ceoHtml = `
                     <div class="appraisal-section" style="border:2px solid ${perms.isCEO ? 'var(--red-danger)' : 'var(--border)'};">
                         <div class="appraisal-section-title">#9 👔 قرار CEO <span style="font-size:0.72rem; color:var(--blue-grey); font-weight:400; margin-inline-start:auto;">${perms.isCEO ? '✓ صلاحية CEO' : '🔒 للقراءة فقط — متاح فقط للـ CEO'}</span></div>
@@ -6784,7 +6973,7 @@
             let trendHtml = '';
             if (isAnnual && data.empName) {
                 const yr = c.cycleId.split('-')[0];
-                const trendData = [1,2,3,4].map(q => {
+                const trendData = [1, 2, 3, 4].map(q => {
                     const cid = `${yr}-Q${q}`;
                     const empKey = Object.keys((window.allAppraisals[cid] || {}).employees || {}).find(k => (window.allAppraisals[cid].employees[k].empName) === data.empName);
                     if (!empKey) return { q, val: null };
@@ -6862,7 +7051,7 @@
 
             // Self-Review
             d.selfReview = {};
-            ['previousPeriodReview','mainAchievements','mainChallenges','positiveAspects','unmetGoals','managerFeedback'].forEach(f => {
+            ['previousPeriodReview', 'mainAchievements', 'mainChallenges', 'positiveAspects', 'unmetGoals', 'managerFeedback'].forEach(f => {
                 const el = document.getElementById(`appr-self-${f}`);
                 if (el) d.selfReview[f] = el.value || '';
             });
@@ -6872,7 +7061,7 @@
             Object.entries(window.APPRAISAL_CRITERIA).forEach(([gKey, group]) => {
                 group.items.forEach(it => {
                     if (!d.ratings[it.key]) d.ratings[it.key] = {};
-                    ['staff','manager'].forEach(who => {
+                    ['staff', 'manager'].forEach(who => {
                         const checked = document.querySelector(`input[name="appr-${it.key}-${who}"]:checked`);
                         if (checked) d.ratings[it.key][who] = parseInt(checked.value);
                     });
@@ -6907,7 +7096,7 @@
                 d.pipPlan.startDate = pipStartDate.value || new Date().toISOString().split('T')[0];
                 d.pipPlan.finalDecision = document.getElementById('appr-pip-finalDecision')?.value || '';
                 d.pipPlan.finalNotes = document.getElementById('appr-pip-finalNotes')?.value || '';
-                ['30','60','90'].forEach(k => {
+                ['30', '60', '90'].forEach(k => {
                     d.pipPlan[k] = {
                         goals: document.getElementById(`appr-pip-${k}-goals`)?.value || '',
                         kpis: document.getElementById(`appr-pip-${k}-kpis`)?.value || '',
@@ -7038,18 +7227,18 @@
 
             Object.entries(byLead).forEach(([lead, list]) => {
                 const ratings = list.map(e => parseFloat(e.summary?.rating) || (e.autoMetrics?.ratios?.completionRate * 5) || 0).filter(v => v > 0);
-                const avg = ratings.length > 0 ? (ratings.reduce((a,b) => a+b, 0) / ratings.length).toFixed(2) : '—';
+                const avg = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(2) : '—';
                 html += `<div class="appraisal-section">
                     <div class="appraisal-section-title">👤 ${escapeHtml(lead)} <span style="font-size:0.78rem; color:var(--blue-grey); font-weight:400; margin-inline-start:auto;">معدل تقديره: <b style="color:var(--accent);">${avg}</b></span></div>
                     <table class="pr-table">
                         <thead><tr><th>الموظف</th><th>المرحلة</th><th>التقدير</th><th>الإنجاز التلقائي</th><th>الانحراف</th></tr></thead>
                         <tbody>${list.map(e => {
-                            const auto = e.autoMetrics?.ratios?.completionRate ? (e.autoMetrics.ratios.completionRate * 5).toFixed(1) : '—';
-                            const rating = e.summary?.rating || '—';
-                            const diff = (e.summary?.rating && e.autoMetrics?.ratios?.completionRate) ? ((parseFloat(rating) || 3) - (e.autoMetrics.ratios.completionRate * 5)).toFixed(1) : '—';
-                            const diffColor = diff !== '—' && Math.abs(parseFloat(diff)) > 1 ? 'var(--red-danger)' : 'var(--text)';
-                            return `<tr><td><b>${escapeHtml(e.empName)}</b></td><td><span class="appraisal-quarter-pill ${e.stage}">${e.stage || 'self'}</span></td><td><b>${escapeHtml(rating)}</b></td><td>${auto}</td><td style="color:${diffColor};">${diff !== '—' ? (parseFloat(diff) > 0 ? '+' : '') + diff : '—'}</td></tr>`;
-                        }).join('')}</tbody>
+                    const auto = e.autoMetrics?.ratios?.completionRate ? (e.autoMetrics.ratios.completionRate * 5).toFixed(1) : '—';
+                    const rating = e.summary?.rating || '—';
+                    const diff = (e.summary?.rating && e.autoMetrics?.ratios?.completionRate) ? ((parseFloat(rating) || 3) - (e.autoMetrics.ratios.completionRate * 5)).toFixed(1) : '—';
+                    const diffColor = diff !== '—' && Math.abs(parseFloat(diff)) > 1 ? 'var(--red-danger)' : 'var(--text)';
+                    return `<tr><td><b>${escapeHtml(e.empName)}</b></td><td><span class="appraisal-quarter-pill ${e.stage}">${e.stage || 'self'}</span></td><td><b>${escapeHtml(rating)}</b></td><td>${auto}</td><td style="color:${diffColor};">${diff !== '—' ? (parseFloat(diff) > 0 ? '+' : '') + diff : '—'}</td></tr>`;
+                }).join('')}</tbody>
                     </table>
                 </div>`;
             });
@@ -7078,9 +7267,9 @@
 
             visibleEmps.forEach(e => {
                 const notes = window.allPerfDiary[e.safeKey] || {};
-                const notesArr = Object.entries(notes).sort((a,b) => (b[1].time || 0) - (a[1].time || 0));
-                const positives = notesArr.filter(([_,n]) => n.sentiment === 'positive').length;
-                const concerns = notesArr.filter(([_,n]) => n.sentiment === 'concern').length;
+                const notesArr = Object.entries(notes).sort((a, b) => (b[1].time || 0) - (a[1].time || 0));
+                const positives = notesArr.filter(([_, n]) => n.sentiment === 'positive').length;
+                const concerns = notesArr.filter(([_, n]) => n.sentiment === 'concern').length;
                 html += `<div class="appraisal-section">
                     <div class="appraisal-section-title">
                         ${window.getAvatarHTML(e.name)} <span>${escapeHtml(e.name)}</span>
@@ -7160,7 +7349,7 @@
             let target;
             if (assignees.length === 1) target = assignees[0];
             else {
-                const choice = prompt(`على أي موظف تريد إضافة الملاحظة؟ اكتب رقم:\n${assignees.map((a, i) => `${i+1}. ${a}`).join('\n')}`);
+                const choice = prompt(`على أي موظف تريد إضافة الملاحظة؟ اكتب رقم:\n${assignees.map((a, i) => `${i + 1}. ${a}`).join('\n')}`);
                 const idx = parseInt(choice) - 1;
                 if (isNaN(idx) || idx < 0 || idx >= assignees.length) return;
                 target = assignees[idx];
@@ -7889,7 +8078,7 @@
             });
 
             // عدّ التاسكات
-            const today = new Date(); today.setHours(0,0,0,0);
+            const today = new Date(); today.setHours(0, 0, 0, 0);
             Object.values(window.allTasks || {}).forEach(t => {
                 if (!t || !t.team || t.status === 'completed') return;
                 const team = t.team;
@@ -8537,7 +8726,7 @@
                 assignees.forEach(n => { empCounts[n] = (empCounts[n] || 0) + 1; });
             });
 
-            const teamsHtml = Object.entries(teamCounts).sort((a,b) => b[1]-a[1]).map(([team, count]) => {
+            const teamsHtml = Object.entries(teamCounts).sort((a, b) => b[1] - a[1]).map(([team, count]) => {
                 const c = window.getTeamColor(team);
                 const isActive = window.activeTeamFilter === team;
                 return `<div onclick="window.setTeamFilter('${team.replace(/'/g, "\\'")}')" style="display:flex; align-items:center; justify-content:space-between; padding:6px 9px; margin-bottom:4px; border-radius:6px; cursor:pointer; font-size:0.78rem; background:${isActive ? c + '33' : 'transparent'}; border:1px solid ${isActive ? c : 'transparent'}; transition:0.15s;" onmouseover="if(!${isActive}) this.style.background='${c}11';" onmouseout="if(!${isActive}) this.style.background='transparent';">
@@ -8546,7 +8735,7 @@
                 </div>`;
             }).join('');
 
-            const empsHtml = Object.entries(empCounts).sort((a,b) => b[1]-a[1]).slice(0, 12).map(([name, count]) => {
+            const empsHtml = Object.entries(empCounts).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([name, count]) => {
                 const isActive = window.activeEmployeeFilter === name;
                 return `<div onclick="window.setEmployeeFilter('${name.replace(/'/g, "\\'")}')" style="display:flex; align-items:center; gap:6px; padding:5px 8px; margin-bottom:3px; border-radius:6px; cursor:pointer; font-size:0.75rem; background:${isActive ? 'rgba(59,164,254,0.18)' : 'transparent'}; border:1px solid ${isActive ? 'var(--accent)' : 'transparent'}; transition:0.15s;" onmouseover="if(!${isActive}) this.style.background='rgba(59,164,254,0.06)';" onmouseout="if(!${isActive}) this.style.background='transparent';">
                     ${window.getAvatarHTML(name)}
