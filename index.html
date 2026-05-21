@@ -741,8 +741,139 @@
         }
 
         /* أولويات الألوان على البطاقة */
+
+        /* ───── المهام العاجلة جداً — وميض أحمر كل 10 ثواني ───── */
+        @keyframes urgentTaskHighlight {
+            0%, 45%, 70%, 100% {
+                background: var(--card-bg);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+            50% {
+                background: rgba(248, 113, 113, 0.28);
+                box-shadow: 0 0 32px rgba(248, 113, 113, 0.7), inset 0 0 0 2px rgba(248, 113, 113, 0.6);
+            }
+            55% {
+                background: rgba(248, 113, 113, 0.22);
+                box-shadow: 0 0 26px rgba(248, 113, 113, 0.55), inset 0 0 0 2px rgba(248, 113, 113, 0.45);
+            }
+            60% {
+                background: rgba(248, 113, 113, 0.14);
+                box-shadow: 0 0 16px rgba(248, 113, 113, 0.35), inset 0 0 0 1px rgba(248, 113, 113, 0.25);
+            }
+        }
+
         .card[data-priority="urgent"] {
             border-inline-start-color: var(--red-danger);
+            animation: urgentTaskHighlight 10s ease-in-out infinite;
+            position: relative;
+        }
+
+        /* أيقونة 🚨 ثابتة فوق البطاقة العاجلة */
+        .card[data-priority="urgent"]::after {
+            content: '🚨';
+            position: absolute;
+            top: -10px;
+            inset-inline-end: -8px;
+            font-size: 1.1rem;
+            background: var(--red-danger);
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(248, 113, 113, 0.5);
+            animation: urgentBadgePulse 10s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        @keyframes urgentBadgePulse {
+            0%, 45%, 70%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            55% { transform: scale(1.15); }
+        }
+
+        /* ───── المهام الجديدة في عمود الانتظار — وميض أخضر كل 10 ثواني ───── */
+        @keyframes newPendingHighlight {
+            0%, 45%, 70%, 100% {
+                background: var(--card-bg);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+            50% {
+                background: rgba(52, 211, 153, 0.26);
+                box-shadow: 0 0 30px rgba(52, 211, 153, 0.65), inset 0 0 0 2px rgba(52, 211, 153, 0.55);
+            }
+            55% {
+                background: rgba(52, 211, 153, 0.20);
+                box-shadow: 0 0 24px rgba(52, 211, 153, 0.5), inset 0 0 0 2px rgba(52, 211, 153, 0.4);
+            }
+            60% {
+                background: rgba(52, 211, 153, 0.12);
+                box-shadow: 0 0 14px rgba(52, 211, 153, 0.3), inset 0 0 0 1px rgba(52, 211, 153, 0.22);
+            }
+        }
+
+        .card.new-pending-task {
+            animation: newPendingHighlight 10s ease-in-out infinite;
+            position: relative;
+        }
+
+        /* أيقونة "جديد" ثابتة فوق البطاقة الجديدة */
+        .card.new-pending-task:not([data-priority="urgent"])::after {
+            content: '✨';
+            position: absolute;
+            top: -10px;
+            inset-inline-end: -8px;
+            font-size: 1rem;
+            background: var(--green-success);
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(52, 211, 153, 0.5);
+            animation: newBadgePulse 10s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        @keyframes newBadgePulse {
+            0%, 45%, 70%, 100% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+            55% { transform: scale(1.1); }
+        }
+
+        /* لو التاسك عاجل وجديد بنفس الوقت — الأحمر يطغى لأنه أعلى أولوية */
+        .card[data-priority="urgent"].new-pending-task {
+            animation: urgentTaskHighlight 10s ease-in-out infinite;
+        }
+
+        /* عند المرور بالماوس، أوقف الانيمشن للقراءة المريحة */
+        .card[data-priority="urgent"]:hover,
+        .card[data-priority="urgent"]:hover::after,
+        .card.new-pending-task:hover,
+        .card.new-pending-task:hover::after {
+            animation-play-state: paused;
+        }
+
+        /* احترام تفضيل تقليل الحركة */
+        @media (prefers-reduced-motion: reduce) {
+            .card[data-priority="urgent"] {
+                animation: none;
+                background: rgba(248, 113, 113, 0.12);
+                box-shadow: 0 0 12px rgba(248, 113, 113, 0.3);
+            }
+            .card[data-priority="urgent"]::after,
+            .card.new-pending-task::after {
+                animation: none;
+            }
+            .card.new-pending-task {
+                animation: none;
+                background: rgba(52, 211, 153, 0.1);
+                box-shadow: 0 0 10px rgba(52, 211, 153, 0.25);
+            }
         }
 
         .card[data-priority="high"] {
@@ -3423,9 +3554,11 @@
                         </div>
 
                         <div id="project-filters-list"></div>
+                        <div id="teams-quick-filters" style="display:none;"></div>
                     </div>
 
                     <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+                        <div id="active-filters-bar" style="display:none; padding:8px 12px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; margin-bottom:8px; flex-shrink:0;"></div>
                         <div class="top-scrollbar-wrapper" id="topScrollWrapper">
                             <div class="top-scrollbar-content" id="topScrollContent"></div>
                         </div>
@@ -3521,6 +3654,18 @@
                                     <canvas id="chartStatus"></canvas>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- 🔥 Workload Pressure Widget (للمدير + التيم ليد) -->
+                        <div class="dash-card-modern" id="workload-pressure-card">
+                            <div class="dash-card-title">
+                                <span>🔥 ضغط فرق العمل</span>
+                                <div style="display:flex; gap:6px;">
+                                    <button class="workload-range-btn" data-range="week" onclick="window.setWorkloadRange('week')" style="padding:4px 10px; font-size:0.72rem; border:1px solid var(--accent); background:var(--accent); color:#fff; border-radius:5px; cursor:pointer; font-family:inherit; font-weight:600;">أسبوعي</button>
+                                    <button class="workload-range-btn" data-range="month" onclick="window.setWorkloadRange('month')" style="padding:4px 10px; font-size:0.72rem; border:1px solid var(--border); background:transparent; color:var(--blue-grey); border-radius:5px; cursor:pointer; font-family:inherit; font-weight:600;">شهري</button>
+                                </div>
+                            </div>
+                            <div id="workload-content"></div>
                         </div>
                     </div>
 
@@ -3851,10 +3996,10 @@
             <label style="font-size:0.8rem; color:var(--blue-grey); display:block; margin-bottom:6px;">الربع المراد تقييمه</label>
             <select id="start-cycle-quarter" style="margin-bottom:15px;">
                 <option value="auto">🎯 الربع الحالي (تلقائي)</option>
-                <option value="1">Q1 (يناير - مارس)</option>
-                <option value="2">Q2 (أبريل - يونيو)</option>
-                <option value="3">Q3 (يوليو - سبتمبر)</option>
-                <option value="4">Q4 (أكتوبر - ديسمبر) — تقييم شامل + قرار CEO</option>
+                <option value="1">Q1 (يناير - مارس) — تقييم تيم ليد</option>
+                <option value="2">Q2 (أبريل - يونيو) — تيم ليد + HR (نصف سنوي)</option>
+                <option value="3">Q3 (يوليو - سبتمبر) — تقييم تيم ليد</option>
+                <option value="4">Q4 (أكتوبر - ديسمبر) — شامل + HR + قرار CEO</option>
             </select>
 
             <label style="font-size:0.8rem; color:var(--blue-grey); display:block; margin-bottom:6px;">السنة</label>
@@ -4151,9 +4296,20 @@
         window.allAppraisals = {}; // appraisals/{cycleId}/employees/{empKey}
         window.allPerfDiary = {};  // perfDiary/{empKey}/{noteId} = { date, by, text, taskId? }
 
-        // ═══ نظام التقييم الربعي ═══
-        // 4 دورات/سنة: Q1 (يناير-مارس)، Q2 (أبريل-يونيو)، Q3 (يوليو-سبتمبر)، Q4 (أكتوبر-ديسمبر)
-        // Q1-Q3 خفيفة (check-in) — Q4 شاملة + قرار CEO
+        // ═══ نظام التقييم متعدد المستويات ═══
+        // التيم ليد يقيّم كل 3 أشهر (Q1, Q2, Q3, Q4)
+        // HR يقيّم كل 6 أشهر (Q2 نصف سنوي، Q4 سنوي شامل)
+        //
+        // أنواع الدورات:
+        //   tl-only      → Q1, Q3 — فقط تيم ليد (5 معايير، check-in خفيف)
+        //   tl-hr        → Q2 — تيم ليد + HR (10 معايير، semi-annual)
+        //   annual       → Q4 — تيم ليد + HR + قرار CEO (14 معيار كامل + PIP إن لزم)
+        window.getQuarterTypeFor = (quarter) => {
+            if (quarter === 4) return 'annual';
+            if (quarter === 2) return 'tl-hr';
+            return 'tl-only'; // Q1, Q3
+        };
+
         window.getCurrentQuarterInfo = () => {
             const now = new Date();
             const month = now.getMonth() + 1; // 1-12
@@ -4172,10 +4328,24 @@
                 quarter, year,
                 cycleId: `${year}-Q${quarter}`,
                 periodFrom, periodTo, reviewDeadline,
-                type: quarter === 4 ? 'annual' : 'checkin',
+                type: window.getQuarterTypeFor(quarter),
                 label: window.currentLang === 'ar' ? `الربع ${quarter} ${year}` : `Q${quarter} ${year}`
             };
         };
+
+        // مراحل سير العمل حسب نوع الدورة
+        window.getStagesForType = (type) => {
+            if (type === 'annual') return ['self', 'manager', 'hr', 'ceo', 'completed'];
+            if (type === 'tl-hr') return ['self', 'manager', 'hr', 'completed'];
+            return ['self', 'manager', 'completed']; // tl-only — لا مرحلة HR
+        };
+
+        // نسب المعايير المعروضة حسب النوع
+        // tl-only: 5 معايير check-in
+        // tl-hr: 10 معايير (الـ check-in + معايير HR إضافية)
+        // annual: 14 معيار كامل
+        window.APPRAISAL_CHECKIN_KEYS_TL = ['productivity', 'deadlines', 'quality', 'communicate', 'adapt'];
+        window.APPRAISAL_HR_KEYS = ['punctuality', 'reliability', 'policies', 'teamwork', 'feedback'];
 
         // معايير التقييم الـ 14 (مطابقة لنموذج Appraisal Form)
         window.APPRAISAL_CRITERIA = {
@@ -4224,8 +4394,8 @@
             }
         };
 
-        // معايير التقييم الخفيف (Q1-Q3 فقط — اختيار من القائمة الكاملة)
-        window.APPRAISAL_CHECKIN_KEYS = ['productivity', 'deadlines', 'quality', 'communicate', 'adapt'];
+        // معايير التقييم الخفيف (للتوافق الخلفي مع تقييمات قديمة)
+        window.APPRAISAL_CHECKIN_KEYS = window.APPRAISAL_CHECKIN_KEYS_TL;
 
         // الحساب التلقائي لمؤشرات الموظف خلال فترة محددة
         window.computeEmployeeQuarterMetrics = (empName, periodFrom, periodTo) => {
@@ -4350,6 +4520,8 @@
         window.isLoginMode = true;
 
         window.activeProjectFilter = null;
+        window.activeTeamFilter = null;       // فلتر القسم — نقرة على team-chip
+        window.activeEmployeeFilter = null;   // فلتر الموظف — نقرة على avatar (مدير/تيم ليد فقط)
         window.searchTerm = "";
 
         // --- الفلتر الافتراضي: الشهر الحالي ---
@@ -4588,10 +4760,56 @@
 
                 if (!ignoreMonthFilter && (seesAll || window.isSales) && !window.taskMatchesMonthFilter(t)) return false;
                 if (window.activeProjectFilter && t.projectName !== window.activeProjectFilter) return false;
+                if (window.activeTeamFilter && t.team !== window.activeTeamFilter) return false;
+                if (window.activeEmployeeFilter && !assignedToArray.includes(window.activeEmployeeFilter)) return false;
                 if (window.searchTerm && !t.title.toLowerCase().includes(window.searchTerm) && !t.projectName.toLowerCase().includes(window.searchTerm)) return false;
 
                 return true;
             });
+        };
+
+        // فلاتر الفريق والموظف (مدير/تيم ليد فقط)
+        window.setTeamFilter = (team) => {
+            if (!window.isManager && !window.isTeamLead) return;
+            window.activeTeamFilter = (window.activeTeamFilter === team) ? null : team;
+            window.renderActiveFiltersBar && window.renderActiveFiltersBar();
+            window.refreshAllViews();
+        };
+
+        window.setEmployeeFilter = (empName) => {
+            if (!window.isManager && !window.isTeamLead) return;
+            window.activeEmployeeFilter = (window.activeEmployeeFilter === empName) ? null : empName;
+            window.renderActiveFiltersBar && window.renderActiveFiltersBar();
+            window.refreshAllViews();
+        };
+
+        window.clearAllChipFilters = () => {
+            window.activeTeamFilter = null;
+            window.activeEmployeeFilter = null;
+            window.renderActiveFiltersBar && window.renderActiveFiltersBar();
+            window.refreshAllViews();
+        };
+
+        // شريط الفلاتر النشطة (يظهر فقط عند وجود فلتر team/employee)
+        window.renderActiveFiltersBar = () => {
+            const bar = document.getElementById('active-filters-bar');
+            if (!bar) return;
+            const hasFilter = window.activeTeamFilter || window.activeEmployeeFilter;
+            if (!hasFilter) { bar.style.display = 'none'; bar.innerHTML = ''; return; }
+            const chips = [];
+            if (window.activeTeamFilter) {
+                const c = window.getTeamColor(window.activeTeamFilter);
+                chips.push(`<span style="background:${c}22; color:${c}; border:1px solid ${c}; padding:4px 10px; border-radius:14px; font-size:0.78rem; font-weight:700; display:inline-flex; align-items:center; gap:6px;">🏢 ${escapeHtml(window.activeTeamFilter)} <button onclick="window.setTeamFilter('${window.activeTeamFilter}')" style="background:none; border:none; color:inherit; cursor:pointer; font-size:0.9rem; padding:0;">✖</button></span>`);
+            }
+            if (window.activeEmployeeFilter) {
+                chips.push(`<span style="background:rgba(59,164,254,0.15); color:var(--accent); border:1px solid var(--accent); padding:4px 10px; border-radius:14px; font-size:0.78rem; font-weight:700; display:inline-flex; align-items:center; gap:6px;">👤 ${escapeHtml(window.activeEmployeeFilter)} <button onclick="window.setEmployeeFilter('${window.activeEmployeeFilter.replace(/'/g, "\\'")}')" style="background:none; border:none; color:inherit; cursor:pointer; font-size:0.9rem; padding:0;">✖</button></span>`);
+            }
+            bar.innerHTML = `<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span style="font-size:0.78rem; color:var(--blue-grey);">🔍 فلتر نشط:</span>
+                ${chips.join('')}
+                <button onclick="window.clearAllChipFilters()" style="background:transparent; border:1px solid var(--blue-grey); color:var(--blue-grey); padding:3px 10px; border-radius:14px; font-size:0.7rem; cursor:pointer; font-family:inherit;">مسح الكل ✖</button>
+            </div>`;
+            bar.style.display = 'block';
         };
 
         // ----------------------------------------------------
@@ -6000,7 +6218,12 @@
                         <div style="font-size:1rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:8px;">
                             <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--green-success); box-shadow:0 0 6px var(--green-success);"></span>
                             الدورة النشطة: <span style="color:var(--accent);">${escapeHtml(meta.cycleId || activeCycleId)}</span>
-                            ${meta.type === 'annual' ? '<span style="background:rgba(248,113,113,0.15); color:var(--red-danger); font-size:0.7rem; padding:2px 8px; border-radius:8px;">🔴 شاملة + قرار CEO</span>' : '<span style="background:rgba(74,222,128,0.15); color:var(--green-success); font-size:0.7rem; padding:2px 8px; border-radius:8px;">🟢 check-in</span>'}
+                            ${(() => {
+                                const t = meta.type;
+                                if (t === 'annual') return '<span style="background:rgba(248,113,113,0.15); color:var(--red-danger); font-size:0.7rem; padding:2px 8px; border-radius:8px;">🔴 شامل + HR + CEO</span>';
+                                if (t === 'tl-hr') return '<span style="background:rgba(251,191,36,0.15); color:var(--amber); font-size:0.7rem; padding:2px 8px; border-radius:8px;">🟡 تيم ليد + HR (نصف سنوي)</span>';
+                                return '<span style="background:rgba(74,222,128,0.15); color:var(--green-success); font-size:0.7rem; padding:2px 8px; border-radius:8px;">🟢 تيم ليد فقط</span>';
+                            })()}
                         </div>
                         <div style="font-size:0.78rem; color:var(--blue-grey); margin-top:4px;">
                             الفترة: ${escapeHtml(meta.periodFrom || '-')} → ${escapeHtml(meta.periodTo || '-')}
@@ -6049,13 +6272,23 @@
                 3: [`${year}-07-01`, `${year}-09-30`],
                 4: [`${year}-10-01`, `${year}-12-31`]
             };
-            const isAnnual = q === 4;
+            const type = window.getQuarterTypeFor(q);
             const empCount = Object.keys(window.whitelist || {}).length;
+            const typeLabel = {
+                'tl-only': '🟢 تيم ليد فقط (5 معايير)',
+                'tl-hr': '🟡 تيم ليد + HR — نصف سنوي (10 معايير)',
+                'annual': '🔴 شامل + HR + قرار CEO (14 معيار)'
+            }[type];
+            const stagesLabel = {
+                'tl-only': 'self → manager → completed',
+                'tl-hr': 'self → manager → hr → completed',
+                'annual': 'self → manager → hr → ceo → completed'
+            }[type];
             info.innerHTML = `
-                <b>الدورة:</b> ${year}-Q${q} ${isAnnual ? '(🔴 شاملة + قرار CEO)' : '(🟢 check-in خفيف)'}<br>
+                <b>الدورة:</b> ${year}-Q${q} ${typeLabel}<br>
                 <b>الفترة:</b> ${ranges[q][0]} → ${ranges[q][1]}<br>
-                <b>عدد الموظفين الذين سيُنشأ لهم تقييم:</b> ${empCount}<br>
-                <b>المعايير:</b> ${isAnnual ? '14 معيار كامل' : '5 معايير أساسية (Q-Check)'}`;
+                <b>عدد الموظفين:</b> ${empCount}<br>
+                <b>المراحل:</b> <code style="font-size:0.7rem; background:var(--bg); padding:1px 6px; border-radius:4px;">${stagesLabel}</code>`;
         };
 
         // ربط التحديثات
@@ -6101,7 +6334,7 @@
                     cycleId,
                     quarter: q,
                     year: yearInp,
-                    type: q === 4 ? 'annual' : 'checkin',
+                    type: window.getQuarterTypeFor(q),
                     periodFrom: ranges[q][0],
                     periodTo: ranges[q][1],
                     reviewDeadline: deadline || `${yearInp}-${String(((q*3) % 12) + 1).padStart(2,'0')}-07`,
@@ -6160,12 +6393,10 @@
             const emps = cycle.employees || {};
 
             const stageInfo = (stage, isMine, type) => {
-                const stages = type === 'annual'
-                    ? ['self', 'manager', 'hr', 'ceo', 'completed']
-                    : ['self', 'manager', 'hr', 'completed'];
-                const stageLabels = { self: '✏️ تقييم ذاتي', manager: '👤 مراجعة المدير', hr: '🧑‍💼 مراجعة HR', ceo: '👔 قرار CEO', completed: '✅ مكتمل' };
+                const stageLabels = { self: '✏️ تقييم ذاتي', manager: '👤 مراجعة التيم ليد', hr: '🧑‍💼 مراجعة HR', ceo: '👔 قرار CEO', completed: '✅ مكتمل' };
                 return stageLabels[stage] || stage;
             };
+            const typeLabel = (t) => ({ 'tl-only': '🟢 تيم ليد', 'checkin': '🟢 تيم ليد', 'tl-hr': '🟡 تيم ليد + HR', 'annual': '🔴 شامل + CEO' }[t] || t);
 
             const isAdmin = window.isManager || window.isTeamLead;
 
@@ -6211,7 +6442,7 @@
                         <select id="appraisal-cycle-selector" onchange="window._selectedAppraisalCycle = this.value; window.renderAppraisalsTab();" style="padding:7px 10px; background:var(--card-bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:0.85rem;">${cycleOptions}</select>
                     </div>
                     <div style="font-size:0.78rem; color:var(--blue-grey);">
-                        النوع: <b style="color:${meta.type === 'annual' ? 'var(--red-danger)' : 'var(--green-success)'};">${meta.type === 'annual' ? 'شاملة' : 'check-in'}</b>
+                        النوع: <b>${typeLabel(meta.type)}</b>
                         · الموعد: <b style="color:var(--text);">${escapeHtml(meta.reviewDeadline || '-')}</b>
                     </div>
                 </div>
@@ -6228,7 +6459,9 @@
             if (!empData) return alert('الموظف غير موجود في هذه الدورة');
 
             const meta = cycle.meta || {};
-            const isAnnual = meta.type === 'annual';
+            const cycleType = meta.type || 'tl-only'; // tl-only / tl-hr / annual / checkin (للقديم)
+            const isAnnual = cycleType === 'annual';
+            const hasHRStage = cycleType === 'tl-hr' || cycleType === 'annual';
 
             // تحديد دور المستخدم بالنسبة لهذا التقييم
             const isThisEmp = empData.empName === window.currentUserName;
@@ -6239,10 +6472,15 @@
             const isMyTeamLead = isLead && empTeam === myTeam;
             const isCEO = window.isCEO === true;
 
+            // ─── منع الموظف العادي من فتح تقييم غيره ───
+            if (!isThisEmp && !isAdmin && !isLead && !window.isHR && !isCEO) {
+                return alert('🔒 غير مصرح لك بعرض تقييم موظف آخر.');
+            }
+
             // حساب المؤشرات التلقائية
             const metrics = window.computeEmployeeQuarterMetrics(empData.empName, meta.periodFrom, meta.periodTo);
 
-            window._currentAppraisal = { cycleId, empKey, data: empData, metrics, isAnnual, perms: { isThisEmp, isAdmin, isLead: isMyTeamLead, isCEO, isHR: window.isHR } };
+            window._currentAppraisal = { cycleId, empKey, data: empData, metrics, isAnnual, cycleType, hasHRStage, perms: { isThisEmp, isAdmin, isLead: isMyTeamLead, isCEO, isHR: window.isHR } };
 
             // تعبئة الرأس
             document.getElementById('appr-emp-name').innerText = empData.empName;
@@ -6250,10 +6488,10 @@
             document.getElementById('appr-period').innerText = `${meta.periodFrom || '-'} → ${meta.periodTo || '-'}`;
             document.getElementById('appr-evaluator').innerText = window.currentUserName;
 
-            // stages stepper
-            const stages = isAnnual ? ['self', 'manager', 'hr', 'ceo', 'completed'] : ['self', 'manager', 'hr', 'completed'];
+            // stages stepper — حسب نوع الدورة
+            const stages = window.getStagesForType(cycleType);
             const currentStage = empData.stage || 'self';
-            const stageLabels = { self: 'تقييم ذاتي', manager: 'مراجعة المدير', hr: 'مراجعة HR', ceo: 'قرار CEO', completed: 'مكتمل' };
+            const stageLabels = { self: 'تقييم ذاتي', manager: 'مراجعة التيم ليد', hr: 'مراجعة HR', ceo: 'قرار CEO', completed: 'مكتمل' };
             const stagesHtml = stages.map(s => {
                 const idx = stages.indexOf(s);
                 const curIdx = stages.indexOf(currentStage);
@@ -6274,13 +6512,15 @@
             const data = c.data;
             const m = c.metrics;
             const isAnnual = c.isAnnual;
+            const cycleType = c.cycleType || 'tl-only';
+            const hasHRStage = c.hasHRStage;
             const perms = c.perms;
             const currentStage = data.stage || 'self';
 
             // تحديد صلاحيات التعديل حسب المرحلة + الدور
             const canEditSelf = perms.isThisEmp && currentStage === 'self';
             const canEditManager = (perms.isAdmin || perms.isLead) && (currentStage === 'manager' || currentStage === 'self');
-            const canEditHR = (perms.isAdmin || perms.isHR) && (currentStage === 'hr' || currentStage === 'manager');
+            const canEditHR = hasHRStage && (perms.isAdmin || perms.isHR) && (currentStage === 'hr' || currentStage === 'manager');
             const canEditCEO = perms.isCEO && currentStage === 'ceo';
             const readOnly = !canEditSelf && !canEditManager && !canEditHR && !canEditCEO;
 
@@ -6324,7 +6564,15 @@
                 </div>`;
 
             // ───── #4 + #5 Skills/Performance Evaluation ─────
-            const criteriaToShow = isAnnual ? null : window.APPRAISAL_CHECKIN_KEYS; // null = الكل
+            // tl-only (Q1/Q3) → 5 معايير
+            // tl-hr (Q2) → 10 معايير (TL + HR)
+            // annual (Q4) → كل الـ 14
+            let criteriaToShow = null;
+            if (cycleType === 'tl-only' || cycleType === 'checkin') {
+                criteriaToShow = window.APPRAISAL_CHECKIN_KEYS_TL;
+            } else if (cycleType === 'tl-hr') {
+                criteriaToShow = [...window.APPRAISAL_CHECKIN_KEYS_TL, ...window.APPRAISAL_HR_KEYS];
+            }
             const ratings = data.ratings || {};
             const renderRating = (key, who) => {
                 const val = (ratings[key] && ratings[key][who]) || 0;
@@ -6353,9 +6601,15 @@
                     </div>`;
                 });
             });
+            const criteriaCountLabel = {
+                'tl-only': '5 معايير (تيم ليد)',
+                'checkin': '5 معايير (تيم ليد)',
+                'tl-hr': '10 معايير (تيم ليد + HR)',
+                'annual': '14 معيار كامل + قرار CEO'
+            }[cycleType] || '5 معايير';
             const criteriaHtml = `
                 <div class="appraisal-section">
-                    <div class="appraisal-section-title">#5 ⭐ التقييم بالمعايير <span style="font-size:0.72rem; color:var(--blue-grey); font-weight:400; margin-inline-start:auto;">${isAnnual ? '14 معيار كامل' : '5 معايير check-in'} · مقياس 1-5</span></div>
+                    <div class="appraisal-section-title">#5 ⭐ التقييم بالمعايير <span style="font-size:0.72rem; color:var(--blue-grey); font-weight:400; margin-inline-start:auto;">${criteriaCountLabel} · مقياس 1-5</span></div>
                     ${critHtml}
                 </div>`;
 
@@ -6434,6 +6688,98 @@
                     </div>`;
             }
 
+            // ───── #10 PIP Plan (تظهر عند قرار PIP — متاحة أيضاً لـ HR/Manager/TL) ─────
+            let pipHtml = '';
+            const ceoAction = data.ceoDecision?.action;
+            // تظهر الخطة في الحالات التالية:
+            //   1) قرار CEO = PIP (تلقائياً عند Q4)
+            //   2) أي وقت لو فيه pipPlan موجود مسبقاً (متابعة لخطة سابقة)
+            const showPIP = ceoAction === 'PIP' || (data.pipPlan && Object.keys(data.pipPlan).length > 0);
+            if (showPIP) {
+                const canEditPIP = perms.isCEO || perms.isAdmin || perms.isHR || perms.isLead;
+                const pipPlan = data.pipPlan || {};
+                const milestones = [
+                    { key: '30', days: 30, color: 'var(--amber)', label: 'أول 30 يوم — تحديد الإشكاليات' },
+                    { key: '60', days: 60, color: 'var(--intel-blue)', label: '60 يوم — التحسن الملموس' },
+                    { key: '90', days: 90, color: 'var(--green-success)', label: '90 يوم — التقييم النهائي' }
+                ];
+                const startDate = pipPlan.startDate || new Date().toISOString().split('T')[0];
+
+                const renderMilestone = (m) => {
+                    const ms = pipPlan[m.key] || {};
+                    const dueDate = pipPlan.startDate
+                        ? new Date(new Date(pipPlan.startDate).getTime() + m.days * 86400000).toISOString().split('T')[0]
+                        : '—';
+                    const statusOptions = [
+                        { v: 'not-started', l: '⏸ لم يبدأ' },
+                        { v: 'on-track', l: '🟢 على المسار' },
+                        { v: 'at-risk', l: '🟡 في خطر' },
+                        { v: 'missed', l: '🔴 لم يتحقق' },
+                        { v: 'achieved', l: '✅ تحقق' }
+                    ];
+                    return `<div style="background:var(--card-bg); border:2px solid ${m.color}; border-radius:10px; padding:14px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:6px;">
+                            <div style="font-weight:700; color:${m.color};">${m.label}</div>
+                            <div style="font-size:0.72rem; color:var(--blue-grey);">📅 ${dueDate}</div>
+                        </div>
+                        <label style="display:block; font-size:0.78rem; color:var(--blue-grey); margin-bottom:4px;">🎯 الأهداف المطلوب تحقيقها</label>
+                        <textarea id="appr-pip-${m.key}-goals" ${canEditPIP ? '' : 'disabled'} placeholder="مثلاً: تسليم 5 مشاريع في الموعد، تحسين الجودة..." style="width:100%; min-height:55px; padding:8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:0.82rem; resize:vertical; margin-bottom:8px;">${escapeHtml(ms.goals || '')}</textarea>
+
+                        <label style="display:block; font-size:0.78rem; color:var(--blue-grey); margin-bottom:4px;">📊 المؤشرات (KPIs) القابلة للقياس</label>
+                        <textarea id="appr-pip-${m.key}-kpis" ${canEditPIP ? '' : 'disabled'} placeholder="مثلاً: 95% تسليم في الموعد، 0 مشاكل مسجلة..." style="width:100%; min-height:45px; padding:8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:0.82rem; resize:vertical; margin-bottom:8px;">${escapeHtml(ms.kpis || '')}</textarea>
+
+                        <label style="display:block; font-size:0.78rem; color:var(--blue-grey); margin-bottom:4px;">🔧 الدعم/التدريب من الشركة</label>
+                        <textarea id="appr-pip-${m.key}-support" ${canEditPIP ? '' : 'disabled'} placeholder="مثلاً: جلسة 1-on-1 أسبوعية، دورة تدريبية..." style="width:100%; min-height:45px; padding:8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:0.82rem; resize:vertical; margin-bottom:8px;">${escapeHtml(ms.support || '')}</textarea>
+
+                        <label style="display:block; font-size:0.78rem; color:var(--blue-grey); margin-bottom:4px;">📝 ملاحظات المتابعة (تُحدَّث عند الـ check-in)</label>
+                        <textarea id="appr-pip-${m.key}-notes" ${canEditPIP ? '' : 'disabled'} placeholder="ماذا حدث فعلاً في هذه المرحلة..." style="width:100%; min-height:45px; padding:8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:0.82rem; resize:vertical; margin-bottom:8px;">${escapeHtml(ms.notes || '')}</textarea>
+
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <label style="font-size:0.78rem; color:var(--blue-grey);">الحالة:</label>
+                            <select id="appr-pip-${m.key}-status" ${canEditPIP ? '' : 'disabled'} style="flex:1; min-width:140px; padding:6px 10px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:0.82rem;">
+                                ${statusOptions.map(opt => `<option value="${opt.v}" ${ms.status === opt.v ? 'selected' : ''}>${opt.l}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>`;
+                };
+
+                pipHtml = `
+                    <div class="appraisal-section" style="border:2px solid var(--red-danger); background:linear-gradient(180deg, rgba(248,113,113,0.05), transparent);">
+                        <div class="appraisal-section-title" style="color:var(--red-danger);">
+                            🚨 خطة تحسين الأداء (PIP — Performance Improvement Plan)
+                            <span style="font-size:0.72rem; color:var(--blue-grey); font-weight:400; margin-inline-start:auto;">${canEditPIP ? '✓ قابل للتعديل (HR/Manager/TL/CEO)' : '🔒 للقراءة'}</span>
+                        </div>
+
+                        <div style="background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); border-radius:8px; padding:12px; margin-bottom:14px; font-size:0.82rem; color:var(--text); line-height:1.7;">
+                            ⚠️ <b>الموظف ${escapeHtml(data.empName)} على خطة تحسين أداء.</b><br>
+                            خلال 90 يوم القادمة، الموظف ملزم بتحقيق الأهداف المحددة. التيم ليد و HR سيتابعون التقدم في 3 نقاط فحص (30/60/90 يوم).<br>
+                            <span style="color:var(--red-danger); font-weight:700;">عدم تحقيق المعايير قد يؤدي لإنهاء الخدمة.</span>
+                        </div>
+
+                        <div style="display:flex; gap:14px; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
+                            <label style="font-size:0.85rem; color:var(--blue-grey);">📅 تاريخ بدء الخطة:</label>
+                            <input type="date" id="appr-pip-startDate" value="${escapeHtml(startDate)}" ${canEditPIP ? '' : 'disabled'} style="padding:7px 12px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:0.85rem;">
+                            <span style="font-size:0.75rem; color:var(--blue-grey);">→ تاريخ التقييم النهائي: <b style="color:var(--text);">${new Date(new Date(startDate).getTime() + 90 * 86400000).toISOString().split('T')[0]}</b></span>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr; gap:12px;">
+                            ${milestones.map(renderMilestone).join('')}
+                        </div>
+
+                        <div style="margin-top:18px; padding-top:14px; border-top:1px dashed var(--border);">
+                            <label style="display:block; font-size:0.85rem; color:var(--red-danger); margin-bottom:6px; font-weight:700;">📋 القرار النهائي بعد الـ 90 يوم</label>
+                            <select id="appr-pip-finalDecision" ${canEditPIP ? '' : 'disabled'} style="width:100%; padding:10px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:inherit; font-size:0.85rem; margin-bottom:8px;">
+                                <option value="">— غير محدد بعد —</option>
+                                <option value="passed" ${pipPlan.finalDecision === 'passed' ? 'selected' : ''}>✅ نجح — عودة لوضع طبيعي</option>
+                                <option value="extended" ${pipPlan.finalDecision === 'extended' ? 'selected' : ''}>🟡 تمديد 30 يوم إضافية</option>
+                                <option value="role-change" ${pipPlan.finalDecision === 'role-change' ? 'selected' : ''}>🔄 نقل لدور آخر</option>
+                                <option value="terminated" ${pipPlan.finalDecision === 'terminated' ? 'selected' : ''}>🔴 إنهاء العقد</option>
+                            </select>
+                            <textarea id="appr-pip-finalNotes" ${canEditPIP ? '' : 'disabled'} placeholder="ملاحظات القرار النهائي..." style="width:100%; min-height:50px; padding:8px; background:var(--card-bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:inherit; font-size:0.82rem; resize:vertical;">${escapeHtml(pipPlan.finalNotes || '')}</textarea>
+                        </div>
+                    </div>`;
+            }
+
             // ───── Quarterly Trend (Q4 only) ─────
             let trendHtml = '';
             if (isAnnual && data.empName) {
@@ -6457,7 +6803,7 @@
                     </div>`;
             }
 
-            body.innerHTML = kpiHtml + diaryHtml + selfReviewHtml + criteriaHtml + careerHtml + summaryHtml + ceoHtml + trendHtml;
+            body.innerHTML = kpiHtml + diaryHtml + selfReviewHtml + criteriaHtml + careerHtml + summaryHtml + ceoHtml + pipHtml + trendHtml;
 
             // أزرار الحفظ/الإرسال
             const saveBtn = document.getElementById('appr-save-btn');
@@ -6497,6 +6843,14 @@
             if (!c) return;
             if (!c.data.ceoDecision) c.data.ceoDecision = {};
             c.data.ceoDecision.action = action;
+            // عند اختيار PIP لأول مرة، ابدأ الخطة بتاريخ اليوم تلقائياً
+            if (action === 'PIP' && !c.data.pipPlan) {
+                c.data.pipPlan = {
+                    startDate: new Date().toISOString().split('T')[0],
+                    createdBy: window.currentUserName,
+                    createdAt: Date.now()
+                };
+            }
             window.renderAppraisalForm();
         };
 
@@ -6546,6 +6900,26 @@
                 d.ceoDecision.comments = document.getElementById('appr-ceo-comments')?.value || '';
             }
 
+            // PIP Plan (إذا الـ DOM فيه عناصر الـ PIP)
+            const pipStartDate = document.getElementById('appr-pip-startDate');
+            if (pipStartDate) {
+                d.pipPlan = d.pipPlan || {};
+                d.pipPlan.startDate = pipStartDate.value || new Date().toISOString().split('T')[0];
+                d.pipPlan.finalDecision = document.getElementById('appr-pip-finalDecision')?.value || '';
+                d.pipPlan.finalNotes = document.getElementById('appr-pip-finalNotes')?.value || '';
+                ['30','60','90'].forEach(k => {
+                    d.pipPlan[k] = {
+                        goals: document.getElementById(`appr-pip-${k}-goals`)?.value || '',
+                        kpis: document.getElementById(`appr-pip-${k}-kpis`)?.value || '',
+                        support: document.getElementById(`appr-pip-${k}-support`)?.value || '',
+                        notes: document.getElementById(`appr-pip-${k}-notes`)?.value || '',
+                        status: document.getElementById(`appr-pip-${k}-status`)?.value || 'not-started'
+                    };
+                });
+                d.pipPlan.lastUpdatedBy = window.currentUserName;
+                d.pipPlan.lastUpdatedAt = Date.now();
+            }
+
             // Auto-metrics snapshot
             d.autoMetrics = {
                 computedAt: Date.now(),
@@ -6575,7 +6949,7 @@
         window.submitAppraisalStage = () => {
             const c = window._currentAppraisal;
             if (!c) return;
-            const stages = c.isAnnual ? ['self', 'manager', 'hr', 'ceo', 'completed'] : ['self', 'manager', 'hr', 'completed'];
+            const stages = window.getStagesForType(c.cycleType || (c.isAnnual ? 'annual' : 'tl-only'));
             const curIdx = stages.indexOf(c.data.stage || 'self');
             if (curIdx === -1 || curIdx >= stages.length - 1) return alert('التقييم مكتمل بالفعل.');
             const nextStage = stages[curIdx + 1];
@@ -7453,10 +7827,181 @@
                 if (document.getElementById('dashboard').classList.contains('active')) {
                     window.drawCharts(arr, arrYearly);
                     window.renderProjectCompletion(arr);
+                    window.renderWorkloadPressure && window.renderWorkloadPressure();
                 }
             } catch (error) {
                 console.error("Dashboard error:", error);
             }
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // 🔥 Workload Pressure Widget — ضغط فرق العمل
+        //   يحسب لكل قسم: الساعات الفعلية vs الطاقة الاستيعابية
+        //   ويبرز التيمات اللي عليها ضغط (> 100%) أو قريبة من الحد (80-100%)
+        // ═══════════════════════════════════════════════════════════
+        window.workloadRange = 'week'; // 'week' أو 'month'
+        window.WORKING_HOURS_PER_DAY = 8;
+        window.WORKING_DAYS_PER_WEEK = 5;
+
+        window.setWorkloadRange = (range) => {
+            window.workloadRange = range;
+            document.querySelectorAll('.workload-range-btn').forEach(b => {
+                const active = b.dataset.range === range;
+                b.style.background = active ? 'var(--accent)' : 'transparent';
+                b.style.color = active ? '#fff' : 'var(--blue-grey)';
+                b.style.borderColor = active ? 'var(--accent)' : 'var(--border)';
+            });
+            window.renderWorkloadPressure && window.renderWorkloadPressure();
+        };
+
+        window.renderWorkloadPressure = () => {
+            const el = document.getElementById('workload-content');
+            if (!el) return;
+
+            // الطاقة لكل موظف حسب النطاق
+            const range = window.workloadRange || 'week';
+            const hoursPerEmp = range === 'week'
+                ? window.WORKING_HOURS_PER_DAY * window.WORKING_DAYS_PER_WEEK            // 40 ساعة
+                : window.WORKING_HOURS_PER_DAY * window.WORKING_DAYS_PER_WEEK * 4;       // 160 ساعة
+
+            // نطاق التاريخ للفلترة
+            const now = Date.now();
+            const rangeMs = range === 'week' ? (7 * 86400000) : (30 * 86400000);
+            const startTs = now - rangeMs;
+            const endTs = now + rangeMs; // نشمل التاسكات اللي ضمن النطاق القادم
+
+            // اجمع البيانات لكل تيم
+            const teamStats = {};
+            // ابدأ بالأعضاء (حتى لو ما عندهم تاسكات يظهروا)
+            Object.entries(window.staffByTeam || {}).forEach(([team, members]) => {
+                if (!members || members.length === 0) return;
+                teamStats[team] = {
+                    members: members.length,
+                    membersList: members,
+                    activeTasks: 0,
+                    overdueTasks: 0,
+                    estHours: 0,
+                    actHours: 0,
+                    capacity: members.length * hoursPerEmp,
+                    perEmp: {} // {empName: {tasks, hours, completed}}
+                };
+                members.forEach(n => { teamStats[team].perEmp[n] = { tasks: 0, hours: 0, completed: 0, overdue: 0 }; });
+            });
+
+            // عدّ التاسكات
+            const today = new Date(); today.setHours(0,0,0,0);
+            Object.values(window.allTasks || {}).forEach(t => {
+                if (!t || !t.team || t.status === 'completed') return;
+                const team = t.team;
+                if (!teamStats[team]) return;
+                const assignees = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+
+                // فلترة بالتاريخ — التاسكات النشطة الآن أو خلال النطاق
+                const created = t.createdAt || 0;
+                const due = t.dueDate ? new Date(t.dueDate).getTime() : 0;
+                const inRange = (created >= startTs) || (due > 0 && due <= endTs);
+                if (!inRange) return;
+
+                teamStats[team].activeTasks++;
+                teamStats[team].estHours += parseFloat(t.estHours) || 0;
+
+                if (due > 0 && due < today.getTime()) teamStats[team].overdueTasks++;
+
+                if (t.checklist) {
+                    Object.values(t.checklist).forEach(it => {
+                        teamStats[team].actHours += parseFloat(it.actualHours) || 0;
+                    });
+                }
+
+                assignees.forEach(n => {
+                    if (!teamStats[team].perEmp[n]) teamStats[team].perEmp[n] = { tasks: 0, hours: 0, completed: 0, overdue: 0 };
+                    teamStats[team].perEmp[n].tasks++;
+                    teamStats[team].perEmp[n].hours += (parseFloat(t.estHours) || 0) / Math.max(assignees.length, 1);
+                    if (due > 0 && due < today.getTime()) teamStats[team].perEmp[n].overdue++;
+                });
+            });
+
+            // رتّب التيمات حسب نسبة الضغط
+            const teamsArr = Object.entries(teamStats)
+                .map(([team, s]) => ({ team, ...s, loadPct: s.capacity > 0 ? Math.round((s.estHours / s.capacity) * 100) : 0 }))
+                .sort((a, b) => b.loadPct - a.loadPct);
+
+            if (teamsArr.length === 0) {
+                el.innerHTML = '<div style="text-align:center; padding:20px; color:var(--blue-grey); font-size:0.85rem;">لا توجد بيانات أقسام بعد.</div>';
+                return;
+            }
+
+            // ملخّص علوي: عدد التيمات تحت الضغط
+            const overloaded = teamsArr.filter(t => t.loadPct > 100).length;
+            const high = teamsArr.filter(t => t.loadPct >= 80 && t.loadPct <= 100).length;
+            const normal = teamsArr.filter(t => t.loadPct < 80).length;
+            const rangeLabel = range === 'week' ? 'هذا الأسبوع' : 'هذا الشهر';
+
+            const summaryHtml = `
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px,1fr)); gap:10px; margin-bottom:18px;">
+                    <div style="background:rgba(248,113,113,0.08); border:1px solid var(--red-danger); border-radius:8px; padding:10px 12px; text-align:center;">
+                        <div style="font-size:1.6rem; font-weight:800; color:var(--red-danger);">${overloaded}</div>
+                        <div style="font-size:0.72rem; color:var(--blue-grey);">🔴 تحت ضغط (>100%)</div>
+                    </div>
+                    <div style="background:rgba(251,191,36,0.08); border:1px solid var(--amber); border-radius:8px; padding:10px 12px; text-align:center;">
+                        <div style="font-size:1.6rem; font-weight:800; color:var(--amber);">${high}</div>
+                        <div style="font-size:0.72rem; color:var(--blue-grey);">🟡 قريبة من الحد (80-100%)</div>
+                    </div>
+                    <div style="background:rgba(52,211,153,0.08); border:1px solid var(--green-success); border-radius:8px; padding:10px 12px; text-align:center;">
+                        <div style="font-size:1.6rem; font-weight:800; color:var(--green-success);">${normal}</div>
+                        <div style="font-size:0.72rem; color:var(--blue-grey);">🟢 طبيعي (<80%)</div>
+                    </div>
+                </div>
+                <div style="font-size:0.74rem; color:var(--blue-grey); margin-bottom:12px; padding-bottom:8px; border-bottom:1px dashed var(--border);">
+                    📅 النطاق: <b style="color:var(--text);">${rangeLabel}</b> · الطاقة لكل موظف: <b style="color:var(--text);">${hoursPerEmp} ساعة</b>
+                </div>`;
+
+            // بطاقات التيمات
+            const teamsHtml = teamsArr.map(t => {
+                const color = window.getTeamColor(t.team);
+                let statusColor, statusIcon, statusText;
+                if (t.loadPct > 100) { statusColor = 'var(--red-danger)'; statusIcon = '🔴'; statusText = `تجاوز بـ ${t.estHours - t.capacity} ساعة`; }
+                else if (t.loadPct >= 80) { statusColor = 'var(--amber)'; statusIcon = '🟡'; statusText = `قريب من الحد`; }
+                else { statusColor = 'var(--green-success)'; statusIcon = '🟢'; statusText = `يعمل بشكل طبيعي`; }
+
+                const empBreakdown = Object.entries(t.perEmp).map(([n, s]) => {
+                    const empCapacity = hoursPerEmp;
+                    const empPct = empCapacity > 0 ? Math.round((s.hours / empCapacity) * 100) : 0;
+                    const empColor = empPct > 100 ? 'var(--red-danger)' : empPct >= 80 ? 'var(--amber)' : 'var(--green-success)';
+                    return `<div style="display:flex; align-items:center; gap:8px; padding:5px 8px; background:var(--bg); border-radius:5px; margin-bottom:3px; font-size:0.74rem;">
+                        ${window.getAvatarHTML(n)}
+                        <span style="flex:1; color:var(--text); font-weight:500;">${escapeHtml(n)}</span>
+                        <span style="font-size:0.66rem; color:var(--blue-grey);">${s.tasks} تاسك · ${s.hours.toFixed(0)}س</span>
+                        <span style="background:${empColor}22; color:${empColor}; padding:1px 7px; border-radius:8px; font-weight:700; font-size:0.7rem; min-width:40px; text-align:center;">${empPct}%</span>
+                        ${s.overdue > 0 ? `<span style="background:rgba(248,113,113,0.15); color:var(--red-danger); padding:1px 6px; border-radius:6px; font-size:0.62rem; font-weight:700;">⚠️${s.overdue}</span>` : ''}
+                    </div>`;
+                }).join('');
+
+                const safeTeam = t.team.replace(/'/g, "\\'");
+                return `<div style="background:var(--bg); border:1px solid ${statusColor}; border-inline-start:4px solid ${statusColor}; border-radius:10px; padding:14px; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <span style="font-size:1rem; font-weight:700; color:${color};">🏢 ${escapeHtml(t.team)}</span>
+                            <span style="font-size:0.72rem; color:var(--blue-grey);">${t.members} أعضاء · ${t.activeTasks} تاسك نشط${t.overdueTasks > 0 ? ` · ⚠️ ${t.overdueTasks} متأخرة` : ''}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:0.72rem; color:${statusColor}; font-weight:600;">${statusIcon} ${statusText}</span>
+                            <button onclick="window.setTeamFilter('${safeTeam}'); const k = document.querySelector('.nav-item[data-target=&quot;kanban&quot;]'); if(k) k.click();" style="background:transparent; border:1px solid ${color}; color:${color}; padding:3px 10px; border-radius:6px; font-size:0.7rem; cursor:pointer; font-family:inherit; font-weight:600;">عرض تاسكاته →</button>
+                        </div>
+                    </div>
+                    <div style="background:var(--card-bg); height:12px; border-radius:6px; overflow:hidden; margin-bottom:6px; position:relative; border:1px solid var(--border);">
+                        <div style="width:${Math.min(t.loadPct, 100)}%; height:100%; background:linear-gradient(90deg, ${statusColor}88, ${statusColor}); transition:0.5s;"></div>
+                        ${t.loadPct > 100 ? `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.5);">⚠️ ${t.loadPct}% — تجاوز الطاقة</div>` : ''}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--blue-grey); margin-bottom:10px;">
+                        <span>${t.estHours.toFixed(0)} / ${t.capacity} ساعة</span>
+                        <b style="color:${statusColor};">${t.loadPct}%</b>
+                    </div>
+                    <div>${empBreakdown || '<div style="font-size:0.72rem; color:var(--blue-grey); text-align:center; padding:6px;">لا أعضاء</div>'}</div>
+                </div>`;
+            }).join('');
+
+            el.innerHTML = summaryHtml + teamsHtml;
         };
 
         window.renderOnlineUsers = () => {
@@ -7933,6 +8478,7 @@
         };
 
         window.refreshAllViews = () => {
+            window.renderActiveFiltersBar && window.renderActiveFiltersBar();
             window.renderProjectsSidebar();
             window.renderBoard();
             if (window.isManager || window.isTeamLead) {
@@ -7961,18 +8507,78 @@
 
         window.clearFilters = () => {
             window.activeProjectFilter = null; window.searchTerm = ""; document.getElementById('searchInput').value = "";
+            window.activeTeamFilter = null;
+            window.activeEmployeeFilter = null;
             window.activeMonthFilter = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
             window.activeYearOnly = false;
             const monthInput = document.getElementById('monthFilter');
             if (monthInput) { monthInput.value = window.activeMonthFilter; monthInput.disabled = false; }
             const yearTgl = document.getElementById('yearToggle');
             if (yearTgl) yearTgl.checked = false;
+            window.renderActiveFiltersBar && window.renderActiveFiltersBar();
             window.refreshAllViews();
+        };
+
+        // شريط تصفية سريعة بالأقسام والموظفين (مدير/تيم ليد فقط)
+        window.renderTeamsSidebar = () => {
+            const container = document.getElementById('teams-quick-filters');
+            if (!container) return;
+            const isAdmin = window.isManager || window.isTeamLead;
+            if (!isAdmin) { container.style.display = 'none'; return; }
+            container.style.display = 'block';
+
+            // اجمع الأقسام والموظفين من التاسكات الحالية
+            const teamCounts = {};
+            const empCounts = {};
+            Object.values(window.allTasks || {}).forEach(t => {
+                if (!t) return;
+                if (t.team) teamCounts[t.team] = (teamCounts[t.team] || 0) + 1;
+                const assignees = t.assignedTo ? (Array.isArray(t.assignedTo) ? t.assignedTo : [t.assignedTo]) : [];
+                assignees.forEach(n => { empCounts[n] = (empCounts[n] || 0) + 1; });
+            });
+
+            const teamsHtml = Object.entries(teamCounts).sort((a,b) => b[1]-a[1]).map(([team, count]) => {
+                const c = window.getTeamColor(team);
+                const isActive = window.activeTeamFilter === team;
+                return `<div onclick="window.setTeamFilter('${team.replace(/'/g, "\\'")}')" style="display:flex; align-items:center; justify-content:space-between; padding:6px 9px; margin-bottom:4px; border-radius:6px; cursor:pointer; font-size:0.78rem; background:${isActive ? c + '33' : 'transparent'}; border:1px solid ${isActive ? c : 'transparent'}; transition:0.15s;" onmouseover="if(!${isActive}) this.style.background='${c}11';" onmouseout="if(!${isActive}) this.style.background='transparent';">
+                    <span style="color:${c}; font-weight:600;">🏢 ${escapeHtml(team)}</span>
+                    <span style="background:${c}22; color:${c}; padding:1px 7px; border-radius:9px; font-size:0.7rem; font-weight:700;">${count}</span>
+                </div>`;
+            }).join('');
+
+            const empsHtml = Object.entries(empCounts).sort((a,b) => b[1]-a[1]).slice(0, 12).map(([name, count]) => {
+                const isActive = window.activeEmployeeFilter === name;
+                return `<div onclick="window.setEmployeeFilter('${name.replace(/'/g, "\\'")}')" style="display:flex; align-items:center; gap:6px; padding:5px 8px; margin-bottom:3px; border-radius:6px; cursor:pointer; font-size:0.75rem; background:${isActive ? 'rgba(59,164,254,0.18)' : 'transparent'}; border:1px solid ${isActive ? 'var(--accent)' : 'transparent'}; transition:0.15s;" onmouseover="if(!${isActive}) this.style.background='rgba(59,164,254,0.06)';" onmouseout="if(!${isActive}) this.style.background='transparent';">
+                    ${window.getAvatarHTML(name)}
+                    <span style="flex:1; color:${isActive ? 'var(--accent)' : 'var(--text)'}; font-weight:${isActive ? '700' : '500'};">${escapeHtml(name)}</span>
+                    <span style="background:var(--bg); color:var(--blue-grey); padding:1px 6px; border-radius:8px; font-size:0.68rem;">${count}</span>
+                </div>`;
+            }).join('');
+
+            const empsOpen = window._empListOpen === true; // مغلقة افتراضياً
+            const empTotal = Object.keys(empCounts).length;
+            container.innerHTML = `
+                <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:10px;">
+                    <h3 style="margin:0; border:none; padding:0; margin-bottom:8px;">🏢 الأقسام</h3>
+                    ${teamsHtml || '<div style="font-size:0.75rem; color:var(--blue-grey); padding:4px;">لا أقسام</div>'}
+                </div>
+                <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:10px;">
+                    <div onclick="window._empListOpen = !${empsOpen}; window.renderTeamsSidebar();" style="display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; margin-bottom:${empsOpen ? '8px' : '0'};">
+                        <h3 style="margin:0; border:none; padding:0; display:flex; align-items:center; gap:6px;">
+                            <span style="color:var(--blue-grey); font-size:0.85rem;">${empsOpen ? '▼' : '◀'}</span>
+                            👥 الموظفون
+                            <span style="background:var(--bg); color:var(--blue-grey); padding:1px 7px; border-radius:9px; font-size:0.7rem; font-weight:600;">${empTotal}</span>
+                        </h3>
+                        ${window.activeEmployeeFilter ? `<span style="font-size:0.65rem; color:var(--accent); font-weight:700;">فلتر نشط</span>` : ''}
+                    </div>
+                    ${empsOpen ? (empsHtml || '<div style="font-size:0.75rem; color:var(--blue-grey); padding:4px;">لا موظفون</div>') : ''}
+                </div>`;
         };
 
         window.renderProjectsSidebar = () => {
             const container = document.getElementById('project-filters-list');
             if (!container) return;
+            window.renderTeamsSidebar && window.renderTeamsSidebar();
             const projInfo = {}; // { count, hasSalesPending, addonCount }
             const hasAdminRights = window.isManager || window.isTeamLead;
             Object.values(window.allTasks).forEach(t => {
@@ -8147,7 +8753,13 @@
                 }
 
                 let assignedToArray = task.assignedTo ? (Array.isArray(task.assignedTo) ? task.assignedTo : [task.assignedTo]) : [];
-                let avatarsHtml = assignedToArray.map(name => window.getAvatarHTML(name)).join('');
+                // avatars قابلة للنقر للمدير/التيم ليد لتصفية حسب الموظف
+                const empClickable = (window.isManager || window.isTeamLead);
+                let avatarsHtml = assignedToArray.map(name => {
+                    const av = window.getAvatarHTML(name);
+                    if (!empClickable) return av;
+                    return `<span onclick="event.stopPropagation(); window.setEmployeeFilter('${name.replace(/'/g, "\\'")}')" title="عرض كل تاسكات ${name}" style="cursor:pointer; display:inline-block;">${av}</span>`;
+                }).join('');
 
                 const taskId = task._id;
 
@@ -8157,6 +8769,13 @@
                 card.dataset.taskId = taskId;
                 if (task.priority) card.setAttribute('data-priority', task.priority);
 
+                // 🆕 وميض أخضر للتاسكات الجديدة في عمود الانتظار (آخر 48 ساعة)
+                const NEW_TASK_WINDOW_MS = 48 * 3600 * 1000;
+                const isNewPending = task.status === 'pending'
+                    && task.createdAt
+                    && (Date.now() - task.createdAt) < NEW_TASK_WINDOW_MS;
+                if (isNewPending) card.classList.add('new-pending-task');
+
                 card.setAttribute('ondragstart', `window.dragStart(event, '${taskId}')`);
                 card.setAttribute('ondragend', `window.dragEnd(event)`);
                 card.onclick = () => window.openTaskDetailsModal(card.dataset.taskId);
@@ -8164,7 +8783,9 @@
                 const priorityKeyMap = { low: 'priLow', medium: 'priMed', high: 'priHigh', urgent: 'priUrg' };
                 const priorityLabel = task.priority ? t(priorityKeyMap[task.priority] || 'priLow') : '';
                 const teamColor = task.team ? window.getTeamColor(task.team) : '';
-                const teamChipHtml = task.team ? `<div class="team-chip" style="background:${teamColor}22; color:${teamColor}; border:1px solid ${teamColor}55;">${task.team}</div>` : '';
+                // team chip — قابل للنقر للمدير/التيم ليد لتفلتر كل تاسكات هذا التيم
+                const teamClickable = (window.isManager || window.isTeamLead);
+                const teamChipHtml = task.team ? `<div class="team-chip" ${teamClickable ? `onclick="event.stopPropagation(); window.setTeamFilter('${task.team.replace(/'/g, "\\'")}')" title="عرض كل تاسكات قسم ${task.team}" style="cursor:pointer; background:${teamColor}22; color:${teamColor}; border:1px solid ${teamColor}55;"` : `style="background:${teamColor}22; color:${teamColor}; border:1px solid ${teamColor}55;"`}>${task.team}</div>` : '';
                 // شارة "من المبيعات" تظهر للأدمن/التيم ليد فقط — تلفت النظر للتاسكات الجديدة الواردة من فريق المبيعات
                 const isFromSales = task.createdByRole === 'sales';
                 const isAddonTask = task.isAddon === true;
@@ -8262,8 +8883,25 @@
             });
 
             // 2) أضف أسماء القوالب (اسم القالب = اسم مشروع جاهز للعمل)
+            // مع حساب نسبة الاستهلاك: كم تاسك من القالب تم إنشاؤه بالفعل في المشروع
+            const tplConsumption = {}; // { tplName: { totalItems, existingCount, fullyConsumed } }
             Object.values(window.allTemplates || {}).forEach(tpl => {
                 if (!tpl || !tpl.name) return;
+                const items = Array.isArray(tpl.items) ? tpl.items : [];
+                const trimmedName = tpl.name.trim().toLowerCase();
+                const existingTitles = new Set();
+                Object.values(window.allTasks || {}).forEach(tt => {
+                    if (tt && (tt.projectName || '').trim().toLowerCase() === trimmedName) {
+                        existingTitles.add(tt.title);
+                    }
+                });
+                const existingCount = items.filter(it => existingTitles.has(it)).length;
+                tplConsumption[tpl.name] = {
+                    totalItems: items.length,
+                    existingCount,
+                    fullyConsumed: items.length > 0 && existingCount === items.length
+                };
+
                 if (!projMap[tpl.name]) {
                     projMap[tpl.name] = { createdAt: tpl.createdAt || Date.now(), hasManagerTasks: false, hasSalesPending: true, isTemplate: true };
                 } else {
@@ -8284,15 +8922,32 @@
 
             const makeChip = (p, salesStyle, idx) => {
                 const safe = p.replace(/'/g, "\\'");
-                const style = salesStyle
-                    ? 'background:rgba(52,211,153,0.18); border:1.5px solid var(--green-success); color:var(--green-success); font-weight:700;'
-                    : '';
-                const badge = salesStyle
-                    ? '<span style="background:var(--green-success); color:#fff; font-size:0.6rem; padding:1px 5px; border-radius:8px; margin-inline-start:4px;">🆕 مبيعات</span>'
-                    : '';
-                const animClass = salesStyle ? 'sales-chip-anim' : '';
-                const animDelay = salesStyle ? `animation-delay: ${idx * 0.08}s, ${0.5 + idx * 0.08}s;` : '';
-                return `<span class="project-hashtag ${animClass}" style="${style}${animDelay}" onclick="document.getElementById('pNameNew').value='${safe}'; document.getElementById('projectSuggestions').style.display='none'; window.checkAndShowTemplateFeatures('${safe}');"># ${p}${badge}</span>`;
+                const consumption = tplConsumption[p];
+                const fullyConsumed = consumption && consumption.fullyConsumed;
+                const partiallyConsumed = consumption && consumption.existingCount > 0 && !fullyConsumed;
+
+                // إذا كل عناصر القالب موجودة بالمشروع، اعرض الـ chip مشطوب
+                let style = salesStyle ? 'background:rgba(52,211,153,0.18); border:1.5px solid var(--green-success); color:var(--green-success); font-weight:700;' : '';
+                if (fullyConsumed) {
+                    style = 'background:var(--bg); border:1.5px dashed var(--blue-grey); color:var(--blue-grey); text-decoration:line-through; text-decoration-thickness:2px; opacity:0.65; cursor:not-allowed;';
+                }
+
+                let badge = '';
+                if (fullyConsumed) {
+                    badge = '<span style="background:var(--blue-grey); color:#fff; font-size:0.58rem; padding:1px 5px; border-radius:8px; margin-inline-start:4px;">✓ مستهلكة بالكامل</span>';
+                } else if (partiallyConsumed) {
+                    badge = `<span style="background:var(--amber); color:#fff; font-size:0.58rem; padding:1px 5px; border-radius:8px; margin-inline-start:4px;">${consumption.existingCount}/${consumption.totalItems} مأخوذة</span>`;
+                } else if (salesStyle) {
+                    badge = '<span style="background:var(--green-success); color:#fff; font-size:0.6rem; padding:1px 5px; border-radius:8px; margin-inline-start:4px;">🆕 مبيعات</span>';
+                }
+
+                const animClass = (salesStyle && !fullyConsumed) ? 'sales-chip-anim' : '';
+                const animDelay = (salesStyle && !fullyConsumed) ? `animation-delay: ${idx * 0.08}s, ${0.5 + idx * 0.08}s;` : '';
+                const clickHandler = fullyConsumed
+                    ? `alert('كل عناصر هذا المشروع تم إنشاؤها بالفعل. لا حاجة لتكرارها.');`
+                    : `document.getElementById('pNameNew').value='${safe}'; document.getElementById('projectSuggestions').style.display='none'; window.checkAndShowTemplateFeatures('${safe}');`;
+                const titleAttr = fullyConsumed ? 'title="كل التاسكات منشأة بالفعل"' : '';
+                return `<span class="project-hashtag ${animClass}" ${titleAttr} style="${style}${animDelay}" onclick="${clickHandler}"># ${p}${badge}</span>`;
             };
 
             let html = '';
@@ -8335,25 +8990,49 @@
             const items = Array.isArray(tpl.items) ? tpl.items : [];
             if (items.length === 0) { selector.style.display = 'none'; return; }
 
-            // اجمع التاسكات الموجودة فعلاً في هذا المشروع (لإظهار "✓ موجود" بدل التكرار)
+            // اجمع كل عناصر الـ checklist + عناوين التاسكات الموجودة في المشروع
+            // لأن ميزات القالب تُضاف كـ checklist items داخل تاسك، مش كتاسكات منفصلة
+            const norm = (s) => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
             const existingTitles = new Set();
+            let existingCount = 0;
             Object.values(window.allTasks || {}).forEach(t => {
-                if (t && (t.projectName || '').trim().toLowerCase() === trimmedName) existingTitles.add(t.title);
+                if (!t || norm(t.projectName) !== trimmedName) return;
+                // 1) عنوان التاسك نفسه (في حال تم إنشاء التاسك كتاسك مستقل من القالب)
+                existingTitles.add(norm(t.title));
+                // 2) كل عناصر الـ checklist داخل التاسك (مكان تخزين ميزات القالب)
+                if (t.checklist) {
+                    Object.values(t.checklist).forEach(it => {
+                        if (it && it.text) existingTitles.add(norm(it.text));
+                    });
+                }
             });
 
             document.getElementById('tpl-features-tpl-name').innerText = tpl.name;
             const list = document.getElementById('tplFeaturesItems');
             list.innerHTML = items.map(it => {
-                const exists = existingTitles.has(it);
+                const exists = existingTitles.has(norm(it));
+                if (exists) existingCount++;
+                // شطب واضح: على النص + على العنصر كله (opacity منخفض + خلفية رمادية + line-through)
+                const labelBg = exists ? 'rgba(148,163,184,0.08)' : 'var(--card-bg)';
+                const labelBorder = exists ? '1px dashed var(--blue-grey)' : '1px solid var(--border)';
                 const textStyle = exists
-                    ? 'flex:1; text-decoration: line-through; text-decoration-color: var(--green-success); text-decoration-thickness: 2px; color: var(--blue-grey);'
+                    ? 'flex:1; text-decoration: line-through; text-decoration-color: var(--green-success); text-decoration-thickness: 2.5px; color: var(--blue-grey); font-weight:500;'
                     : 'flex:1;';
-                return `<label style="display:flex; align-items:center; gap:8px; padding:7px 10px; background:${exists ? 'rgba(74,222,128,0.06)' : 'var(--card-bg)'}; border:1px solid ${exists ? 'rgba(74,222,128,0.3)' : 'var(--border)'}; border-radius:6px; cursor:${exists ? 'not-allowed' : 'pointer'}; font-size:0.82rem; ${exists ? 'opacity:0.7;' : ''}">
+                return `<label style="display:flex; align-items:center; gap:8px; padding:8px 10px; background:${labelBg}; border:${labelBorder}; border-radius:6px; cursor:${exists ? 'not-allowed' : 'pointer'}; font-size:0.82rem; ${exists ? 'opacity:0.75;' : ''}">
                     <input type="checkbox" class="tpl-feature-cb" data-text="${it.replace(/"/g, '&quot;')}" ${exists ? 'disabled' : 'checked'} onchange="window.tplFeaturesUpdateCount()" style="width:15px; height:15px; accent-color:var(--green-success); margin:0; flex-shrink:0;">
                     <span style="${textStyle}">${escapeHtml(it)}</span>
-                    ${exists ? '<span style="font-size:0.65rem; color:var(--green-success); font-weight:700; background:rgba(74,222,128,0.15); padding:2px 6px; border-radius:4px;">✓ موجود</span>' : ''}
+                    ${exists ? '<span style="font-size:0.65rem; color:#fff; font-weight:700; background:var(--green-success); padding:2px 7px; border-radius:10px; white-space:nowrap;">✓ مُضافة سابقاً</span>' : ''}
                 </label>`;
             }).join('');
+
+            // مؤشر إجمالي: عرض كم تاسك موجود فعلاً من القالب
+            if (existingCount > 0) {
+                const existingNote = document.createElement('div');
+                existingNote.style.cssText = 'font-size:0.72rem; color:var(--green-success); margin-bottom:8px; padding:6px 10px; background:rgba(52,211,153,0.08); border:1px solid var(--green-success); border-radius:6px; font-weight:600;';
+                existingNote.innerHTML = `ℹ️ <b>${existingCount}/${items.length}</b> من التاسكات موجودة بالفعل في مشروع "<b>${escapeHtml(tpl.name)}</b>" — لن تُكرَّر.`;
+                list.insertBefore(existingNote, list.firstChild);
+            }
+
             window.tplFeaturesUpdateCount();
             selector.style.display = 'block';
         };
@@ -8416,12 +9095,55 @@
             alert(`✅ تم إنشاء ${items.length} تاسك في مشروع "${projectName}"`);
         };
 
+        // ─── قائمة التيمات المتاحة في إضافة المهام ───
+        // صفوان + CEO (يزن) فقط يشوفون كل التيمات (بما فيها التيمات الإدارية الجديدة)
+        // الباقي يشوفون التيمات التقنية الأساسية فقط (3D / UE / Code / AI)
+        window.getAvailableTeams = () => {
+            const baseTeams = ['3D', 'unreal engine', 'Code', 'AI'];
+            const isExtendedUser = window.isCEO || window.currentUserName === 'صفوان';
+            if (!isExtendedUser) return baseTeams;
+            // أرجع كل التيمات من staffByTeam بترتيب: الأساسية أولاً ثم الإدارية
+            const allTeams = Object.keys(window.staffByTeam || {});
+            const ordered = [...baseTeams, ...allTeams.filter(t => !baseTeams.includes(t))];
+            return ordered;
+        };
+
+        window.getTeamLabel = (team) => {
+            const labels = {
+                '3D': '3D',
+                'unreal engine': 'Unreal Engine',
+                'Code': 'Code',
+                'AI': 'AI',
+                'architecture': '🏛️ العمارة (Architecture)',
+                'marketing': '📣 التسويق (Marketing)',
+                'hr': '👥 الموارد البشرية (HR)',
+                'accounting': '💰 المحاسبة (Accounting)',
+                'administration': '📋 الإدارة (Administration)'
+            };
+            return labels[team] || team;
+        };
+
+        window.populateTeamSelect = (selectId, currentVal = '', includeEmptyOption = false) => {
+            const sel = document.getElementById(selectId);
+            if (!sel) return;
+            const teams = window.getAvailableTeams();
+            const emptyOpt = includeEmptyOption ? '<option value="">-- القسم --</option>' : '';
+            sel.innerHTML = emptyOpt + teams.map(t =>
+                `<option value="${t}">${window.getTeamLabel(t)}</option>`
+            ).join('');
+            if (currentVal) sel.value = currentVal;
+        };
+
         window.openAddModal = () => {
             document.getElementById('pNameNew').value = window.activeProjectFilter || "";
             document.getElementById('tTitleNew').value = "";
             document.getElementById('eHoursNew').value = "";
             document.getElementById('tPriorityNew').value = "low";
             document.getElementById('projectSuggestions').style.display = 'none';
+
+            // أعد ملء قائمة التيمات حسب المستخدم الحالي (صفوان/CEO يشوفون كل شيء)
+            window.populateTeamSelect('tTypeNew', '', true);
+
             // أخفِ قائمة تاسكات القالب افتراضياً حتى يختار المستخدم اسم مشروع
             const tplFeatBox = document.getElementById('tplFeaturesSelector');
             if (tplFeatBox) tplFeatBox.style.display = 'none';
@@ -8719,7 +9441,8 @@
             else document.getElementById('dt-duedate').value = task.dueDate;
 
             document.getElementById('dt-hours').value = task.estHours || 0;
-            document.getElementById('dt-team').value = task.team || "";
+            // أعد ملء قائمة التيمات حسب المستخدم (صفوان/CEO يشوفون التيمات الإدارية أيضاً)
+            window.populateTeamSelect('dt-team', task.team || '', false);
 
             const pri = document.getElementById('dt-priority');
             if (pri) pri.value = task.priority || 'low';
